@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, ArrowRight, Sparkles, Search } from 'lucide-react';
+import { Cpu, ArrowRight, Sparkles, Search, Loader2 } from 'lucide-react';
 
 type NewsItem = {
   id: number;
@@ -15,57 +15,42 @@ type NewsItem = {
   bullets?: string[];
 };
 
-const NEWS: NewsItem[] = [
-  {
-    id: 1,
-    hook: "Ready to compete in global AI innovation?",
-    title: "Global AI Innovation Competition Launched",
-    summary: "A new global competition has launched to accelerate AI technology and industrial applications.",
-    category: "AI",
-    url: "https://www.manilatimes.net/2026/04/03/tmt-newswire/globenewswire/century-huatong-launches-the-2nd-digiloong-cup-global-ai-innovation-competition/2313871",
-    date: "April 3, 2026",
-    isNew: true
-  },
-  {
-    id: 2,
-    hook: "Tech jobs are moving to smaller cities!",
-    title: "Tech Hiring Booms in Tier-2 Cities",
-    summary: "Cities like Mangalore and Bhopal are seeing a massive surge in tech and GCC job postings.",
-    category: "Hiring",
-    url: "https://economictimes.indiatimes.com/tech/technology/small-cities-like-mangalore-bhopal-aurangabad-enter-gcc-race/articleshow/129988377.cms",
-    date: "April 3, 2026",
-    isNew: true
-  },
-  {
-    id: 3,
-    hook: "Are you using AI for your assignments?",
-    title: "Majority of College Students Use AI",
-    summary: "A new poll reveals that most college students now use AI tools for their coursework every week.",
-    category: "AI",
-    url: "https://www.upi.com/Top_News/US/2026/04/02/survey-college-students-artificial-intelligence-coursework/5341775162201/",
-    date: "April 2, 2026",
-    isNew: false
-  },
-  {
-    id: 4,
-    hook: "Will AI take your future job?",
-    title: "AI: A Threat to Jobs or Humanity?",
-    summary: "As AI develops at an astonishing pace, debates continue about its impact on the future of work.",
-    category: "Jobs",
-    url: "https://morningstaronline.co.uk/article/artificial-intelligence-threat-jobs-or-humanity-itself",
-    date: "April 2, 2026",
-    isNew: false
-  }
-];
-
 const CATEGORIES = ['All', 'AI', 'Jobs', 'Internship', 'Hiring'];
 
 export default function AiUpdates() {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [newsData, setNewsData] = useState<NewsItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredNews = NEWS.filter(news => {
-    if (activeCategory === 'All') return true;
-    return news.category?.toLowerCase() === activeCategory.toLowerCase();
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/news');
+        if (!response.ok) {
+          throw new Error('Failed to fetch news');
+        }
+        const data = await response.json();
+        setNewsData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, []);
+
+  const filteredNews = newsData.filter(news => {
+    const matchesSearch = 
+      news.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      news.summary.toLowerCase().includes(searchTerm.toLowerCase());
+      
+    if (activeCategory === 'All') return matchesSearch;
+    return matchesSearch && news.category?.toLowerCase() === activeCategory.toLowerCase();
   });
 
   return (
@@ -78,8 +63,19 @@ export default function AiUpdates() {
         <p className="text-slate-400">Stay ahead of the curve with the latest developments in Artificial Intelligence.</p>
       </div>
 
-      {/* Category Filters */}
+      {/* Search & Category Filters */}
       <div className="mb-10 space-y-6">
+        <div className="relative max-w-xl mx-auto">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+          <input 
+            type="text" 
+            placeholder="Search news..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-900 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-slate-200 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all shadow-lg shadow-slate-950/50"
+          />
+        </div>
+
         <div className="flex gap-3 overflow-x-auto pb-4 pt-2 px-2 justify-start md:justify-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {CATEGORIES.map(cat => (
             <button
@@ -97,7 +93,17 @@ export default function AiUpdates() {
         </div>
       </div>
 
-      {filteredNews.length > 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-4" />
+          <p className="text-slate-400">Fetching latest updates...</p>
+        </div>
+      ) : error ? (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center max-w-lg mx-auto">
+          <p className="text-red-400 mb-2">Oops! Something went wrong.</p>
+          <p className="text-slate-400 text-sm">{error}</p>
+        </div>
+      ) : filteredNews.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence mode="popLayout">
             {filteredNews.map((news, i) => (
