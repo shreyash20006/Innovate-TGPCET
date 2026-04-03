@@ -272,10 +272,10 @@ function OpportunityCard({ opportunity, index, onApply }: { opportunity: Opportu
         </div>
         <button
           onClick={onApply}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-800 hover:bg-amber-500 text-white hover:text-slate-950 font-bold rounded-xl transition-all duration-300 group/btn"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-slate-800 hover:bg-amber-500 text-white hover:text-slate-950 font-bold rounded-xl transition-all duration-300 hover:scale-[1.02] group/btn"
         >
           Apply Now
-          <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+          <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
         </button>
       </div>
     </motion.div>

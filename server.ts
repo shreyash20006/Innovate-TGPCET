@@ -11,7 +11,7 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
-  app.get("/api/news", async (req, res) => {
+  app.get("/.netlify/functions/news", async (req, res) => {
     try {
       // Use GNEWS_API_KEY from environment
       const apiKey = process.env.GNEWS_API_KEY;
