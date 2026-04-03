@@ -194,7 +194,7 @@ export default function Opportunities() {
   );
 }
 
-function OpportunityCard({ opportunity, index, onApply }: { opportunity: Opportunity; index: number, onApply: () => void }) {
+const OpportunityCard: React.FC<{ opportunity: Opportunity; index: number, onApply: () => void }> = ({ opportunity, index, onApply }) => {
   const timeLeft = useCountdown(opportunity.deadline);
   const formattedDeadline = new Date(opportunity.deadline).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric'

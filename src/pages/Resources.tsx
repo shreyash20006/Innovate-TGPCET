@@ -1,33 +1,88 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Wrench, ExternalLink, Code, BookOpen, BrainCircuit } from 'lucide-react';
+import { Wrench, ExternalLink, Code, BookOpen, BrainCircuit, Palette, FlaskConical, Briefcase, Sparkles, Settings, Microscope } from 'lucide-react';
 
 const RESOURCES = [
   {
-    category: 'Free AI Tools',
+    category: 'AI Creation & Development',
     icon: <BrainCircuit className="w-6 h-6 text-purple-400" />,
     items: [
-      { name: 'ChatGPT', desc: 'General purpose AI assistant.', link: 'https://chatgpt.com' },
-      { name: 'Claude', desc: 'Great for coding and long context.', link: 'https://claude.ai' },
-      { name: 'Perplexity', desc: 'AI search engine with citations.', link: 'https://perplexity.ai' },
+      { name: 'Google AI Studio', desc: 'Build and test AI apps using Gemini models with API access and prompts.', link: 'https://aistudio.google.com' },
+      { name: 'Gemini (Google AI)', desc: 'Google’s main AI assistant for writing, coding, research, and productivity.', link: 'https://gemini.google.com' },
+      { name: 'Gemini Advanced', desc: 'More powerful version of Gemini with better reasoning and long context.', link: 'https://gemini.google.com/advanced' },
+      { name: 'MakerSuite (Legacy)', desc: 'Earlier version of AI Studio for prompt engineering and testing.', link: 'https://makersuite.google.com' },
     ]
   },
   {
-    category: 'Study & Productivity',
-    icon: <BookOpen className="w-6 h-6 text-blue-400" />,
+    category: 'Design, Media & Creative AI',
+    icon: <Palette className="w-6 h-6 text-pink-400" />,
     items: [
-      { name: 'Notion', desc: 'All-in-one workspace for notes.', link: 'https://notion.so' },
-      { name: 'Pomofocus', desc: 'Pomodoro timer for focused study.', link: 'https://pomofocus.io' },
-      { name: 'Anki', desc: 'Flashcards for spaced repetition.', link: 'https://apps.ankiweb.net' },
+      { name: 'ImageFX', desc: 'Generate high-quality AI images using text prompts.', link: 'https://labs.google/fx/tools/image-fx' },
+      { name: 'MusicFX', desc: 'Create AI-generated music from simple descriptions.', link: 'https://labs.google/fx/tools/music-fx' },
+      { name: 'VideoFX (Experimental)', desc: 'Generate short AI videos using prompts.', link: 'https://labs.google/fx/tools/video-fx' },
+      { name: 'Whisk (Google Labs)', desc: 'Creative AI tool for experimenting and remixing ideas.', link: 'https://labs.google' },
+      { name: 'Stitch (UI Generator AI)', desc: 'Generate UI designs from prompts.', link: 'https://stitch.withgoogle.com' },
     ]
   },
   {
-    category: 'Developer Tools',
+    category: 'Developer & Coding Tools',
     icon: <Code className="w-6 h-6 text-amber-400" />,
     items: [
+      { name: 'Project IDX', desc: 'Cloud-based IDE by Google for full-stack development in browser.', link: 'https://idx.dev' },
+      { name: 'Duet AI (for Developers)', desc: 'AI coding assistant integrated with Google Cloud tools.', link: 'https://cloud.google.com/duet-ai' },
+      { name: 'Codey (Gemini Code Model)', desc: 'AI model trained specifically for coding tasks.', link: 'https://cloud.google.com/vertex-ai/docs/generative-ai/code' },
+      { name: 'Gen App Builder', desc: 'Build AI-powered apps without heavy backend setup.', link: 'https://cloud.google.com/gen-app-builder' },
       { name: 'GitHub Student Pack', desc: 'Free pro tools for students.', link: 'https://education.github.com/pack' },
       { name: 'Vercel', desc: 'Free hosting for frontend projects.', link: 'https://vercel.com' },
-      { name: 'Figma', desc: 'Free design tool for students.', link: 'https://figma.com' },
+    ]
+  },
+  {
+    category: 'Experimental / Labs Projects',
+    icon: <FlaskConical className="w-6 h-6 text-emerald-400" />,
+    items: [
+      { name: 'NotebookLM', desc: 'AI notebook that summarizes PDFs, notes, and research.', link: 'https://notebooklm.google.com' },
+      { name: 'Learn About', desc: 'AI learning tool with interactive explanations.', link: 'https://labs.google/learn' },
+      { name: 'Illuminate', desc: 'Simplifies complex topics using AI visuals.', link: 'https://illuminate.withgoogle.com' },
+      { name: 'PaLM Playground (Legacy)', desc: 'Old interface to test Google language models.', link: 'https://makersuite.google.com/app/playground' },
+    ]
+  },
+  {
+    category: 'Productivity & Workspace AI',
+    icon: <Briefcase className="w-6 h-6 text-blue-400" />,
+    items: [
+      { name: 'Duet AI (Workspace)', desc: 'AI in Docs, Sheets, Gmail for writing and automation.', link: 'https://workspace.google.com/ai' },
+      { name: 'Help Me Write (Gmail AI)', desc: 'AI-powered email writing inside Gmail.', link: 'https://workspace.google.com/gmail' },
+      { name: 'Help Me Organize (Sheets AI)', desc: 'AI-powered data organization and analysis.', link: 'https://workspace.google.com/sheets' },
+      { name: 'Notion', desc: 'All-in-one workspace for notes.', link: 'https://notion.so' },
+      { name: 'Pomofocus', desc: 'Pomodoro timer for focused study.', link: 'https://pomofocus.io' },
+    ]
+  },
+  {
+    category: 'Special Projects / Unique Tools',
+    icon: <Sparkles className="w-6 h-6 text-indigo-400" />,
+    items: [
+      { name: 'Project Astra', desc: 'Real-time AI assistant that understands surroundings.', link: 'https://deepmind.google/technologies/gemini/project-astra' },
+      { name: 'Project Tailwind', desc: 'AI working with your personal documents.', link: 'https://notebooklm.google.com' },
+      { name: 'Google Vids AI', desc: 'Create presentations and videos using AI.', link: 'https://workspace.google.com/products/vids' },
+      { name: 'Imagen (AI Model)', desc: 'Google’s advanced image generation model.', link: 'https://deepmind.google/technologies/imagen' },
+    ]
+  },
+  {
+    category: 'Automation & Script Tools',
+    icon: <Settings className="w-6 h-6 text-teal-400" />,
+    items: [
+      { name: 'Google Apps Script', desc: 'Automate Google services using JavaScript.', link: 'https://script.google.com' },
+      { name: 'Vertex AI', desc: 'Full AI platform for building and deploying models.', link: 'https://cloud.google.com/vertex-ai' },
+      { name: 'AutoML (Vertex AI)', desc: 'Train custom AI models without deep coding.', link: 'https://cloud.google.com/vertex-ai/docs/start' },
+    ]
+  },
+  {
+    category: 'Research & Knowledge AI',
+    icon: <Microscope className="w-6 h-6 text-rose-400" />,
+    items: [
+      { name: 'Bard', desc: 'Earlier version of Gemini (legacy mention).', link: 'https://bard.google.com' },
+      { name: 'DeepMind Models', desc: 'Advanced AI research models for science & biology.', link: 'https://deepmind.google' },
+      { name: 'Perplexity', desc: 'AI search engine with citations.', link: 'https://perplexity.ai' },
     ]
   }
 ];
@@ -61,6 +116,8 @@ export default function Resources() {
                 <a 
                   key={item.name}
                   href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="bg-slate-900 border border-slate-800 p-5 rounded-xl hover:bg-slate-800 transition-colors flex justify-between items-center group"
                 >
                   <div>
