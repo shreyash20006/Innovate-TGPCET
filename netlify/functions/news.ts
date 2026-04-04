@@ -58,6 +58,20 @@ export const handler: Handler = async (event, context) => {
       })
       .filter(Boolean);
 
+    const customPost = {
+      id: 9999,
+      hook: "Claude is just shippingggggg...",
+      title: "Claude Dispatch: Control your desktop from your phone",
+      summary: "I gave dispatch this to do from my phone:\n\n\"go to X, find 5-10 high performing posts from last 24 hours, write a full script for each, put everything in a PDF in my downloads.\"\n\nCame back to 7 posts, 7 scripts, 7 virality scorecards. laptop untouched. and all gtg ✅\n\nHow to set it up:\n1. download claude desktop app\n2. open cowork → dispatch in sidebar\n3. scan QR with claude on your phone\n4. turn on computer use in settings\n\nText it tasks from your phone while you're away from your desk. Combine it with /schedule and it runs every morning before you even sit down.\n\nwhat would you hand off first? 👀",
+      category: "AI",
+      url: "https://anthropic.com/claude",
+      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      isNew: true,
+      imageUrl: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop"
+    };
+
+    processedNews.unshift(customPost);
+
     return {
       statusCode: 200,
       headers: { 

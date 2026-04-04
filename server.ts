@@ -1,14 +1,46 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
+import fs from "fs";
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  app.use(express.json());
+
   // API routes FIRST
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  app.post("/api/feedback", (req, res) => {
+    try {
+      const { rating, message, url } = req.body;
+      const feedbackEntry = {
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        rating,
+        message,
+        url
+      };
+      
+      const feedbackFile = path.join(process.cwd(), 'feedback.json');
+      let feedbackData = [];
+      
+      if (fs.existsSync(feedbackFile)) {
+        const fileContent = fs.readFileSync(feedbackFile, 'utf-8');
+        feedbackData = JSON.parse(fileContent);
+      }
+      
+      feedbackData.push(feedbackEntry);
+      fs.writeFileSync(feedbackFile, JSON.stringify(feedbackData, null, 2));
+      
+      res.status(201).json({ success: true });
+    } catch (error) {
+      console.error("Error saving feedback:", error);
+      res.status(500).json({ error: "Failed to save feedback" });
+    }
   });
 
   app.get("/.netlify/functions/news", async (req, res) => {
