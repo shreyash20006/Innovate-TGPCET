@@ -1,8 +1,11 @@
 [build]
-  # This tells Netlify where to find your serverless functions
+  # Tells Netlify exactly where to find your serverless functions
   functions = "netlify/functions"
 
-# Optional: Create a clean API route
+[build.environment]
+  # CRITICAL: Forces Node.js 20 so the native fetch() API works without crashing (Fixes 500 error)
+  NODE_VERSION = "20"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"

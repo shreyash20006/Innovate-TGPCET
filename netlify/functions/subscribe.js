@@ -1,5 +1,5 @@
 exports.handler = async (event, context) => {
-  // Only allow POST requests
+  // 1. Only allow POST requests
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
@@ -7,29 +7,38 @@ exports.handler = async (event, context) => {
     };
   }
 
+  let payload;
   try {
-    // Parse the JSON body
-    const { name, email } = JSON.parse(event.body);
+    // 2. Safely parse JSON body to prevent 500 crashes
+    payload = JSON.parse(event.body || "{}");
+  } catch (err) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Invalid JSON format sent from frontend." }),
+    };
+  }
 
-    // Validation
-    if (!name || !email) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Name and email are required." }),
-      };
-    }
+  const { name, email } = payload;
 
-    // Check for API key
-    const apiKey = process.env.BREVO_API_KEY;
-    if (!apiKey) {
-      console.error("Missing BREVO_API_KEY environment variable");
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: "Server configuration error." }),
-      };
-    }
+  // 3. Validate input
+  if (!name || !email) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Name and email are required." }),
+    };
+  }
 
-    // Call Brevo API
+  // 4. Securely get the API Key
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Server configuration error: Missing API Key." }),
+    };
+  }
+
+  try {
+    // 5. Call Brevo API
     const response = await fetch("https://api.brevo.com/v3/contacts", {
       method: "POST",
       headers: {
@@ -47,24 +56,25 @@ exports.handler = async (event, context) => {
 
     const data = await response.json();
 
-    // Handle Brevo API errors
+    // 6. Handle Brevo API errors gracefully
     if (!response.ok) {
       return {
         statusCode: response.status,
-        body: JSON.stringify({ error: data.message || "Failed to subscribe." }),
+        body: JSON.stringify({ error: data.message || "Failed to subscribe via Brevo." }),
       };
     }
 
-    // Success response
+    // 7. Success Response
     return {
       statusCode: 200,
       body: JSON.stringify({ success: true, message: "Subscribed successfully!" }),
     };
+
   } catch (error) {
-    console.error("Subscription error:", error);
+    // 8. Catch network errors or fetch failures
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal Server Error" }),
+      body: JSON.stringify({ error: "Internal Server Error while contacting Brevo." }),
     };
   }
 };

@@ -43,7 +43,7 @@ async function startServer() {
     }
   });
 
-  app.post("/api/subscribe", async (req, res) => {
+  app.post("/.netlify/functions/subscribe", async (req, res) => {
     try {
       const { name, email } = req.body;
       

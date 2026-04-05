@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscribe to Innovate.tgpcet</title>
+  <style>
+    /* Clean, production-ready styling */
+    body { font-family: system-ui, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f9; margin: 0; }
+    .form-card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; }
+    h2 { margin-top: 0; color: #333; }
+    input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+    button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; }
+    button:disabled { background: #93c5fd; cursor: not-allowed; }
+    .message { margin-top: 15px; font-size: 14px; text-align: center; min-height: 20px; font-weight: 500; }
+    .success { color: #16a34a; }
+    .error { color: #dc2626; }
+  </style>
+</head>
+<body>
+
+  <div class="form-card">
+    <h2>Join Our Newsletter</h2>
+    
+    <form id="subscribeForm">
+      <input type="text" id="name" placeholder="Your Name" required>
+      <input type="email" id="email" placeholder="Your Email" required>
+      <button type="submit" id="submitBtn">Subscribe</button>
+    </form>
+    
+    <div id="statusMessage" class="message"></div>
+  </div>
+
+  <script>
+    document.getElementById('subscribeForm').addEventListener('submit', async function(event) {
+      event.preventDefault(); // Prevent page reload
+
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const submitBtn = document.getElementById('submitBtn');
+      const messageDiv = document.getElementById('statusMessage');
+
+      // 1. Set Loading State
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Subscribing...';
+      messageDiv.textContent = '';
+      messageDiv.className = 'message';
+
+      try {
+        // 2. Call Netlify Function using the exact correct path
+        const response = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: nameInput.value.trim(),
+            email: emailInput.value.trim()
+          })
+        });
+
+        const data = await response.json();
+
+        // 3. Handle Response
+        if (response.ok) {
+          messageDiv.textContent = '✅ ' + data.message;
+          messageDiv.className = 'message success';
+          document.getElementById('subscribeForm').reset(); // Clear form
+        } else {
+          messageDiv.textContent = '❌ ' + (data.error || 'Subscription failed.');
+          messageDiv.className = 'message error';
+        }
+      } catch (error) {
+        // 4. Handle Network Errors
+        messageDiv.textContent = '❌ Network error. Please check your connection.';
+        messageDiv.className = 'message error';
+      } finally {
+        // 5. Reset Button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Subscribe';
+      }
+    });
+  </script>
+
+</body>
+</html>
