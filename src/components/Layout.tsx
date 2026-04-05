@@ -45,7 +45,7 @@ export default function Layout() {
           animate={{ x: [0, -2000] }}
           transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
         >
-          New AWS & Wipro Internship Added! &nbsp;&nbsp;•&nbsp;&nbsp; ChatGPT-5 Rumors: What Students Need to Know &nbsp;&nbsp;•&nbsp;&nbsp; Join our upcoming UI/UX Workshop &nbsp;&nbsp;•&nbsp;&nbsp; All resources are 100% FREE!
+          🚀 New Internship Open &nbsp;&nbsp;•&nbsp;&nbsp; 🤖 AI Tool Released &nbsp;&nbsp;•&nbsp;&nbsp; 💼 Hiring Update &nbsp;&nbsp;•&nbsp;&nbsp; 🎯 Hackathon Live &nbsp;&nbsp;•&nbsp;&nbsp; 🚀 New Internship Open &nbsp;&nbsp;•&nbsp;&nbsp; 🤖 AI Tool Released &nbsp;&nbsp;•&nbsp;&nbsp; 💼 Hiring Update &nbsp;&nbsp;•&nbsp;&nbsp; 🎯 Hackathon Live
         </motion.div>
       </div>
 

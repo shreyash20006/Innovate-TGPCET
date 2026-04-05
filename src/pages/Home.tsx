@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Briefcase, Cpu, Terminal } from 'lucide-react';
+import { ArrowRight, Briefcase, Cpu, Terminal, Bot, Target, BookOpen, Clock, Instagram, Send, MessageCircle, ExternalLink } from 'lucide-react';
 import PlexusBackground from '../components/PlexusBackground';
+import { OPPORTUNITIES } from './Opportunities';
 
 const Typewriter3D = ({ text, className, delayOffset = 0 }: { text: string, className?: string, delayOffset?: number }) => {
   const letters = Array.from(text);
@@ -63,37 +64,203 @@ const Typewriter3D = ({ text, className, delayOffset = 0 }: { text: string, clas
 };
 
 export default function Home() {
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [subscribeStatus, setSubscribeStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [subscribeMessage, setSubscribeMessage] = React.useState('');
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !name) return;
+
+    setSubscribeStatus('loading');
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSubscribeStatus('success');
+        setSubscribeMessage('✅ Subscribed! Check your inbox.');
+        setEmail('');
+        setName('');
+        setTimeout(() => {
+          setSubscribeStatus('idle');
+          setSubscribeMessage('');
+        }, 3000);
+      } else {
+        setSubscribeStatus('error');
+        setSubscribeMessage(data.error || 'Failed to subscribe');
+        setTimeout(() => {
+          setSubscribeStatus('idle');
+          setSubscribeMessage('');
+        }, 3000);
+      }
+    } catch (error) {
+      setSubscribeStatus('error');
+      setSubscribeMessage('Network error. Please try again.');
+      setTimeout(() => {
+        setSubscribeStatus('idle');
+        setSubscribeMessage('');
+      }, 3000);
+    }
+  };
+
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = "//www.instagram.com/embed.js";
+    script.async = true;
+    document.body.appendChild(script);
+    
+    if ((window as any).instgrm) {
+      (window as any).instgrm.Embeds.process();
+    }
+  }, []);
+
   return (
     <div className="space-y-24 pb-12">
       {/* Hero Section */}
       <section className="relative pt-20 pb-10 px-4 sm:px-6 lg:px-8 text-center overflow-hidden min-h-[70vh] flex items-center justify-center">
         <PlexusBackground />
         <motion.div 
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.2, delayChildren: 0.1 }
+            }
+          }}
           className="max-w-4xl mx-auto space-y-8 relative z-10"
         >
-          <div className="inline-block text-[11px] tracking-[0.25em] uppercase text-amber-500/85 bg-amber-500/10 border border-amber-500/25 rounded-full px-5 py-1.5 mb-2">
+          <motion.div 
+            variants={{
+              hidden: { opacity: 0, y: 40 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+            }}
+            className="inline-block text-[11px] tracking-[0.25em] uppercase text-amber-500/85 bg-amber-500/10 border border-amber-500/25 rounded-full px-5 py-1.5 mb-2"
+          >
             ✦ Student Tech Hub
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-white leading-tight drop-shadow-[0_2px_40px_rgba(0,0,0,0.9)]">
+          </motion.div>
+          <motion.h1 
+            variants={{
+              hidden: { opacity: 0, y: 40 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+            }}
+            className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight text-white leading-tight drop-shadow-[0_2px_40px_rgba(0,0,0,0.9)]"
+          >
             <Typewriter3D text="Your Gateway to " />
             <br />
             <span className="text-amber-500 drop-shadow-[0_0_80px_rgba(245,166,35,0.4)]">
               <Typewriter3D text="Tech Opportunities" delayOffset={0.6} />
             </span>
-          </h1>
-          <p className="text-xl text-slate-300/80 max-w-2xl mx-auto drop-shadow-[0_1px_10px_rgba(0,0,0,0.95)] leading-relaxed">
+          </motion.h1>
+          <motion.p 
+            variants={{
+              hidden: { opacity: 0, y: 40 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+            }}
+            className="text-lg sm:text-xl text-slate-300/80 max-w-2xl mx-auto drop-shadow-[0_1px_10px_rgba(0,0,0,0.95)] leading-relaxed"
+          >
             Discover <strong className="text-white/90">internships, hackathons, free courses</strong>, and the latest AI updates. 
             Curated specifically for students aiming for excellence.
-          </p>
-          <div className="flex justify-center gap-4 pt-4">
-            <Link to="/opportunities" className="bg-amber-500 text-slate-950 px-8 py-4 rounded-full font-bold hover:bg-amber-400 transition-all shadow-[0_0_35px_rgba(245,166,35,0.45),0_4px_24px_rgba(0,0,0,0.55)] hover:shadow-[0_0_60px_rgba(245,166,35,0.65),0_10px_35px_rgba(0,0,0,0.55)] hover:-translate-y-1 flex items-center gap-2">
+          </motion.p>
+          <motion.div 
+            variants={{
+              hidden: { opacity: 0, y: 40 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+            }}
+            className="flex justify-center gap-4 pt-4"
+          >
+            <Link to="/opportunities" className="bg-amber-500 text-slate-950 px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold hover:bg-amber-400 transition-all shadow-[0_0_35px_rgba(245,166,35,0.45),0_4px_24px_rgba(0,0,0,0.55)] hover:shadow-[0_0_60px_rgba(245,166,35,0.65),0_10px_35px_rgba(0,0,0,0.55)] hover:-translate-y-1 flex items-center gap-2 text-sm sm:text-base">
               Explore Opportunities <ArrowRight className="w-5 h-5" />
             </Link>
-          </div>
+          </motion.div>
         </motion.div>
+      </section>
+
+      {/* Quick Access Cards */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { title: 'AI Tools', icon: Bot, link: '/resources', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+            { title: 'Internships', icon: Briefcase, link: '/opportunities', color: 'text-amber-400', bg: 'bg-amber-400/10' },
+            { title: 'Hackathons', icon: Target, link: '/opportunities', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+            { title: 'Free Courses', icon: BookOpen, link: '/courses', color: 'text-purple-400', bg: 'bg-purple-400/10' },
+          ].map((item, i) => (
+            <Link key={i} to={item.link} className="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-6 flex flex-col items-center justify-center gap-2 sm:gap-4 hover:border-amber-500/50 hover:-translate-y-1 transition-all group shadow-lg text-center">
+              <div className={`p-3 sm:p-4 rounded-full ${item.bg} group-hover:scale-110 transition-transform`}>
+                <item.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.color}`} />
+              </div>
+              <span className="font-bold text-slate-300 group-hover:text-white text-xs sm:text-base">{item.title}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Newsletter / Community Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="bg-gradient-to-br from-[#0f1e34] to-[#131f30] border border-amber-500/20 rounded-3xl p-8 sm:p-14 flex flex-col md:flex-row items-center justify-between gap-10 relative overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-[300px] h-[300px] rounded-full bg-[radial-gradient(circle,rgba(240,165,0,0.08),transparent_70%)] pointer-events-none"></div>
+          
+          <div className="text-left max-w-lg z-10">
+            <div className="text-[11px] font-bold tracking-[3px] uppercase text-amber-500 mb-3">
+              Stay Updated
+            </div>
+            <h2 className="font-['Syne'] text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              Never Miss an Opportunity
+            </h2>
+            <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
+              Get weekly curated internships, hackathons & AI tools directly to your inbox.
+            </p>
+          </div>
+          
+          <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full md:w-auto z-10 relative">
+            <input 
+              type="text" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your Name" 
+              disabled={subscribeStatus === 'loading'}
+              required
+              className={`bg-white/5 border rounded-xl px-5 py-4 text-sm text-white outline-none w-full sm:w-[180px] font-['DM_Sans'] transition-colors focus:bg-white/10 placeholder:text-slate-500 ${
+                subscribeStatus === 'error' ? 'border-red-500/50 focus:border-red-500' : 
+                subscribeStatus === 'success' ? 'border-green-500/50 focus:border-green-500' : 
+                'border-white/10 focus:border-amber-500/40'
+              }`}
+            />
+            <input 
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={subscribeMessage || "Enter your college email"} 
+              disabled={subscribeStatus === 'loading'}
+              required
+              className={`bg-white/5 border rounded-xl px-5 py-4 text-sm text-white outline-none w-full sm:w-[220px] font-['DM_Sans'] transition-colors focus:bg-white/10 placeholder:text-slate-500 ${
+                subscribeStatus === 'error' ? 'border-red-500/50 focus:border-red-500' : 
+                subscribeStatus === 'success' ? 'border-green-500/50 focus:border-green-500' : 
+                'border-white/10 focus:border-amber-500/40'
+              }`}
+            />
+            <button 
+              type="submit"
+              disabled={subscribeStatus === 'loading'}
+              className="bg-gradient-to-br from-amber-500 to-[#e08800] text-black border-none rounded-xl px-7 py-4 font-['Syne'] font-bold text-sm cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(240,165,0,0.35)] whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            >
+              {subscribeStatus === 'loading' ? 'Subscribing...' : 'Subscribe \u2192'}
+            </button>
+            {subscribeStatus === 'error' && (
+              <div className="absolute -bottom-6 left-0 text-xs text-red-400">
+                {subscribeMessage}
+              </div>
+            )}
+          </form>
+        </div>
       </section>
 
       {/* Opportunities Preview */}
@@ -103,13 +270,13 @@ export default function Home() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-between mb-8"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8"
         >
-          <div className="flex items-center gap-3">
-            <Briefcase className="w-8 h-8 text-amber-500" />
-            <h2 className="text-3xl font-bold text-white">Featured Opportunities</h2>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Briefcase className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">Featured Opportunities</h2>
           </div>
-          <Link to="/opportunities" className="text-amber-500 hover:text-amber-400 transition-colors font-medium">View All &rarr;</Link>
+          <Link to="/opportunities" className="text-amber-500 hover:text-amber-400 transition-colors font-medium text-sm sm:text-base">View All &rarr;</Link>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <motion.div 
@@ -127,6 +294,39 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Expiring Soon */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+          <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">Closing Soon</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {OPPORTUNITIES
+            .filter(opp => new Date(opp.deadline).getTime() > Date.now())
+            .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+            .slice(0, 3)
+            .map((item, i) => {
+              const diff = new Date(item.deadline).getTime() - Date.now();
+              const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+              const deadlineText = days === 1 ? '1 Day Left' : `${days} Days Left`;
+              
+              return (
+                <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 hover:border-red-500/30 transition-colors shadow-lg">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-lg font-bold text-white line-clamp-2">{item.title}</h3>
+                  </div>
+                  <div className="flex items-center gap-2 text-red-400 text-sm font-medium bg-red-500/10 w-fit px-3 py-1.5 rounded-md">
+                    <Clock className="w-4 h-4" /> {deadlineText}
+                  </div>
+                  <Link to="/opportunities" className="mt-auto w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl text-sm font-medium text-center transition-colors">
+                    View Details
+                  </Link>
+                </div>
+              );
+          })}
+        </div>
+      </section>
+
       {/* AI Updates Preview */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div 
@@ -134,24 +334,66 @@ export default function Home() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.5 }}
-          className="flex items-center justify-between mb-8"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8"
         >
-          <div className="flex items-center gap-3">
-            <Cpu className="w-8 h-8 text-amber-500" />
-            <h2 className="text-3xl font-bold text-white">Latest AI Updates</h2>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Cpu className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">Latest AI Updates</h2>
           </div>
-          <Link to="/ai-updates" className="text-amber-500 hover:text-amber-400 transition-colors font-medium">View All &rarr;</Link>
+          <Link to="/ai-updates" className="text-amber-500 hover:text-amber-400 transition-colors font-medium text-sm sm:text-base">View All &rarr;</Link>
         </motion.div>
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.5 }}
-          className="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center"
+          className="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center"
         >
-          <Terminal className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-          <p className="text-slate-300 text-lg">Fetching the latest AI news and trends...</p>
+          <Terminal className="w-10 h-10 sm:w-12 sm:h-12 text-amber-500 mx-auto mb-4" />
+          <p className="text-slate-300 text-base sm:text-lg">Fetching the latest AI news and trends...</p>
         </motion.div>
+      </section>
+
+      {/* Instagram Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+          <Instagram className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500" />
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">From Instagram</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 justify-items-center w-full overflow-hidden">
+          {[
+            "https://www.instagram.com/p/DWthdTDkibS/",
+            "https://www.instagram.com/p/DRzsti0iFBY/",
+            "https://www.instagram.com/p/DWoS4OfCG-C/"
+          ].map((link, i) => (
+            <div key={i} className="w-full max-w-full flex justify-center bg-white rounded-xl overflow-hidden shadow-lg min-h-[350px] sm:min-h-[400px]">
+              <blockquote 
+                className="instagram-media" 
+                data-instgrm-permalink={`${link}?utm_source=ig_embed&amp;utm_campaign=loading`} 
+                data-instgrm-version="14" 
+                style={{ background: '#FFF', border: 0, margin: 0, padding: 0, width: '100%', minWidth: '100%', maxWidth: '100%' }}
+              >
+              </blockquote>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Community Section */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-12 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
+          <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-4">🚀 Join Our Community</h2>
+          <p className="text-slate-400 mb-6 sm:mb-8 text-sm sm:text-lg">Join 500+ students getting daily updates</p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+            <a href="#" className="flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white px-4 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-colors text-sm sm:text-base">
+              <Send className="w-5 h-5" /> Join Telegram
+            </a>
+            <a href="https://whatsapp.com/channel/0029VbC3hiw6WaKna525w139" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-colors text-sm sm:text-base">
+              <MessageCircle className="w-5 h-5" /> Join WhatsApp
+            </a>
+          </div>
+        </div>
       </section>
     </div>
   );

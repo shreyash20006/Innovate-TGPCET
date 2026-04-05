@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Briefcase, Search, ExternalLink, Calendar, MapPin, Clock, X, IndianRupee, Laptop } from 'lucide-react';
 
 // --- Types ---
-type OpportunityType = 'Internship' | 'Competition' | 'Workshop' | 'Accelerator';
+export type OpportunityType = 'Internship' | 'Competition' | 'Workshop' | 'Accelerator' | 'Simulation';
 
-interface Opportunity {
+export interface Opportunity {
   id: string;
   title: string;
   type: OpportunityType;
@@ -18,10 +18,181 @@ interface Opportunity {
   duration?: string;
   company?: string;
   location?: string;
+  tags?: string[];
+  buttonText?: string;
 }
 
 // --- Dummy Data ---
-const OPPORTUNITIES: Opportunity[] = [
+export const OPPORTUNITIES: Opportunity[] = [
+  {
+    id: 'sim-1',
+    title: 'Technology Consulting & Strategy',
+    company: 'Accenture',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Technology Consulting & Strategy at Accenture.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/Accenture/technology-consulting',
+    tags: ['🟢 Beginner', 'Consulting'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-2',
+    title: 'Introduction to Strategy Consulting',
+    company: 'BCG',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Strategy Consulting at BCG.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/BCG/strategy-consulting',
+    tags: ['🟢 Beginner', 'Consulting'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-3',
+    title: 'Management Consulting',
+    company: 'PwC',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Management Consulting at PwC.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/PwC/management-consulting',
+    tags: ['🔵 Intermediate', 'Consulting'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-4',
+    title: 'Software Engineering',
+    company: 'JP Morgan',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Software Engineering at JP Morgan.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/JPMorgan/software-engineering',
+    tags: ['🔵 Intermediate', 'Tech'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-5',
+    title: 'Software Engineering',
+    company: 'Skyscanner',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Software Engineering at Skyscanner.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/Skyscanner/software-engineering',
+    tags: ['🟢 Beginner', 'Tech'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-6',
+    title: 'Advanced Software Engineering',
+    company: 'Walmart',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Advanced Software Engineering at Walmart.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/Walmart/software-engineering',
+    tags: ['🔴 Advanced', 'Tech'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-7',
+    title: 'Data Visualization',
+    company: 'TATA',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Data Visualization at TATA.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/Tata/data-visualisation',
+    tags: ['🟢 Beginner', 'Data'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-8',
+    title: 'GenAI Powered Data Analytics',
+    company: 'TATA',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in GenAI Powered Data Analytics at TATA.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/Tata/genai-data-analytics',
+    tags: ['🔴 Advanced', 'AI'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-9',
+    title: 'Data Analytics & Cyber Security',
+    company: 'Deloitte',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Data Analytics & Cyber Security at Deloitte.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/Deloitte/data-analytics',
+    tags: ['🔵 Intermediate', 'Data'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-10',
+    title: 'Investment Banking',
+    company: 'JP Morgan',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Investment Banking at JP Morgan.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/JPMorgan/investment-banking',
+    tags: ['🔵 Intermediate', 'Finance'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-11',
+    title: 'Finance Controllers',
+    company: 'Goldman Sachs',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Finance Controllers at Goldman Sachs.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/GoldmanSachs/finance-controllers',
+    tags: ['🟢 Beginner', 'Finance'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-12',
+    title: 'Finance Operations',
+    company: 'Goldman Sachs',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Finance Operations at Goldman Sachs.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/GoldmanSachs/operations',
+    tags: ['🟢 Beginner', 'Finance'],
+    buttonText: 'Start Simulation',
+  },
+  {
+    id: 'sim-13',
+    title: 'Digital Assurance',
+    company: 'PwC',
+    type: 'Simulation',
+    location: 'Virtual',
+    description: 'Free job simulation program from Forage. Experience what it is like to work in Digital Assurance at PwC.',
+    eligibility: 'Open to All',
+    deadline: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://www.theforage.com/virtual-internships/prototype/PwC/digital-assurance',
+    tags: ['🔵 Intermediate', 'Audit'],
+    buttonText: 'Start Simulation',
+  },
   {
     id: '2',
     title: 'Healthcare Internship Batches (April & May 2026)',
@@ -182,7 +353,7 @@ export default function Opportunities() {
           </div>
 
           <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-            {(['All', 'Internship', 'Competition', 'Workshop', 'Accelerator'] as const).map((filter) => (
+            {(['All', 'Internship', 'Competition', 'Workshop', 'Accelerator', 'Simulation'] as const).map((filter) => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
@@ -283,7 +454,7 @@ export default function Opportunities() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 bg-amber-500 text-slate-950 px-8 py-3 rounded-xl font-bold hover:bg-amber-400 transition-colors w-full sm:w-auto"
                 >
-                  Continue to Application <ExternalLink className="w-5 h-5" />
+                  {selectedOpp.buttonText || 'Continue to Application'} <ExternalLink className="w-5 h-5" />
                 </a>
               </div>
             </motion.div>
@@ -306,10 +477,17 @@ const OpportunityCard: React.FC<{ opportunity: Opportunity; index: number, onApp
       className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-amber-500/50 transition-all group flex flex-col"
     >
       <div className="flex justify-between items-start mb-4">
-        <span className="px-3 py-1 text-xs font-medium rounded-full bg-amber-500/10 text-amber-500">
-          {opportunity.type}
-        </span>
-        <span className={`text-xs font-medium px-2 py-1 rounded-md flex items-center gap-1 ${isUrgent ? 'bg-red-500/10 text-red-500' : 'bg-slate-800 text-slate-300'}`}>
+        <div className="flex flex-wrap gap-2">
+          <span className="px-3 py-1 text-xs font-medium rounded-full bg-amber-500/10 text-amber-500">
+            {opportunity.type}
+          </span>
+          {opportunity.tags?.map(tag => (
+            <span key={tag} className="px-3 py-1 text-xs font-medium rounded-full bg-slate-800 text-slate-300">
+              {tag}
+            </span>
+          ))}
+        </div>
+        <span className={`text-xs font-medium px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap ${isUrgent ? 'bg-red-500/10 text-red-500' : 'bg-slate-800 text-slate-300'}`}>
           <Clock className="w-3 h-3" /> {timeLeft}
         </span>
       </div>
@@ -334,7 +512,7 @@ const OpportunityCard: React.FC<{ opportunity: Opportunity; index: number, onApp
         onClick={onApply}
         className="w-full bg-slate-800 hover:bg-amber-500 text-white hover:text-slate-950 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 mt-auto"
       >
-        Apply Now <ExternalLink className="w-4 h-4" />
+        {opportunity.buttonText || 'Apply Now'} <ExternalLink className="w-4 h-4" />
       </button>
     </motion.div>
   );

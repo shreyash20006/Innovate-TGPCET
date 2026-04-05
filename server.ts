@@ -43,6 +43,54 @@ async function startServer() {
     }
   });
 
+  app.post("/api/subscribe", async (req, res) => {
+    try {
+      const { name, email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+      if (!name) {
+        return res.status(400).json({ error: "Name is required" });
+      }
+
+      const apiKey = process.env.BREVO_API_KEY;
+      if (!apiKey) {
+        console.error("BREVO_API_KEY is not configured");
+        return res.status(500).json({ error: "Newsletter service is not configured" });
+      }
+
+      const response = await fetch("https://api.brevo.com/v3/contacts", {
+        method: "POST",
+        headers: {
+          "accept": "application/json",
+          "api-key": apiKey,
+          "content-type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email,
+          attributes: { FIRSTNAME: name },
+          listIds: [2],
+          updateEnabled: true // If the contact already exists, update them instead of throwing an error
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Brevo returns 400 if contact already exists but updateEnabled is false, 
+        // but we set it to true. Still, handle any other errors.
+        console.error("Brevo API error:", data);
+        return res.status(response.status).json({ error: data.message || "Failed to subscribe" });
+      }
+
+      res.status(200).json({ success: true, message: "Subscribed successfully!" });
+    } catch (error) {
+      console.error("Error subscribing:", error);
+      res.status(500).json({ error: "Failed to process subscription" });
+    }
+  });
+
   app.get("/.netlify/functions/news", async (req, res) => {
     try {
       // Use GNEWS_API_KEY from environment
