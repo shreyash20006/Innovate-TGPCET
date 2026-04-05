@@ -56,8 +56,10 @@ async function startServer() {
 
       const apiKey = process.env.BREVO_API_KEY;
       if (!apiKey) {
-        console.error("BREVO_API_KEY is not configured");
-        return res.status(500).json({ error: "Newsletter service is not configured" });
+        console.error("BREVO_API_KEY is not configured in AI Studio Secrets");
+        return res.status(500).json({ 
+          error: "API Key missing! Please add BREVO_API_KEY in AI Studio Settings -> Secrets." 
+        });
       }
 
       const response = await fetch("https://api.brevo.com/v3/contacts", {
