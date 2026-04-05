@@ -23,6 +23,40 @@ interface Opportunity {
 // --- Dummy Data ---
 const OPPORTUNITIES: Opportunity[] = [
   {
+    id: '2',
+    title: 'Healthcare Internship Batches (April & May 2026)',
+    company: 'MindSparc',
+    type: 'Internship',
+    location: 'Online',
+    description: (
+      <div className="space-y-2">
+        <p className="font-semibold text-amber-400">High-Demand Healthcare Careers | Limited Seats</p>
+        <p className="text-emerald-400 text-[10px] sm:text-xs font-bold bg-emerald-400/10 inline-block px-2 py-1 rounded border border-emerald-400/20">MSME | NASSCOM | ISO | MCA Certified</p>
+        <div className="mt-2 text-sm text-slate-300">
+          <p className="font-bold text-white mb-1">💡 Available Programs:</p>
+          <ul className="list-disc pl-4 space-y-1">
+            <li>Advance Medical Coding</li>
+            <li>Pharmacovigilance</li>
+            <li>Drug Regulatory Affairs</li>
+            <li>Clinical SAS</li>
+            <li>AI in Healthcare</li>
+          </ul>
+        </div>
+        <ul className="list-disc pl-4 space-y-1 text-slate-300 mt-3 text-sm">
+          <li>Live Practical Training</li>
+          <li>Govt. & Industry Recognised Certificate</li>
+          <li>Minimal Charges & Affordable</li>
+        </ul>
+        <p className="text-amber-500 font-bold text-xs mt-3 animate-pulse">⏳ Seats Filling Fast – Apply Now!</p>
+      </div>
+    ),
+    eligibility: 'Open to All',
+    duration: '3 Months Online Internship',
+    deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    applyLink: 'https://wa.me/+917416314671?text=Hello%20Sir%0aI\'m%20interested%20For%203months%20Online%20Training%20Kindly%20Share%20Me%20Course%20Details%20',
+    isNew: true,
+  },
+  {
     id: '1',
     title: 'Google 2026 Startup Accelerator (India)',
     company: 'Google',
