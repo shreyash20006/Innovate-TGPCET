@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-const API_BASE = 'http://localhost:8000';
+const API_BASE = '';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Job {
@@ -40,19 +40,23 @@ interface SourceItem {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+function nlmPath(path: string): string {
+  return `/.netlify/functions/nlm${path}`;
+}
+
 async function apiPost(path: string, body: any): Promise<any> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(nlmPath(path), {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.detail || 'Request failed');
+    throw new Error(data.detail || data.error || 'Request failed');
   }
   return res.json();
 }
 
 async function apiGet(path: string): Promise<any> {
-  const res = await fetch(`${API_BASE}${path}`);
+  const res = await fetch(nlmPath(path));
   if (!res.ok) throw new Error('Request failed');
   return res.json();
 }
@@ -60,13 +64,13 @@ async function apiGet(path: string): Promise<any> {
 async function uploadFile(file: globalThis.File): Promise<UploadedFile> {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch(`${API_BASE}/api/nlm/upload`, {
+  const res = await fetch(nlmPath('/api/nlm/upload'), {
     method: 'POST',
     body: formData,
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.detail || 'Upload failed');
+    throw new Error(data.detail || data.error || 'Upload failed');
   }
   return res.json();
 }
@@ -107,6 +111,7 @@ const SourceManager = ({
   const [inputMode, setInputMode] = useState<'url' | 'text'>('url');
   const [draft, setDraft] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,6 +132,7 @@ const SourceManager = ({
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || !files.length) return;
     setUploading(true);
+    setUploadError(null);
     try {
       for (const file of Array.from(files)) {
         const result = await uploadFile(file);
@@ -140,7 +146,7 @@ const SourceManager = ({
         setSources(prev => [...prev, newItem]);
       }
     } catch (err: any) {
-      alert('Upload failed: ' + (err.message || 'Unknown error'));
+      setUploadError(err.message || 'Upload failed');
     } finally {
       setUploading(false);
     }
@@ -251,6 +257,9 @@ const SourceManager = ({
           </>
         )}
       </div>
+      {uploadError && (
+        <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{uploadError}</p>
+      )}
 
       {/* Sources List */}
       {sources.length > 0 && (
@@ -514,6 +523,7 @@ const StudioPanel = ({ onSubmit }: { onSubmit: (job_id: string) => void }) => {
   const [sources, setSources] = useState<SourceItem[]>([]);
   const [title, setTitle] = useState('');
   const [loadingType, setLoadingType] = useState<string | null>(null);
+  const [studioError, setStudioError] = useState<string | null>(null);
 
   const STUDIO_TOOLS = [
     { id: 'audio', label: 'Audio Overview', icon: Headphones, color: 'text-amber-400', bg: 'bg-amber-400/10' },
@@ -528,7 +538,11 @@ const StudioPanel = ({ onSubmit }: { onSubmit: (job_id: string) => void }) => {
   ];
 
   const handleGenerate = async (type: string) => {
-    if (sources.length === 0) return alert('Please add at least one source');
+    if (sources.length === 0) {
+      setStudioError('Please add at least one source before generating.');
+      return;
+    }
+    setStudioError(null);
     setLoadingType(type);
     try {
       const payload = {
@@ -542,7 +556,7 @@ const StudioPanel = ({ onSubmit }: { onSubmit: (job_id: string) => void }) => {
       onSubmit(data.job_id);
       setSources([]); setTitle('');
     } catch (err: any) {
-      alert('Generation failed: ' + (err.message || 'Unknown error'));
+      setStudioError(err.message || 'Generation failed. Please try again.');
     } finally {
       setLoadingType(null);
     }
@@ -569,7 +583,14 @@ const StudioPanel = ({ onSubmit }: { onSubmit: (job_id: string) => void }) => {
           <h2 className="text-lg font-bold text-white">Studio Overview</h2>
           <p className="text-sm text-slate-400">Select an artifact to generate based on your sources above.</p>
         </div>
-        
+
+        {studioError && (
+          <div className="mb-4 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 text-red-400 text-sm flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            {studioError}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           {STUDIO_TOOLS.map(t => (
             <button
