@@ -5,7 +5,8 @@ import {
   AlertCircle, Download, ChevronDown, ChevronUp, Sparkles, Radio,
   BrainCircuit, FileQuestion, Layers, FileText, RotateCcw, ExternalLink,
   Headphones, GraduationCap, Telescope, Zap, Clock, ArrowRight,
-  Upload, File, Link, Type, Trash2
+  Upload, File, Link, Type, Trash2, Video, Presentation, AlignLeft,
+  Table, Workflow, LayoutList, PieChart
 } from 'lucide-react';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
@@ -828,40 +829,9 @@ export default function NotebookLMPage() {
         </motion.div>
       </section>
 
-      {/* Tab navigation */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-center">
-          <div className="inline-flex bg-slate-900/50 border border-slate-800 rounded-2xl p-1.5 gap-1">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  activeTab === tab.id ? tabColorMap[tab.color] + ' border' : 'text-slate-400 border border-transparent hover:text-white'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" /> {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Active panel */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            {activeTab === 'podcast' && <PodcastPanel onSubmit={handleNewJob} />}
-            {activeTab === 'study' && <StudyKitPanel onSubmit={handleNewJob} />}
-            {activeTab === 'research' && <ResearchPanel onSubmit={handleNewJob} />}
-          </motion.div>
-        </AnimatePresence>
+            {/* Studio Grid Panel */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <StudioPanel onSubmit={handleNewJob} />
       </section>
 
       {/* Jobs list */}

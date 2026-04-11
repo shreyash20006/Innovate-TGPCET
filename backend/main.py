@@ -88,6 +88,13 @@ class ResearchRequest(BaseModel):
     source: str = "web"
     auto_import: bool = True
 
+class StudioRequest(BaseModel):
+    sources: list[str]
+    files: list[str] = []
+    title: str = "Studio Generate"
+    artifact_type: str
+    language: str = "en"
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -490,6 +497,120 @@ async def download_file(filename: str):
     if not filepath.exists():
         raise HTTPException(404, "File not found")
     return FileResponse(str(filepath), filename=filename)
+
+
+
+async def _run_studio_pipeline(job_id: str, req: StudioRequest):
+    try:
+        _update_job(job_id, status="running", progress=10)
+
+        if not HAS_NOTEBOOKLM:
+            await asyncio.sleep(2); _update_job(job_id, progress=50)
+            result = {
+                "notebook_title": req.title,
+                "sources_added": len(req.sources) + len(req.files),
+                "artifact_type": req.artifact_type,
+                "file_path": None,
+                "message": "Demo mode — install notebooklm-py and run 'notebooklm login' for real content",
+                "demo": True,
+            }
+            _update_job(job_id, status="completed", progress=100, result=result)
+            return
+
+        async with await NotebookLMClient.from_storage() as client:
+            _update_job(job_id, progress=15)
+            nb = await client.notebooks.create(req.title)
+
+            source_ids = await _add_sources_to_notebook(
+                client, nb.id, req.sources, req.files, job_id, 15, 30
+            )
+
+            _update_job(job_id, progress=55)
+            
+            gen_kwargs = {"notebook_id": nb.id, "language": req.language}
+            if source_ids:
+                gen_kwargs["source_ids"] = source_ids
+                
+            atype = req.artifact_type
+            filename = f"{atype}_{job_id}"
+            output_file = ""
+            
+            if atype == "audio":
+                status = await client.artifacts.generate_audio(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".wav"
+                await client.artifacts.download_audio(nb.id, str(DOWNLOADS_DIR / output_file))
+                
+            elif atype == "video":
+                status = await client.artifacts.generate_video(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".mp4"
+                await client.artifacts.download_video(nb.id, str(DOWNLOADS_DIR / output_file))
+                
+            elif atype == "report":
+                status = await client.artifacts.generate_report(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".md"
+                await client.artifacts.download_report(nb.id, str(DOWNLOADS_DIR / output_file))
+                
+            elif atype == "quiz":
+                status = await client.artifacts.generate_quiz(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".json"
+                await client.artifacts.download_quiz(nb.id, str(DOWNLOADS_DIR / output_file))
+                
+            elif atype == "data_table":
+                status = await client.artifacts.generate_data_table(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".csv"
+                await client.artifacts.download_data_table(nb.id, str(DOWNLOADS_DIR / output_file))
+                
+            elif atype == "slide_deck":
+                status = await client.artifacts.generate_slide_deck(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".pdf"
+                await client.artifacts.download_slide_deck(nb.id, str(DOWNLOADS_DIR / output_file), output_format="pdf")
+                
+            elif atype == "mind_map":
+                status = await client.artifacts.generate_mind_map(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".json"
+                await client.artifacts.download_mind_map(nb.id, str(DOWNLOADS_DIR / output_file))
+                
+            elif atype == "flashcards":
+                status = await client.artifacts.generate_flashcards(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".json"
+                await client.artifacts.download_flashcards(nb.id, str(DOWNLOADS_DIR / output_file))
+                
+            elif atype == "infographic":
+                status = await client.artifacts.generate_infographic(**gen_kwargs)
+                await client.artifacts.wait_for_completion(nb.id, status.task_id)
+                output_file = filename + ".png"
+                await client.artifacts.download_infographic(nb.id, str(DOWNLOADS_DIR / output_file))
+            else:
+                raise ValueError("Unknown artifact type")
+
+            _update_job(job_id, progress=85)
+
+            result = {
+                "notebook_id": nb.id,
+                "notebook_title": req.title,
+                "sources_added": len(source_ids),
+                "artifact_type": atype,
+                "file_path": output_file,
+                "demo": False,
+            }
+            _update_job(job_id, status="completed", progress=100, result=result)
+
+    except Exception as e:
+        _update_job(job_id, status="failed", error=str(e))
+
+@app.post("/api/nlm/studio")
+async def start_studio(req: StudioRequest, background_tasks: BackgroundTasks):
+    job_id = _create_job(req.artifact_type, req.title)
+    background_tasks.add_task(_run_studio_pipeline, job_id, req)
+    return {"status": "accepted", "job_id": job_id}
 
 
 if __name__ == "__main__":
