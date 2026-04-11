@@ -7,6 +7,7 @@ import Courses from './pages/Courses';
 import AiUpdates from './pages/AiUpdates';
 import Resources from './pages/Resources';
 import About from './pages/About';
+import NotebookLM from './pages/NotebookLM';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="ai-updates" element={<AiUpdates />} />
           <Route path="resources" element={<Resources />} />
           <Route path="about" element={<About />} />
+          <Route path="notebook-lm" element={<NotebookLM />} />
         </Route>
       </Routes>
     </BrowserRouter>

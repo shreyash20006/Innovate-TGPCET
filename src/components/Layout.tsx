@@ -24,6 +24,7 @@ export default function Layout() {
     { name: 'Opportunities', path: '/opportunities' },
     { name: 'Courses', path: '/courses' },
     { name: 'AI Updates', path: '/ai-updates' },
+    { name: 'AI Hub', path: '/notebook-lm' },
     { name: 'Resources', path: '/resources' },
     { name: 'About', path: '/about' },
   ];
