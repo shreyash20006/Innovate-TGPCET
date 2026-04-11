@@ -1,12 +1,12 @@
 [build]
-  # Tells Netlify exactly where to find your serverless functions
-  functions = "netlify/functions"
+functions = "netlify/functions"
+command = "npx vite build"
+publish = "dist"
 
 [build.environment]
-  # CRITICAL: Forces Node.js 20 so the native fetch() API works without crashing (Fixes 500 error)
-  NODE_VERSION = "20"
+NODE_VERSION = "20"
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200
