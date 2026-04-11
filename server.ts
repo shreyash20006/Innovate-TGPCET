@@ -2,6 +2,7 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import fs from "fs";
+import { spawn } from "child_process";
 
 async function startServer() {
   const app = express();
@@ -181,6 +182,26 @@ async function startServer() {
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    
+    // Automatically start the Python NotebookLM backend
+    console.log("Starting Python NotebookLM backend...");
+    const pythonProcess = spawn("python", ["main.py"], {
+      cwd: path.join(process.cwd(), "backend"),
+      stdio: "pipe"
+    });
+
+    pythonProcess.stdout.on("data", (data) => {
+      console.log(`[Python Backend]: ${data.toString().trim()}`);
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+      console.error(`[Python Backend ERRROR]: ${data.toString().trim()}`);
+    });
+
+    pythonProcess.on("close", (code) => {
+      console.log(`Python backend exited with code ${code}`);
+    });
+    
   });
 }
 
