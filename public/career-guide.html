@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTech / BPharma Career Guide 2026</title>
+    <!-- Modern Font: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Attractive Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Reset & Variables */
+        :root {
+            --primary: #3b82f6; /* blue-500 */
+            --primary-dark: #2563eb; /* blue-600 */
+            --secondary: #8b5cf6; /* violet-500 */
+            --accent: #f59e0b; /* amber-500 */
+            --danger: #ef4444;
+            --text-main: #f8fafc; /* slate-50 */
+            --text-light: #94a3b8; /* slate-400 */
+            --bg-light: #020617; /* slate-950 */
+            --bg-alt: #0f172a; /* slate-900 */
+            --card-bg: #0f172a; /* slate-900 */
+            --card-border: #1e293b; /* slate-800 */
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* Reusable Components */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Rounded Buttons with Hover Effects */
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.23);
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: var(--white);
+            box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);
+        }
+
+        .btn-accent:hover {
+            background-color: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--white);
+            color: var(--white);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--white);
+            color: var(--primary);
+        }
+
+        /* "Last Date Coming Soon" Badge */
+        .badge {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            background-color: var(--danger);
+            color: var(--white);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 1. Sticky Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(2, 6, 23, 0.95); /* slate-950 */
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            padding: 15px 0;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-weight: 500;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--white);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        /* 2. Hero Section */
+        .hero {
+            padding: 160px 0 100px;
+            /* Dark Blue/Purple Gradient Theme */
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: var(--white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.05)"/></svg>') repeat;
+            opacity: 0.5;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* ── 3D Canvas stays behind everything ── */
+        #three-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1.15;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        /* Responsive Grid Layout */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        /* Card-based Layout with Light Shadows */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid var(--card-border);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .card-desc {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .card-list {
+            margin-bottom: 24px;
+        }
+
+        .card-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .card-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .card .btn {
+            width: 100%;
+            margin-top: auto;
+        }
+
+        /* Clean Spacing for Sections */
+        section {
+            padding: 80px 0;
+        }
+
+        .bg-alt {
+            background-color: var(--bg-alt);
+        }
+
+        /* 5. Comparison Section */
+        .compare-card {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .compare-card .card-icon {
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .vs-badge {
+            display: inline-block;
+            background: var(--bg-light);
+            color: var(--text-light);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            border: 1px solid var(--card-border);
+        }
+
+        /* 6. Lead Capture Section */
+        .lead-capture {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            position: relative;
+        }
+
+        .lead-container {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--card-border);
+        }
+
+        .lead-content {
+            flex: 1;
+        }
+
+        .lead-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .lead-content p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .lead-form {
+            flex: 1;
+            background: var(--bg-light);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-light);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .form-note {
+            display: block;
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .form-note i {
+            color: #10b981;
+            margin-right: 4px;
+        }
+
+        /* Footer */
+        footer {
+            background: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 30px 0;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 992px) {
+            .lead-container {
+                flex-direction: column;
+                padding: 30px;
+            }
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: var(--shadow-md);
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .hero {
+                padding: 120px 0 80px;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .hero-buttons {
+                flex-direction: column;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Sticky Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> CareerGuide
+            </a>
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="nav-links" id="nav-links">
+                <a href="#btech">BTech Options</a>
+                <a href="#bpharma">BPharma Options</a>
+                <a href="#compare">Compare</a>
+                <a href="#lead-capture" class="btn btn-primary" style="padding: 8px 20px; color: white;">Get Free Notes</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. Hero Section -->
+    <header class="hero" id="hero">
+        <!-- 3D Canvas will be injected here by JS -->
+        <canvas id="three-canvas"></canvas>
+
+        <div class="container hero-content">
+            <h1>BTech / BPharma ke baad kya kare? <br><span style="color: #fcd34d;">(2026 Guide)</span></h1>
+            <p>Top Career Options + Direct Apply Links. Don't miss out on the best opportunities for higher studies, government jobs, and management.</p>
+            <div class="hero-buttons">
+                <a href="#btech" class="btn btn-accent">Apply Now</a>
+                <a href="#bpharma" class="btn btn-outline">Explore Options</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. BTech Career Options Section -->
+    <section id="btech">
+        <div class="container">
+            <h2 class="section-title">Top BTech Career Options</h2>
+            <p class="section-subtitle">Secure your future with top engineering and management exams.</p>
+            
+            <div class="grid-3">
+                <!-- GATE Card -->
+                <div class="card">
+                    <div class="badge">Last Date Coming Soon</div>
+                    <div class="card-icon"><i class="fa-solid fa-microchip"></i></div>
+                    <h3 class="card-title"><i class="fa-solid fa-gear" style="font-size: 1.2rem; color: var(--primary); margin-right: 8px;"></i>GATE 2026</h3>
+                    <p class="card-desc">The Graduate Aptitude Test in Engineering is your gateway to premium technical roles and higher education.</p>
+                    <ul class="card-list">
+                        <li>MTech from IITs/NITs</li>
+                        <li>Direct PSU Jobs (IOCL, ONGC)</li>
+                        <li>High Salary Packages</li>
+                    </ul>
+                    <a href="https://gate2026.iitg.ac.in/" target="_blank" class="btn btn-primary">Apply for GATE</a>
+                </div>
+
+                <!-- CAT Card -->
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3 class="card-title"><i class="fa-solid fa-briefcase" style="font-size: 1.2rem; color: var(--primary); margin-right: 8px;"></i>CAT 2025</h3>
+                    <p class="card-desc">Shift to management and leadership roles by cracking the Common Admission Test.</p>
+                    <ul class="card-list">
+                        <li>MBA from Top IIMs</li>
+                        <li>Corporate Leadership Roles</li>
+                        <li>Highest Salary Trajectory</li>
+                    </ul>
+                    <a href="https://iimcat.ac.in/" target="_blank" class="btn btn-primary">Register for CAT</a>
+                </div>
+
+                <!-- Govt Jobs Card -->
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-building-columns"></i></div>
+                    <h3 class="card-title"><i class="fa-solid fa-building" style="font-size: 1.2rem; color: var(--primary); margin-right: 8px;"></i>Govt Jobs (Engineering)</h3>
+                    <p class="card-desc">Secure, prestigious, and stable government positions for engineering graduates.</p>
+                    <ul class="card-list">
+                        <li>SSC JE (Junior Engineer)</li>
+                        <li>ESE (Engineering Services)</li>
+                        <li>State Level AE/JE Exams</li>
+                    </ul>
+                    <a href="https://ssc.nic.in/" target="_blank" class="btn btn-primary">Check Jobs</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. BPharma Career Options Section -->
+    <section id="bpharma" class="bg-alt">
+        <div class="container">
+            <h2 class="section-title">Top BPharma Career Options</h2>
+            <p class="section-subtitle">Advance your pharmaceutical career with specialized higher studies and management.</p>
+            
+            <div class="grid-3">
+                <!-- GPAT Card -->
+                <div class="card">
+                    <div class="badge">Last Date Coming Soon</div>
+                    <div class="card-icon"><i class="fa-solid fa-flask"></i></div>
+                    <h3 class="card-title">GPAT</h3>
+                    <p class="card-desc">Graduate Pharmacy Aptitude Test for entry into M.Pharm programs with scholarships.</p>
+                    <ul class="card-list">
+                        <li>M.Pharm Admissions</li>
+                        <li>AICTE Monthly Stipend</li>
+                        <li>R&D Career Path</li>
+                    </ul>
+                    <a href="https://gpat.nta.nic.in/" target="_blank" class="btn btn-primary">Apply GPAT</a>
+                </div>
+
+                <!-- NIPER Card -->
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-microscope"></i></div>
+                    <h3 class="card-title">NIPER JEE</h3>
+                    <p class="card-desc">Join the National Institute of Pharmaceutical Education and Research for elite pharma studies.</p>
+                    <ul class="card-list">
+                        <li>Premium Institutes</li>
+                        <li>Excellent Placements</li>
+                        <li>Global Recognition</li>
+                    </ul>
+                    <a href="https://niper.gov.in/" target="_blank" class="btn btn-primary">Apply NIPER</a>
+                </div>
+
+                <!-- MBA Card -->
+                <div class="card">
+                    <div class="card-icon"><i class="fa-solid fa-briefcase-medical"></i></div>
+                    <h3 class="card-title">MBA Option</h3>
+                    <p class="card-desc">Combine your pharma knowledge with business acumen for roles in Pharma Management.</p>
+                    <ul class="card-list">
+                        <li>Pharma MBA Programs</li>
+                        <li>Product Management</li>
+                        <li>Healthcare Consulting</li>
+                    </ul>
+                    <a href="https://iimcat.ac.in/" target="_blank" class="btn btn-primary">Apply CAT</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Comparison Section -->
+    <section id="compare">
+        <div class="container">
+            <h2 class="section-title">Which Path is Right for You?</h2>
+            <p class="section-subtitle">A quick comparison to help you decide your next big step.</p>
+            
+            <div class="grid-3">
+                <div class="card compare-card">
+                    <div class="card-icon"><i class="fa-solid fa-user-graduate"></i></div>
+                    <span class="vs-badge">Path 1</span>
+                    <h3 class="card-title">Higher Studies (GATE/GPAT)</h3>
+                    <p class="card-desc">Best for students who love core technical subjects, research, and want specialized roles in R&D or academia.</p>
+                </div>
+                <div class="card compare-card">
+                    <div class="card-icon"><i class="fa-solid fa-user-tie"></i></div>
+                    <span class="vs-badge">Path 2</span>
+                    <h3 class="card-title">MBA (CAT)</h3>
+                    <p class="card-desc">Ideal for those looking to shift into business strategy, consulting, product management, and high-growth corporate roles.</p>
+                </div>
+                <div class="card compare-card">
+                    <div class="card-icon"><i class="fa-solid fa-building-flag"></i></div>
+                    <span class="vs-badge">Path 3</span>
+                    <h3 class="card-title">Govt Jobs</h3>
+                    <p class="card-desc">Perfect for candidates seeking job security, work-life balance, prestigious titles, and stable long-term benefits.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Lead Capture Section -->
+    <section id="lead-capture" class="lead-capture">
+        <div class="container">
+            <div class="lead-container">
+                <div class="lead-content">
+                    <h2>Get Free Study Materials & Notes 📚</h2>
+                    <p>Join 50,000+ students preparing for GATE, CAT, and GPAT. Get exclusive access to handwritten notes, previous year papers, and exam updates directly on your WhatsApp.</p>
+                    <ul class="card-list" style="margin-top: 20px;">
+                        <li>Daily Exam Updates & Alerts</li>
+                        <li>Topper's Handwritten Notes</li>
+                        <li>Free Mock Test Links</li>
+                    </ul>
+                </div>
+                <div class="lead-form">
+                    <form id="notesForm">
+                        <div class="form-group">
+                            <input type="text" id="userName" class="form-control" placeholder="Full Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="userEmail" class="form-control" placeholder="Email Address" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="userPhone" class="form-control" placeholder="WhatsApp Number" pattern="[0-9]{10}" title="10 digit mobile number" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 15px;">Get Free Notes</button>
+                        <span class="form-note"><i class="fa-solid fa-shield-halved"></i> We send updates on exams & career</span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 CareerGuide for BTech & BPharma. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Minimal JavaScript -->
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const navLinks = document.getElementById('nav-links');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Form Submission Handler (WhatsApp Integration)
+        document.getElementById('notesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get user inputs
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const phone = document.getElementById('userPhone').value;
+            
+            const btn = this.querySelector('button');
+            const originalText = btn.innerText;
+            
+            btn.innerText = 'Connecting to WhatsApp...';
+            btn.style.backgroundColor = '#10b981'; // Green success color
+            
+            // Construct WhatsApp Message
+            // Replace '919876543210' with your actual admin/business WhatsApp number
+            const adminWhatsAppNumber = "918668301185"; 
+            const message = `Hello! I would like to get the free study materials & notes.%0A%0A*Name:* ${name}%0A*Email:* ${email}%0A*WhatsApp:* ${phone}%0A%0APlease send me the updates!`;
+            
+            const whatsappUrl = `https://wa.me/${adminWhatsAppNumber}?text=${message}`;
+            
+            setTimeout(() => {
+                // Open WhatsApp in a new tab
+                window.open(whatsappUrl, '_blank');
+                
+                btn.innerText = 'Redirected! ✅';
+                this.reset();
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = '';
+                }, 3000);
+            }, 1000);
+        });
+    </script>
+
+    <!-- ══════════════ THREE.JS CDN ══════════════ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- ══════════════ 3D ANIMATION SCRIPT ══════════════ -->
+    <script>
+    (function () {
+      const canvas  = document.getElementById('three-canvas');
+      const section = document.getElementById('hero');
+
+      /* ── Renderer ── */
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(section.offsetWidth, section.offsetHeight);
+
+      /* ── Scene & Camera ── */
+      const scene  = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        60,
+        section.offsetWidth / section.offsetHeight,
+        0.1,
+        200
+      );
+      camera.position.set(0, 0, 22);
+
+      /* ══ 1. FLOATING PARTICLES (300 dots) ══ */
+      const pCount = 300;
+      const pPos   = new Float32Array(pCount * 3);
+      for (let i = 0; i < pCount; i++) {
+        pPos[i * 3]     = (Math.random() - 0.5) * 55;
+        pPos[i * 3 + 1] = (Math.random() - 0.5) * 38;
+        pPos[i * 3 + 2] = (Math.random() - 0.5) * 30;
+      }
+      const pGeo = new THREE.BufferGeometry();
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+      const pMat = new THREE.PointsMaterial({
+        color: 0x6688dd, size: 0.13, transparent: true, opacity: 0.75
+      });
+      scene.add(new THREE.Points(pGeo, pMat));
+
+      /* ══ 2. WIREFRAME ICOSAHEDRON (large, left) ══ */
+      const ico = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(6.5, 1),
+        new THREE.MeshBasicMaterial({ color: 0x2244aa, wireframe: true, transparent: true, opacity: 0.18 })
+      );
+      ico.position.set(-15, 2, -6);
+      scene.add(ico);
+
+      /* ══ 3. WIREFRAME OCTAHEDRON (right side) ══ */
+      const oct = new THREE.Mesh(
+        new THREE.OctahedronGeometry(5, 0),
+        new THREE.MeshBasicMaterial({ color: 0xf5b800, wireframe: true, transparent: true, opacity: 0.22 })
+      );
+      oct.position.set(15, -2, -4);
+      scene.add(oct);
+
+      /* ══ 4. TORUS KNOT (top right, small) ══ */
+      const tk = new THREE.Mesh(
+        new THREE.TorusKnotGeometry(1.8, 0.45, 90, 16),
+        new THREE.MeshBasicMaterial({ color: 0x4466ff, wireframe: true, transparent: true, opacity: 0.28 })
+      );
+      tk.position.set(10, 7, -2);
+      scene.add(tk);
+
+      /* ══ 5. NETWORK CONNECTION LINES (30 random lines) ══ */
+      const lineMat = new THREE.LineBasicMaterial({
+        color: 0x334488, transparent: true, opacity: 0.28
+      });
+      for (let i = 0; i < 30; i++) {
+        const ax = (Math.random() - 0.5) * 44, ay = (Math.random() - 0.5) * 30, az = (Math.random() - 0.5) * 12 - 8;
+        const bx = ax + (Math.random() - 0.5) * 9, by = ay + (Math.random() - 0.5) * 9, bz = az + (Math.random() - 0.5) * 4;
+        const lGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(ax, ay, az),
+          new THREE.Vector3(bx, by, bz)
+        ]);
+        scene.add(new THREE.Line(lGeo, lineMat));
+      }
+
+      /* ══ 6. SMALL FLOATING DODECAHEDRA (5 pieces) ══ */
+      const dodColors = [0x6688ff, 0xf5b800, 0x44aadd, 0xff6644, 0x44dd88];
+      const dodecas   = [];
+      for (let i = 0; i < 5; i++) {
+        const d = new THREE.Mesh(
+          new THREE.DodecahedronGeometry(0.5 + Math.random() * 0.7, 0),
+          new THREE.MeshBasicMaterial({ color: dodColors[i], wireframe: true, transparent: true, opacity: 0.55 })
+        );
+        d.position.set(
+          (Math.random() - 0.5) * 24,
+          (Math.random() - 0.5) * 15,
+          (Math.random() - 0.5) * 9
+        );
+        d.userData = {
+          rotSpeed  : 0.004 + Math.random() * 0.007,
+          floatSpeed: 0.5   + Math.random() * 0.5,
+          floatAmp  : 0.3   + Math.random() * 0.45,
+          baseY     : d.position.y
+        };
+        dodecas.push(d);
+        scene.add(d);
+      }
+
+      /* ══ 7. MOUSE PARALLAX ══ */
+      let mx = 0, my = 0;
+      section.addEventListener('mousemove', e => {
+        const r = section.getBoundingClientRect();
+        mx = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+        my = -((e.clientY - r.top)  / r.height - 0.5) * 2;
+      });
+
+      /* ══ ANIMATION LOOP ══ */
+      let t = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        t += 0.012;
+
+        // Rotate big shapes
+        ico.rotation.x += 0.003;  ico.rotation.y += 0.0045;
+        oct.rotation.x -= 0.005;  oct.rotation.z += 0.003;
+        tk.rotation.x  += 0.006;  tk.rotation.y  += 0.004;
+
+        // Float + spin small dodecahedra
+        dodecas.forEach(d => {
+          d.rotation.x += d.userData.rotSpeed;
+          d.rotation.y += d.userData.rotSpeed * 1.4;
+          d.position.y  = d.userData.baseY + Math.sin(t * d.userData.floatSpeed) * d.userData.floatAmp;
+        });
+
+        // Pulse particles
+        pMat.opacity = 0.5 + Math.sin(t * 0.9) * 0.22;
+
+        // Smooth camera parallax
+        camera.position.x += (mx * 1.6 - camera.position.x) * 0.04;
+        camera.position.y += (my * 1.1 - camera.position.y) * 0.04;
+        camera.lookAt(0, 0, 0);
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      /* ══ RESPONSIVE RESIZE ══ */
+      window.addEventListener('resize', () => {
+        renderer.setSize(section.offsetWidth, section.offsetHeight);
+        camera.aspect = section.offsetWidth / section.offsetHeight;
+        camera.updateProjectionMatrix();
+      });
+
+    })();
+    </script>
+</body>
+</html>

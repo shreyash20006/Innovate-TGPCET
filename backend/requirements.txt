@@ -1,5 +1,0 @@
-fastapi>=0.100.0
-uvicorn>=0.23.0
-notebooklm-py[browser]
-python-multipart>=0.0.6
-aiofiles>=23.0.0

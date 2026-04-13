@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Finance Hub</title>
+  <style>
+    /* Base Styles */
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-color: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+      --warning-text: #92400e;
+      --success: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Section 1: Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    .header-icon {
+      font-size: 2.5rem;
+      background: #dbeafe;
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      border-radius: 20px;
+      margin: 0 auto 1rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .header h2 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+    }
+
+    /* Section 5: Trust Elements */
+    .trust-elements {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      border: 1px solid var(--border-color);
+      margin-bottom: 3rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .trust-note {
+      width: 100%;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: -0.5rem;
+    }
+
+    /* Section Headers */
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .powered-by {
+      font-size: 0.85rem;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+
+    .section-header-wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.1);
+      border-color: #bfdbfe;
+    }
+
+    .card-logo {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #eff6ff, #e0e7ff);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #dbeafe;
+    }
+
+    .card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .card p.desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .features {
+      list-style: none;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+
+    .features li {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .features li::before {
+      content: "✓";
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.875rem;
+      border-radius: 10px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-top: auto;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-dark {
+      background: #0f172a;
+      color: white;
+    }
+
+    .btn-dark:hover {
+      background: #1e293b;
+    }
+
+    /* Section 4: Disclaimer */
+    .disclaimer {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      border-left: 4px solid #f59e0b;
+      padding: 1.5rem;
+      border-radius: 12px;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+    }
+
+    .disclaimer-icon {
+      font-size: 1.5rem;
+    }
+
+    .disclaimer-content h4 {
+      color: var(--warning-text);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .disclaimer-content p {
+      color: #b45309;
+      font-size: 0.9rem;
+    }
+
+    /* Tips Banner */
+    .tips-banner {
+      max-width: 600px;
+      margin: 2rem auto 0;
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 0 15px rgba(37, 99, 235, 0.05);
+    }
+
+    .tips-icon {
+      background: rgba(37, 99, 235, 0.15);
+      padding: 0.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .tips-content {
+      position: relative;
+      height: 1.5rem;
+      flex-grow: 1;
+      text-align: left;
+      overflow: hidden;
+    }
+
+    .tip-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      color: #bfdbfe;
+      font-size: 0.95rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .tip-text.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tip-text strong {
+      color: #60a5fa;
+    }
+
+    /* Animations */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .section-header-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .powered-by {
+        margin-left: 0;
+      }
+      .header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Section 1: Header -->
+    <header class="header">
+      <div class="header-icon">💳</div>
+      <h1>Student Finance Hub</h1>
+      <h2>Explore Credit Cards & Instant Loan Options for Students</h2>
+      <p>Compare and apply for the best student-friendly financial products. Build your credit score early with trusted partners.</p>
+      
+      <!-- Rotating Financial Literacy Tips -->
+      <div class="tips-banner">
+        <div class="tips-icon">💡</div>
+        <div class="tips-content" id="tips-container">
+          <span class="tip-text active"><strong>Tip:</strong> Start saving early: Compound interest is your best friend.</span>
+          <span class="tip-text"><strong>Tip:</strong> Understand credit scores: Pay bills on time to build a strong history.</span>
+          <span class="tip-text"><strong>Tip:</strong> Budgeting 101: Track your expenses to know exactly where your money goes.</span>
+          <span class="tip-text"><strong>Tip:</strong> Emergency Fund: Aim to save a small buffer for unexpected costs.</span>
+          <span class="tip-text"><strong>Tip:</strong> Avoid impulse buying: Wait 24 hours before making non-essential purchases.</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Section 5: Trust Elements -->
+    <div class="trust-elements">
+      <div class="trust-item">🔒 Secure & Safe</div>
+      <div class="trust-item">⚡ Fast Process</div>
+      <div class="trust-item">📊 Trusted Info</div>
+      <div class="trust-note">* No hidden charges from our side</div>
+    </div>
+
+    <!-- Section 2: Credit Cards -->
+    <div class="section-header-wrapper">
+      <h2 class="section-title">Best Credit Cards for Students</h2>
+      <span class="powered-by">Powered by BankSathi</span>
+    </div>
+    
+    <div class="grid">
+      <!-- Card 1 -->
+      <div class="card">
+        <div class="card-logo">💳</div>
+        <h3>Student Cashback Card</h3>
+        <ul class="features">
+          <li>5% Cashback on dining & online</li>
+          <li>Zero Annual Fee</li>
+          <li>No credit history required</li>
+        </ul>
+        <a href="#" target="_blank" class="btn btn-primary">Apply Now ↗</a>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card">
+        <div class="card-logo">🎁</div>
+        <h3>Entry Level Rewards Card</h3>
+        <ul class="features">
+          <li>Welcome bonus of 500 pts</li>
+          <li>Low interest rate</li>
+          <li>Free movie tickets monthly</li>
+        </ul>
+        <a href="#" target="_blank" class="btn btn-primary">Apply Now ↗</a>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card">
+        <div class="card-logo">✈️</div>
+        <h3>Travel & Forex Card</h3>
+        <ul class="features">
+          <li>Zero markup on forex</li>
+          <li>Free lounge access</li>
+          <li>Global acceptance</li>
+        </ul>
+        <a href="#" target="_blank" class="btn btn-primary">Apply Now ↗</a>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="card">
+        <div class="card-logo">🎓</div>
+        <h3>Campus Premium Card</h3>
+        <ul class="features">
+          <li>Discounts on online courses</li>
+          <li>Fuel surcharge waiver</li>
+          <li>Instant virtual card generation</li>
+        </ul>
+        <a href="#" target="_blank" class="btn btn-primary">Apply Now ↗</a>
+      </div>
+    </div>
+
+    <!-- Section 3: Instant Loan Apps -->
+    <div class="section-header-wrapper">
+      <h2 class="section-title">Instant Loan Apps for Students</h2>
+    </div>
+
+    <div class="grid">
+      <!-- App 1 -->
+      <div class="card">
+        <div class="card-logo" style="background: #fff; border-color: #e2e8f0; overflow: hidden; padding: 0.5rem;">
+          <img src="https://res.cloudinary.com/dsqxboxoc/image/upload/q_auto/f_auto/v1775472801/Screenshot_2026-04-06_162123_umdtnq.png" alt="mPokket Logo" style="width: 100%; height: 100%; object-fit: contain;" referrerpolicy="no-referrer">
+        </div>
+        <h3>mPokket</h3>
+        <p class="desc">Instant small loans for students with minimal documentation</p>
+        <ul class="features">
+          <li>₹500–₹30,000 loan</li>
+          <li>Quick approval</li>
+          <li>Student ID accepted</li>
+        </ul>
+        <a href="#" target="_blank" class="btn btn-dark">Get Loan Now ↗</a>
+      </div>
+
+      <!-- App 2 -->
+      <div class="card">
+        <div class="card-logo" style="background: #fff; border-color: #e2e8f0; overflow: hidden; padding: 0.5rem;">
+          <img src="https://res.cloudinary.com/dsqxboxoc/image/upload/q_auto/f_auto/v1775472665/branch_png_nd4ceu.png" alt="Branch Logo" style="width: 100%; height: 100%; object-fit: contain;" referrerpolicy="no-referrer">
+        </div>
+        <h3>Branch</h3>
+        <p class="desc">Fast personal loans directly to your bank account</p>
+        <ul class="features">
+          <li>No collateral required</li>
+          <li>Flexible repayment terms</li>
+          <li>Build credit score</li>
+        </ul>
+        <a href="#" target="_blank" class="btn btn-dark">Apply Now ↗</a>
+      </div>
+
+      <!-- App 3 -->
+      <div class="card">
+        <div class="card-logo" style="background: #fff; border-color: #e2e8f0;">🐝</div>
+        <h3>KreditBee</h3>
+        <p class="desc">Quick personal loans for students and salaried users</p>
+        <ul class="features">
+          <li>Higher loan limits</li>
+          <li>Fast processing</li>
+          <li>100% online process</li>
+        </ul>
+        <a href="#" target="_blank" class="btn btn-dark">Apply Now ↗</a>
+      </div>
+    </div>
+
+    <!-- Section 4: Disclaimer -->
+    <div class="disclaimer">
+      <div class="disclaimer-icon">⚠️</div>
+      <div class="disclaimer-content">
+        <h4>Important Disclaimer</h4>
+        <p>We are not a bank or NBFC. We do not provide loans or credit cards directly. We only share information and redirect users to third-party platforms. Approval of loans or credit cards depends on the respective provider’s eligibility criteria. We are not responsible for any approvals, rejections, delays, or financial transactions. Users are advised to verify all details before applying. Use at your own risk.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Simple intersection observer for scroll animations
+    document.addEventListener("DOMContentLoaded", () => {
+      const cards = document.querySelectorAll('.card, .disclaimer');
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, { threshold: 0.1 });
+
+      cards.forEach(card => {
+        card.style.opacity = "0";
+        card.style.transform = "translateY(20px)";
+        card.style.transition = "opacity 0.5s ease-out, transform 0.5s ease-out";
+        observer.observe(card);
+      });
+
+      // Rotating Tips Logic
+      const tips = document.querySelectorAll('.tip-text');
+      let currentTipIndex = 0;
+
+      if (tips.length > 0) {
+        setInterval(() => {
+          tips[currentTipIndex].classList.remove('active');
+          tips[currentTipIndex].style.transform = 'translateY(-10px)';
+          
+          setTimeout(() => {
+            tips[currentTipIndex].style.transform = 'translateY(10px)';
+            currentTipIndex = (currentTipIndex + 1) % tips.length;
+            tips[currentTipIndex].classList.add('active');
+          }, 300); // Wait for transition out before moving it back down
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>

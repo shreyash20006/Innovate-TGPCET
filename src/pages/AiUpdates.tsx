@@ -35,16 +35,27 @@ export default function AiUpdates() {
       url: shareUrl,
     };
 
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
+    const fallbackCopy = async () => {
+      try {
         await navigator.clipboard.writeText(shareUrl);
         setCopiedId(news.id);
         setTimeout(() => setCopiedId(null), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
       }
-    } catch (err) {
-      console.error('Error sharing:', err);
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Error sharing:', err);
+          await fallbackCopy();
+        }
+      }
+    } else {
+      await fallbackCopy();
     }
   };
 
@@ -52,7 +63,7 @@ export default function AiUpdates() {
     const fetchNews = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/news');
+        const response = await fetch('/.netlify/functions/news');
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
           throw new Error(errorData?.error || 'Failed to fetch news');

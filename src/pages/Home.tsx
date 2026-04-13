@@ -63,11 +63,42 @@ const Typewriter3D = ({ text, className, delayOffset = 0 }: { text: string, clas
   );
 };
 
+// Define Instagram posts with an expiry timestamp (24 hours from the time of this edit: 2026-04-08T05:34:31Z)
+const INSTAGRAM_POSTS = [
+  { url: "https://www.instagram.com/p/DWthdTDkibS/", expiresAt: new Date('2026-04-08T05:34:31Z').getTime() },
+  { url: "https://www.instagram.com/p/DRzsti0iFBY/", expiresAt: new Date('2026-04-08T05:34:31Z').getTime() },
+  { url: "https://www.instagram.com/p/DWoS4OfCG-C/", expiresAt: new Date('2026-04-08T05:34:31Z').getTime() }
+];
+
 export default function Home() {
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [subscribeStatus, setSubscribeStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [subscribeMessage, setSubscribeMessage] = React.useState('');
+  const [aiUpdates, setAiUpdates] = React.useState<any[]>([]);
+  const [aiUpdatesLoading, setAiUpdatesLoading] = React.useState(true);
+  const [aiUpdatesError, setAiUpdatesError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        setAiUpdatesLoading(true);
+        const response = await fetch('/.netlify/functions/news');
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(errorData?.error || 'Failed to fetch news');
+        }
+        const data = await response.json();
+        setAiUpdates(data.slice(0, 3)); // Get top 3
+      } catch (err) {
+        setAiUpdatesError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setAiUpdatesLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, []);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +106,7 @@ export default function Home() {
 
     setSubscribeStatus('loading');
     try {
-      const response = await fetch('/api/subscribe', {
+      const response = await fetch('/.netlify/functions/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email })
@@ -193,11 +224,11 @@ export default function Home() {
             { title: 'Hackathons', icon: Target, link: '/opportunities', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
             { title: 'Free Courses', icon: BookOpen, link: '/courses', color: 'text-purple-400', bg: 'bg-purple-400/10' },
           ].map((item, i) => (
-            <Link key={i} to={item.link} className="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-6 flex flex-col items-center justify-center gap-2 sm:gap-4 hover:border-amber-500/50 hover:-translate-y-1 transition-all group shadow-lg text-center">
-              <div className={`p-3 sm:p-4 rounded-full ${item.bg} group-hover:scale-110 transition-transform`}>
-                <item.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.color}`} />
+            <Link key={i} to={item.link} className="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-6 flex flex-col items-center justify-center gap-2 sm:gap-4 hover:border-amber-500/50 hover:scale-[1.03] hover:-translate-y-1.5 transition-all duration-300 group shadow-lg text-center hover:shadow-amber-500/10 hover:shadow-xl">
+              <div className={`p-3 sm:p-4 rounded-full ${item.bg} group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300`}>
+                <item.icon className={`w-6 h-6 sm:w-8 sm:h-8 ${item.color} transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110`} />
               </div>
-              <span className="font-bold text-slate-300 group-hover:text-white text-xs sm:text-base">{item.title}</span>
+              <span className="font-bold text-slate-300 group-hover:text-amber-500 text-xs sm:text-base transition-colors duration-300">{item.title}</span>
             </Link>
           ))}
         </div>
@@ -342,42 +373,92 @@ export default function Home() {
           </div>
           <Link to="/ai-updates" className="text-amber-500 hover:text-amber-400 transition-colors font-medium text-sm sm:text-base">View All &rarr;</Link>
         </motion.div>
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5 }}
-          className="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center"
-        >
-          <Terminal className="w-10 h-10 sm:w-12 sm:h-12 text-amber-500 mx-auto mb-4" />
-          <p className="text-slate-300 text-base sm:text-lg">Fetching the latest AI news and trends...</p>
-        </motion.div>
+        {aiUpdatesLoading ? (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5 }}
+            className="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center"
+          >
+            <Terminal className="w-10 h-10 sm:w-12 sm:h-12 text-amber-500 mx-auto mb-4 animate-pulse" />
+            <p className="text-slate-300 text-base sm:text-lg">Fetching the latest AI news and trends...</p>
+          </motion.div>
+        ) : aiUpdatesError ? (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5 }}
+            className="bg-red-500/10 border border-red-500/50 rounded-3xl p-8 sm:p-12 text-center"
+          >
+            <p className="text-red-500 mb-2 font-bold text-lg">Error loading AI updates</p>
+            <p className="text-slate-400 text-sm sm:text-base">{aiUpdatesError}</p>
+          </motion.div>
+        ) : aiUpdates.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {aiUpdates.map((news, i) => (
+              <motion.div 
+                key={news.id || i}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-amber-500/50 transition-colors flex flex-col h-full"
+              >
+                <div className="text-xs text-amber-500 font-bold mb-2">{news.hook || 'UPDATE'}</div>
+                <h3 className="text-lg font-bold text-white mb-3 line-clamp-2">{news.title}</h3>
+                <p className="text-slate-400 text-sm mb-4 line-clamp-3 flex-grow">{news.summary}</p>
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-800">
+                  <span className="text-xs text-slate-500">{news.date}</span>
+                  {news.url ? (
+                    <a href={news.url} target="_blank" rel="noopener noreferrer" className="text-amber-500 text-sm font-medium hover:text-amber-400 transition-colors">
+                      Read More &rarr;
+                    </a>
+                  ) : (
+                    <Link to="/ai-updates" className="text-amber-500 text-sm font-medium hover:text-amber-400 transition-colors">
+                      Read More &rarr;
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5 }}
+            className="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center"
+          >
+            <p className="text-slate-300 text-base sm:text-lg">No AI updates available at the moment.</p>
+          </motion.div>
+        )}
       </section>
 
       {/* Instagram Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
-          <Instagram className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500" />
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">From Instagram</h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 justify-items-center w-full overflow-hidden">
-          {[
-            "https://www.instagram.com/p/DWthdTDkibS/",
-            "https://www.instagram.com/p/DRzsti0iFBY/",
-            "https://www.instagram.com/p/DWoS4OfCG-C/"
-          ].map((link, i) => (
-            <div key={i} className="w-full max-w-full flex justify-center bg-white rounded-xl overflow-hidden shadow-lg min-h-[350px] sm:min-h-[400px]">
-              <blockquote 
-                className="instagram-media" 
-                data-instgrm-permalink={`${link}?utm_source=ig_embed&amp;utm_campaign=loading`} 
-                data-instgrm-version="14" 
-                style={{ background: '#FFF', border: 0, margin: 0, padding: 0, width: '100%', minWidth: '100%', maxWidth: '100%' }}
-              >
-              </blockquote>
-            </div>
-          ))}
-        </div>
-      </section>
+      {INSTAGRAM_POSTS.filter(post => Date.now() < post.expiresAt).length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+            <Instagram className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500" />
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">From Instagram</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 justify-items-center w-full overflow-hidden">
+            {INSTAGRAM_POSTS.filter(post => Date.now() < post.expiresAt).map((post, i) => (
+              <div key={i} className="w-full max-w-full flex justify-center bg-white rounded-xl overflow-hidden shadow-lg min-h-[350px] sm:min-h-[400px]">
+                <blockquote 
+                  className="instagram-media" 
+                  data-instgrm-permalink={`${post.url}?utm_source=ig_embed&amp;utm_campaign=loading`} 
+                  data-instgrm-version="14" 
+                  style={{ background: '#FFF', border: 0, margin: 0, padding: 0, width: '100%', minWidth: '100%', maxWidth: '100%' }}
+                >
+                </blockquote>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Community Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">

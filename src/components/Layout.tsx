@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home, Briefcase, BookOpen, Cpu, FolderOpen, DollarSign, Compass, Info } from 'lucide-react';
 import FeedbackWidget from './FeedbackWidget';
 import CustomLogo from './Logo';
 
@@ -20,13 +20,13 @@ export default function Layout() {
   const location = useLocation();
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Opportunities', path: '/opportunities' },
-    { name: 'Courses', path: '/courses' },
-    { name: 'AI Updates', path: '/ai-updates' },
-    { name: 'AI Hub', path: '/notebook-lm' },
-    { name: 'Resources', path: '/resources' },
-    { name: 'About', path: '/about' },
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Opportunities', path: '/opportunities', icon: Briefcase },
+    { name: 'Courses', path: '/courses', icon: BookOpen },
+    { name: 'AI Updates', path: '/ai-updates', icon: Cpu },
+    { name: 'Resources', path: '/resources', icon: FolderOpen },
+    { name: 'Career Guide', path: '/career-guide.html', external: true, icon: Compass },
+    { name: 'About', path: '/about', icon: Info },
   ];
 
   React.useEffect(() => {
@@ -57,15 +57,25 @@ export default function Layout() {
           
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`${
-                  location.pathname === link.path ? 'text-amber-500' : 'text-slate-400 hover:text-white'
-                } transition-colors`}
-              >
-                {link.name}
-              </Link>
+              link.external ? (
+                <a
+                  key={link.name}
+                  href={link.path}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`${
+                    location.pathname === link.path ? 'text-amber-500' : 'text-slate-400 hover:text-white'
+                  } transition-colors`}
+                >
+                  {link.name}
+                </Link>
+              )
             ))}
           </div>
 
@@ -85,18 +95,34 @@ export default function Layout() {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden bg-slate-900 border-b border-slate-800 overflow-hidden"
             >
-              <div className="px-4 py-4 flex flex-col gap-4">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.name}
-                    to={link.path}
-                    className={`${
-                      location.pathname === link.path ? 'text-amber-500' : 'text-slate-400'
-                    } font-medium hover:text-white transition-colors`}
-                  >
-                    {link.name}
-                  </Link>
-                ))}
+              <div className="px-4 py-6 grid grid-cols-2 gap-3 max-h-[70vh] overflow-y-auto">
+                {navLinks.map((link) => {
+                  const Icon = link.icon;
+                  const isActive = location.pathname === link.path;
+                  
+                  const content = (
+                    <>
+                      <Icon className={`w-6 h-6 mb-2 transition-colors ${isActive ? 'text-amber-500' : 'text-slate-400 group-hover:text-amber-400'}`} />
+                      <span className="text-sm font-bold text-center leading-tight">{link.name}</span>
+                    </>
+                  );
+
+                  const className = `flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 group ${
+                    isActive 
+                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,166,35,0.1)]' 
+                      : 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700 hover:text-white'
+                  }`;
+
+                  return link.external ? (
+                    <a key={link.name} href={link.path} className={className}>
+                      {content}
+                    </a>
+                  ) : (
+                    <Link key={link.name} to={link.path} className={className}>
+                      {content}
+                    </Link>
+                  );
+                })}
               </div>
             </motion.div>
           )}
