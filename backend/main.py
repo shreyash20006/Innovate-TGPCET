@@ -17,6 +17,8 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List
+import zipfile
+import io
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -431,11 +433,33 @@ async def health():
 
 @app.post("/api/nlm/upload")
 async def upload_file(file: UploadFile = File(...)):
-    """Upload a PDF or document file. Returns a file_id to use with other endpoints."""
+    """Upload a PDF or document file (or a ZIP of them). Returns file_id(s) to use with other endpoints."""
     allowed_extensions = {".pdf", ".txt", ".md", ".epub", ".docx"}
     ext = Path(file.filename or "file").suffix.lower()
+    
+    if ext == ".zip":
+        content = await file.read()
+        file_ids = []
+        with zipfile.ZipFile(io.BytesIO(content)) as z:
+            for info in z.infolist():
+                if not info.is_dir():
+                    v_ext = Path(info.filename).suffix.lower()
+                    if v_ext in allowed_extensions:
+                        file_id = f"{uuid.uuid4().hex[:12]}{v_ext}"
+                        file_path = UPLOADS_DIR / file_id
+                        extracted = z.read(info.filename)
+                        with open(file_path, "wb") as out_f:
+                            out_f.write(extracted)
+                        file_ids.append({
+                            "file_id": file_id,
+                            "filename": Path(info.filename).name,
+                            "size": len(extracted),
+                            "type": v_ext
+                        })
+        return {"is_zip": True, "files": file_ids}
+        
     if ext not in allowed_extensions:
-        raise HTTPException(400, f"File type '{ext}' not supported. Allowed: {', '.join(allowed_extensions)}")
+        raise HTTPException(400, f"File type '{ext}' not supported. Allowed: {', '.join(allowed_extensions)}, .zip")
 
     file_id = f"{uuid.uuid4().hex[:12]}{ext}"
     file_path = UPLOADS_DIR / file_id
@@ -445,6 +469,7 @@ async def upload_file(file: UploadFile = File(...)):
         f.write(content)
 
     return {
+        "is_zip": False,
         "file_id": file_id,
         "filename": file.filename,
         "size": len(content),

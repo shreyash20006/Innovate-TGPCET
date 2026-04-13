@@ -54,7 +54,7 @@ async function apiGet(path: string): Promise<any> {
   return res.json();
 }
 
-async function uploadFile(file: globalThis.File): Promise<UploadedFile> {
+async function uploadFile(file: globalThis.File): Promise<any> {
   const formData = new FormData();
   formData.append('file', file);
   const res = await fetch(nlmPath('/api/nlm/upload'), {
@@ -129,14 +129,26 @@ const SourceManager = ({
     try {
       for (const file of Array.from(files)) {
         const result = await uploadFile(file);
-        const newItem: SourceItem = {
-          id: generateId(),
-          kind: 'file',
-          value: result.file_id,
-          label: result.filename,
-          file_id: result.file_id,
-        };
-        setSources(prev => [...prev, newItem]);
+        
+        if (result.is_zip && result.files) {
+          const newItems: SourceItem[] = result.files.map((f: any) => ({
+            id: generateId(),
+            kind: 'file',
+            value: f.file_id,
+            label: f.filename,
+            file_id: f.file_id,
+          }));
+          setSources(prev => [...prev, ...newItems]);
+        } else {
+          const newItem: SourceItem = {
+            id: generateId(),
+            kind: 'file',
+            value: result.file_id,
+            label: result.filename,
+            file_id: result.file_id,
+          };
+          setSources(prev => [...prev, newItem]);
+        }
       }
     } catch (err: any) {
       setUploadError(err.message || 'Upload failed');
@@ -230,7 +242,7 @@ const SourceManager = ({
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf,.txt,.md,.epub,.docx"
+          accept=".pdf,.txt,.md,.epub,.docx,.zip"
           multiple
           onChange={e => handleFileUpload(e.target.files)}
           className="hidden"
@@ -246,7 +258,7 @@ const SourceManager = ({
             <p className="text-xs text-slate-400">
               <span className="font-semibold text-slate-300">Drop files here</span> or click to browse
             </p>
-            <p className="text-[10px] text-slate-600 mt-1">PDF, TXT, Markdown, EPUB, DOCX supported</p>
+            <p className="text-[10px] text-slate-600 mt-1">PDF, TXT, Markdown, EPUB, DOCX, ZIP supported</p>
           </>
         )}
       </div>
