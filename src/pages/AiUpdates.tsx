@@ -52,7 +52,7 @@ export default function AiUpdates() {
     const fetchNews = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/.netlify/functions/news');
+        const response = await fetch('/api/news');
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
           throw new Error(errorData?.error || 'Failed to fetch news');
