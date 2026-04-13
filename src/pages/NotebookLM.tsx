@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, BookOpen, Search, Plus, X, Play, Loader as Loader2, CircleCheck as CheckCircle2, CircleAlert as AlertCircle, Download, ChevronDown, ChevronUp, Sparkles, Radio, BrainCircuit, FileQuestionMark as FileQuestion, Layers, FileText, RotateCcw, ExternalLink, Headphones, GraduationCap, Telescope, Zap, Clock, ArrowRight, Upload, File, Link, Type, Trash2, Video, Presentation, ChevronLeft as AlignLeft, Table, Workflow, LayoutList, ChartPie as PieChart } from 'lucide-react';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
-const API_BASE = '';
+const API_BASE = import.meta.env.VITE_BACKEND_URL || '';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Job {
@@ -34,7 +34,7 @@ interface SourceItem {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function nlmPath(path: string): string {
-  return `/.netlify/functions/nlm${path}`;
+  return `${API_BASE}${path}`;
 }
 
 async function apiPost(path: string, body: any): Promise<any> {
