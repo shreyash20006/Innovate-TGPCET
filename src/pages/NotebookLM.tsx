@@ -316,6 +316,15 @@ const JobCard = ({ job }: { job: Job; key?: React.Key }) => {
     podcast: <Headphones className="w-5 h-5 text-amber-400" />,
     study_kit: <GraduationCap className="w-5 h-5 text-purple-400" />,
     research: <Telescope className="w-5 h-5 text-cyan-400" />,
+    audio: <Headphones className="w-5 h-5 text-amber-400" />,
+    slide_deck: <Presentation className="w-5 h-5 text-orange-400" />,
+    video: <Video className="w-5 h-5 text-red-400" />,
+    mind_map: <Workflow className="w-5 h-5 text-purple-400" />,
+    report: <FileText className="w-5 h-5 text-blue-400" />,
+    flashcards: <Layers className="w-5 h-5 text-indigo-400" />,
+    quiz: <FileQuestion className="w-5 h-5 text-cyan-400" />,
+    infographic: <PieChart className="w-5 h-5 text-emerald-400" />,
+    data_table: <Table className="w-5 h-5 text-teal-400" />,
   };
   const statusColors: Record<string, string> = {
     pending: 'text-slate-400',
@@ -352,6 +361,15 @@ const JobCard = ({ job }: { job: Job; key?: React.Key }) => {
                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-amber-400 text-xs flex items-start gap-2">
                       <Sparkles className="w-4 h-4 flex-shrink-0 mt-0.5" />
                       <span>Demo mode — Install <code className="bg-white/10 px-1 rounded">notebooklm-py</code> and run <code className="bg-white/10 px-1 rounded">notebooklm login</code> for real content</span>
+                    </div>
+                  )}
+
+                  {/* Studio artifacts */}
+                  {job.result.file_path && !['podcast', 'study_kit', 'research'].includes(job.type) && (
+                    <div className="flex pt-1">
+                      <a href={`${API_BASE}/api/nlm/download/${job.result.file_path}`} className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 text-amber-400 hover:bg-amber-500/20 text-xs font-medium transition-colors">
+                        <Download className="w-3.5 h-3.5" /> Download {job.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </a>
                     </div>
                   )}
 

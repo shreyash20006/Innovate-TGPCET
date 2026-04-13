@@ -568,8 +568,8 @@ async def _run_studio_pipeline(job_id: str, req: StudioRequest):
             elif atype == "slide_deck":
                 status = await client.artifacts.generate_slide_deck(**gen_kwargs)
                 await client.artifacts.wait_for_completion(nb.id, status.task_id)
-                output_file = filename + ".pdf"
-                await client.artifacts.download_slide_deck(nb.id, str(DOWNLOADS_DIR / output_file), output_format="pdf")
+                output_file = filename + ".pptx"
+                await client.artifacts.download_slide_deck(nb.id, str(DOWNLOADS_DIR / output_file), output_format="pptx")
                 
             elif atype == "mind_map":
                 status = await client.artifacts.generate_mind_map(**gen_kwargs)
