@@ -18,8 +18,40 @@ const categoryIcons: Record<string, React.ReactNode> = {
 export default function Courses() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredCourses = COURSES.filter(course => {
+  React.useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('/api/notion/courses');
+        if (!response.ok) throw new Error('Failed to fetch courses');
+        const data = await response.json();
+        
+        // Map Notion data to match the UI structure
+        const formattedCourses = data.map((course: any) => ({
+          id: course.id,
+          title: course.title,
+          category: course.platform || 'Coding', // Fallback
+          desc: course.description || `Learn ${course.title} on ${course.platform}`,
+          link: course.link
+        }));
+        
+        setCourses(formattedCourses);
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+        setCourses(COURSES); // Fallback to empty/dummy array
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           course.desc.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = activeCategory === 'All' || course.category === activeCategory;
@@ -82,47 +114,60 @@ export default function Courses() {
       {/* Course Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence mode="popLayout">
-          {filteredCourses.map((course, i) => (
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.9, y: 50 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3, delay: i * 0.1 }}
-              key={course.id}
-              className="group bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-amber-500/50 transition-all duration-300 flex flex-col relative overflow-hidden"
+          {loading ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="col-span-full py-20 text-center"
             >
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
-              
-              <div className="mb-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300">
-                  {categoryIcons[course.category]}
-                  {course.category}
-                </span>
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-900 border border-slate-800 mb-6 shadow-lg animate-pulse">
+                <GraduationCap className="w-10 h-10 text-amber-500" />
               </div>
-              
-              <h3 className="text-xl font-bold text-white mb-3 group-hover:text-amber-500 transition-colors z-10">
-                {course.title}
-              </h3>
-              
-              <p className="text-slate-400 text-sm mb-8 flex-grow z-10 leading-relaxed">
-                {course.desc}
-              </p>
-              
-              <a 
-                href={course.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-slate-800 hover:bg-amber-500 text-white hover:text-slate-950 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 z-10 group/btn"
-              >
-                Start Learning
-                <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-              </a>
+              <h3 className="text-3xl font-bold text-white mb-3">Loading Courses...</h3>
+              <p className="text-slate-400 max-w-md mx-auto">Fetching the latest courses from Notion.</p>
             </motion.div>
-          ))}
-          
-          {filteredCourses.length === 0 && (
+          ) : filteredCourses.length > 0 ? (
+            filteredCourses.map((course, i) => (
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3, delay: i * 0.1 }}
+                key={course.id}
+                className="group bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-amber-500/50 transition-all duration-300 flex flex-col relative overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                
+                <div className="mb-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300">
+                    {categoryIcons[course.category] || <Award className="w-4 h-4" />}
+                    {course.category}
+                  </span>
+                </div>
+                
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-amber-500 transition-colors z-10">
+                  {course.title}
+                </h3>
+                
+                <p className="text-slate-400 text-sm mb-8 flex-grow z-10 leading-relaxed">
+                  {course.desc}
+                </p>
+                
+                <a 
+                  href={course.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-slate-800 hover:bg-amber-500 text-white hover:text-slate-950 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 z-10 group/btn"
+                >
+                  Start Learning
+                  <ExternalLink className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                </a>
+              </motion.div>
+            ))
+          ) : (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -131,8 +176,8 @@ export default function Courses() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-900 border border-slate-800 mb-6 shadow-lg">
                 <GraduationCap className="w-10 h-10 text-slate-500" />
               </div>
-              <h3 className="text-3xl font-bold text-white mb-3">Coming Soon</h3>
-              <p className="text-slate-400 max-w-md mx-auto">We're curating the best free courses for you. Check back later!</p>
+              <h3 className="text-3xl font-bold text-white mb-3">No Courses Found</h3>
+              <p className="text-slate-400 max-w-md mx-auto">Try adjusting your search or filters.</p>
             </motion.div>
           )}
         </AnimatePresence>

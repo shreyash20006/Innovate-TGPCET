@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Briefcase, Search, ExternalLink, Calendar, MapPin, Clock, X, IndianRupee, Laptop } from 'lucide-react';
+import { Briefcase, Search, ExternalLink, Calendar, MapPin, Clock, X, IndianRupee, Laptop, Filter } from 'lucide-react';
 
 // --- Types ---
 export type OpportunityType = 'Internship' | 'Competition' | 'Workshop' | 'Accelerator' | 'Simulation';
@@ -305,14 +305,48 @@ const useCountdown = (targetDate: string) => {
 export default function Opportunities() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<OpportunityType | 'All'>('All');
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [selectedOpp, setSelectedOpp] = useState<Opportunity | null>(null);
+  
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredOpportunities = OPPORTUNITIES.filter((opp) => {
+  useEffect(() => {
+    const fetchOpportunities = async () => {
+      try {
+        const response = await fetch('/api/notion/opportunities');
+        if (!response.ok) throw new Error('Failed to fetch opportunities');
+        const data = await response.json();
+        // If Notion is empty or fails, fallback to dummy data
+        if (data && data.length > 0) {
+          setOpportunities(data);
+        } else {
+          setOpportunities(OPPORTUNITIES);
+        }
+      } catch (err) {
+        console.error('Error fetching from Notion:', err);
+        // Fallback to dummy data on error
+        setOpportunities(OPPORTUNITIES);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOpportunities();
+  }, []);
+
+  const allTags = Array.from(
+    new Set(opportunities.flatMap((opp) => opp.tags || []))
+  ).sort();
+
+  const filteredOpportunities = opportunities.filter((opp) => {
     const descText = typeof opp.description === 'string' ? opp.description : '';
     const matchesSearch = opp.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           descText.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = activeFilter === 'All' || opp.type === activeFilter;
-    return matchesSearch && matchesFilter;
+    const matchesType = activeFilter === 'All' || opp.type === activeFilter;
+    const matchesTags = activeTags.length === 0 || activeTags.some(tag => opp.tags?.includes(tag));
+    return matchesSearch && matchesType && matchesTags;
   });
 
   return (
@@ -337,42 +371,86 @@ export default function Opportunities() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-900 p-4 rounded-2xl border border-slate-800"
+          className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-4"
         >
-          <div className="relative w-full md:w-96">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-slate-500" />
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full md:w-96">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-slate-500" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search opportunities..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="block w-full pl-10 pr-3 py-2.5 border border-slate-800 rounded-xl leading-5 bg-slate-950 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all sm:text-sm"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Search opportunities..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2.5 border border-slate-800 rounded-xl leading-5 bg-slate-950 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all sm:text-sm"
-            />
+
+            <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {(['All', 'Internship', 'Competition', 'Workshop', 'Accelerator', 'Simulation'] as const).map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+                    activeFilter === filter
+                      ? 'bg-amber-500 text-slate-950'
+                      : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-            {(['All', 'Internship', 'Competition', 'Workshop', 'Accelerator', 'Simulation'] as const).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
-                  activeFilter === filter
-                    ? 'bg-amber-500 text-slate-950'
-                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
+          {/* Tags Filter */}
+          {allTags.length > 0 && (
+            <div className="pt-4 border-t border-slate-800">
+              <div className="flex items-center gap-2 mb-3">
+                <Filter className="w-4 h-4 text-slate-500" />
+                <span className="text-sm font-medium text-slate-400">Filter by Tags:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => {
+                      setActiveTags(prev => 
+                        prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+                      );
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
+                      activeTags.includes(tag)
+                        ? 'bg-amber-500/20 border-amber-500/50 text-amber-500'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence mode="popLayout">
-          {filteredOpportunities.length > 0 ? (
+          {loading ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="col-span-full py-20 text-center"
+            >
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-full mb-4 animate-pulse">
+                <Briefcase className="w-8 h-8 text-amber-500" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Loading Opportunities...</h3>
+              <p className="text-slate-400">Fetching the latest data from Notion.</p>
+            </motion.div>
+          ) : filteredOpportunities.length > 0 ? (
             filteredOpportunities.map((opp, index) => (
               <OpportunityCard key={opp.id} opportunity={opp} index={index} onApply={() => setSelectedOpp(opp)} />
             ))

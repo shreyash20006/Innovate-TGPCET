@@ -2,6 +2,7 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import fs from "fs";
+import { Client } from "@notionhq/client";
 
 async function startServer() {
   const app = express();
@@ -9,9 +10,91 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Initialize Notion Client
+  const notion = new Client({
+    auth: process.env.NOTION_API_KEY,
+  });
+
+  const OPPORTUNITIES_DB_ID = process.env.OPPORTUNITIES_DB_ID;
+  const COURSES_DB_ID = process.env.COURSES_DB_ID;
+  const LEADS_DB_ID = process.env.LEADS_DB_ID;
+
   // API routes FIRST
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // ==========================================
+  // Notion API Endpoints
+  // ==========================================
+  
+  app.get("/api/notion/opportunities", async (req, res) => {
+    try {
+      const response = await notion.databases.query({
+        database_id: OPPORTUNITIES_DB_ID,
+      });
+
+      const opportunities = response.results.map((page: any) => ({
+        id: page.id,
+        title: page.properties.Title?.title[0]?.plain_text || 'Untitled',
+        type: page.properties.Type?.select?.name || 'General',
+        tags: page.properties.Tags?.multi_select?.map((tag: any) => tag.name) || [],
+        description: page.properties.Description?.rich_text[0]?.plain_text || '',
+        link: page.properties.Link?.url || '#',
+        company: page.properties.Company?.rich_text[0]?.plain_text || '',
+        deadline: page.properties.Deadline?.date?.start || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        location: page.properties.Location?.rich_text[0]?.plain_text || '',
+      }));
+
+      res.status(200).json(opportunities);
+    } catch (error: any) {
+      console.error('Error fetching opportunities:', error.message);
+      res.status(500).json({ error: 'Failed to fetch opportunities' });
+    }
+  });
+
+  app.get("/api/notion/courses", async (req, res) => {
+    try {
+      const response = await notion.databases.query({
+        database_id: COURSES_DB_ID,
+      });
+
+      const courses = response.results.map((page: any) => ({
+        id: page.id,
+        title: page.properties.Name?.title[0]?.plain_text || 'Untitled Course',
+        platform: page.properties.Platform?.select?.name || 'Unknown',
+        level: page.properties.Level?.select?.name || 'All Levels',
+        link: page.properties.Link?.url || '#',
+        description: page.properties.Description?.rich_text[0]?.plain_text || '',
+        duration: page.properties.Duration?.rich_text[0]?.plain_text || '',
+      }));
+
+      res.status(200).json(courses);
+    } catch (error: any) {
+      console.error('Error fetching courses:', error.message);
+      res.status(500).json({ error: 'Failed to fetch courses' });
+    }
+  });
+
+  app.post("/api/notion/leads", async (req, res) => {
+    try {
+      const { name, email, phone, branch } = req.body;
+
+      await notion.pages.create({
+        parent: { database_id: LEADS_DB_ID },
+        properties: {
+          Name: { title: [{ text: { content: name || 'No Name Provided' } }] },
+          Email: { email: email || null },
+          Phone: { phone_number: phone || null },
+          Branch: { rich_text: [{ text: { content: branch || '' } }] }
+        }
+      });
+
+      res.status(200).json({ success: true, message: 'Lead saved successfully!' });
+    } catch (error: any) {
+      console.error('Error saving lead:', error.message);
+      res.status(500).json({ error: 'Failed to save lead' });
+    }
   });
 
   app.post("/api/feedback", (req, res) => {
