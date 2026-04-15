@@ -1,31 +1,29 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import path from "path";
 import fs from "fs";
 import { Client } from "@notionhq/client";
 import cors from "cors";
 
-async function startServer() {
-  const app = express();
-  const PORT = process.env.PORT || 3000;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  // Enable CORS for all routes
-  app.use(cors());
-  app.use(express.json());
+// Enable CORS for all routes
+app.use(cors());
+app.use(express.json());
 
-  // Initialize Notion Client
-  const notion = new Client({
-    auth: process.env.NOTION_API_KEY,
-  });
+// Initialize Notion Client
+const notion = new Client({
+  auth: process.env.NOTION_API_KEY,
+});
 
-  const OPPORTUNITIES_DB_ID = process.env.OPPORTUNITIES_DB_ID;
-  const COURSES_DB_ID = process.env.COURSES_DB_ID;
-  const LEADS_DB_ID = process.env.LEADS_DB_ID;
+const OPPORTUNITIES_DB_ID = process.env.OPPORTUNITIES_DB_ID;
+const COURSES_DB_ID = process.env.COURSES_DB_ID;
+const LEADS_DB_ID = process.env.LEADS_DB_ID;
 
-  // API routes FIRST
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
-  });
+// API routes FIRST
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
   // ==========================================
   // Notion API Endpoints
@@ -317,34 +315,26 @@ async function startServer() {
     }
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
+// Vite middleware for development
+if (process.env.NODE_ENV !== "production") {
+  import("vite").then(async (vite) => {
+    const viteServer = await vite.createServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  }
-
-  if (process.env.NODE_ENV !== "production") {
+    app.use(viteServer.middlewares);
+    
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
-  }
-
-  return app;
+  });
+} else {
+  const distPath = path.join(process.cwd(), 'dist');
+  app.use(express.static(distPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
 }
-
-const appPromise = startServer();
 
 // Export the app for Vercel serverless deployment
-export default async function (req: any, res: any) {
-  const app = await appPromise;
-  return app(req, res);
-}
+export default app;
