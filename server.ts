@@ -13,12 +13,13 @@ app.use(express.json());
 
 // Initialize Notion Client
 const notion = new Client({
-  auth: process.env.NOTION_API_KEY,
+  auth: process.env.NOTION_API_KEY?.replace(/['"]/g, '').trim(),
 });
 
-const OPPORTUNITIES_DB_ID = process.env.OPPORTUNITIES_DB_ID;
-const COURSES_DB_ID = process.env.COURSES_DB_ID;
-const LEADS_DB_ID = process.env.LEADS_DB_ID;
+// Clean the DB IDs to remove accidental quotes or newlines from Vercel env vars
+const OPPORTUNITIES_DB_ID = process.env.OPPORTUNITIES_DB_ID?.replace(/['"]/g, '').trim();
+const COURSES_DB_ID = process.env.COURSES_DB_ID?.replace(/['"]/g, '').trim();
+const LEADS_DB_ID = process.env.LEADS_DB_ID?.replace(/['"]/g, '').trim();
 
 // API routes FIRST
 app.get("/api/health", (req, res) => {
