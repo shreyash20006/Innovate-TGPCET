@@ -85,14 +85,17 @@ app.get("/api/health", (req, res) => {
         throw new Error("LEADS_DB_ID is not configured");
       }
 
+      const properties: any = {
+        Name: { title: [{ text: { content: name || 'No Name Provided' } }] }
+      };
+
+      if (email) properties.Email = { email: email };
+      if (phone) properties.Phone = { phone_number: phone };
+      if (branch) properties.Branch = { rich_text: [{ text: { content: branch } }] };
+
       const response = await notion.pages.create({
         parent: { database_id: LEADS_DB_ID },
-        properties: {
-          Name: { title: [{ text: { content: name || 'No Name Provided' } }] },
-          Email: { email: email || null },
-          Phone: { phone_number: phone || null },
-          Branch: { rich_text: [{ text: { content: branch || '' } }] }
-        }
+        properties: properties
       });
 
       res.status(200).json({ success: true, message: 'Lead saved successfully!' });
