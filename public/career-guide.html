@@ -752,6 +752,7 @@
             btn.disabled = true;
             
             try {
+                // Use relative path so it works on Vercel
                 const response = await fetch('/api/notion/leads', {
                     method: 'POST',
                     headers: {

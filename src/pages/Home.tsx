@@ -83,7 +83,7 @@ export default function Home() {
     const fetchNews = async () => {
       try {
         setAiUpdatesLoading(true);
-        const response = await fetch('/.netlify/functions/news');
+        const response = await fetch('/api/news');
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
           throw new Error(errorData?.error || 'Failed to fetch news');
@@ -106,7 +106,7 @@ export default function Home() {
 
     setSubscribeStatus('loading');
     try {
-      const response = await fetch('/.netlify/functions/subscribe', {
+      const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email })

@@ -3,11 +3,14 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import fs from "fs";
 import { Client } from "@notionhq/client";
+import cors from "cors";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
+  // Enable CORS for all routes
+  app.use(cors());
   app.use(express.json());
 
   // Initialize Notion Client
@@ -80,7 +83,11 @@ async function startServer() {
     try {
       const { name, email, phone, branch } = req.body;
 
-      await notion.pages.create({
+      if (!LEADS_DB_ID) {
+        throw new Error("LEADS_DB_ID is not configured");
+      }
+
+      const response = await notion.pages.create({
         parent: { database_id: LEADS_DB_ID },
         properties: {
           Name: { title: [{ text: { content: name || 'No Name Provided' } }] },
@@ -92,8 +99,8 @@ async function startServer() {
 
       res.status(200).json({ success: true, message: 'Lead saved successfully!' });
     } catch (error: any) {
-      console.error('Error saving lead:', error.message);
-      res.status(500).json({ error: 'Failed to save lead' });
+      console.error('Error saving lead to Notion:', error);
+      res.status(500).json({ error: error.message || 'Failed to save lead' });
     }
   });
 
@@ -126,7 +133,7 @@ async function startServer() {
     }
   });
 
-  app.post("/.netlify/functions/subscribe", async (req, res) => {
+  app.post("/api/subscribe", async (req, res) => {
     try {
       const { name, email } = req.body;
       
@@ -176,7 +183,7 @@ async function startServer() {
     }
   });
 
-  app.get("/.netlify/functions/news", async (req, res) => {
+  app.get("/api/news", async (req, res) => {
     try {
       const apiKey = process.env.GNEWS_API_KEY;
       
@@ -325,9 +332,19 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  if (process.env.NODE_ENV !== "production") {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
+
+  return app;
 }
 
-startServer();
+const appPromise = startServer();
+
+// Export the app for Vercel serverless deployment
+export default async function (req: any, res: any) {
+  const app = await appPromise;
+  return app(req, res);
+}
