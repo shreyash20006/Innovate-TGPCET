@@ -95,9 +95,9 @@ app.get("/api/health", (req, res) => {
 
       // Notion requires specific property types. 
       // If the columns in Notion are not exactly these types, the API will throw an error.
-      if (email) properties.email = { email: email };
-      if (phone) properties.phone = { phone_number: phone };
-      if (branch) properties.branch = { rich_text: [{ text: { content: branch } }] };
+      if (email) properties.Email = { email: email };
+      if (phone) properties.Phone = { phone_number: phone };
+      if (branch) properties.Branch = { rich_text: [{ text: { content: branch } }] };
 
       const response = await notion.pages.create({
         parent: { database_id: LEADS_DB_ID },
