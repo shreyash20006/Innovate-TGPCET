@@ -230,7 +230,16 @@ app.get("/api/health", (req, res) => {
         })
       });
 
-      const data = await response.json();
+      // First get response as text, then parse as JSON to avoid SyntaxError on 204 No Content
+      const text = await response.text();
+      let data: any = {};
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("Failed to parse Brevo response:", text);
+        }
+      }
 
       if (!response.ok) {
         // Brevo returns 400 if contact already exists but updateEnabled is false, 
