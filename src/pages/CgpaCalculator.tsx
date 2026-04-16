@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Calculator, Save, Download, RefreshCw, AlertCircle, ChevronDown, Trash2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 
 // --- DATA STRUCTURES ---
 const UNIVERSITY_DATA = {
@@ -246,7 +246,12 @@ export default function CgpaCalculator() {
   const downloadPDF = async () => {
     if (!printRef.current) return;
     try {
-      const canvas = await html2canvas(printRef.current, { scale: 2, backgroundColor: '#020617' });
+      const canvas = await html2canvas(printRef.current, { 
+        scale: 2, 
+        backgroundColor: '#020617',
+        useCORS: true, 
+        allowTaint: true 
+      });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -254,9 +259,9 @@ export default function CgpaCalculator() {
       
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`CGPA_Report_${university}_Sem${semester}.pdf`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error generating PDF", error);
-      alert("Failed to generate PDF. Please try again.");
+      alert(`Failed to generate PDF. Error: ${error.message || 'Unknown error'}`);
     }
   };
 
