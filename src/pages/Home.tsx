@@ -116,13 +116,13 @@ export default function Home() {
       
       if (response.ok) {
         setSubscribeStatus('success');
-        setSubscribeMessage('✅ Subscribed! Check your inbox.');
+        setSubscribeMessage('✅ Welcome! Check your email for links.');
         setEmail('');
         setName('');
         setTimeout(() => {
           setSubscribeStatus('idle');
           setSubscribeMessage('');
-        }, 3000);
+        }, 5000);
       } else {
         setSubscribeStatus('error');
         setSubscribeMessage(data.error || 'Failed to subscribe');
@@ -459,23 +459,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      {/* Community Section */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-12 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
-          <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-4">🚀 Join Our Community</h2>
-          <p className="text-slate-400 mb-6 sm:mb-8 text-sm sm:text-lg">Join 500+ students getting daily updates</p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-            <a href="#" className="flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white px-4 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-colors text-sm sm:text-base">
-              <Send className="w-5 h-5" /> Join Telegram
-            </a>
-            <a href="https://whatsapp.com/channel/0029VbC3hiw6WaKna525w139" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-colors text-sm sm:text-base">
-              <MessageCircle className="w-5 h-5" /> Join WhatsApp
-            </a>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

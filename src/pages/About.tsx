@@ -1,6 +1,52 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Info, ShieldAlert, Heart, Mail, Instagram } from 'lucide-react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { Info, ShieldAlert, Heart, Mail, Instagram, Send, MessageCircle } from 'lucide-react';
+
+const TiltCard = ({ children }: { children: React.ReactNode }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        perspective: 1000
+      }}
+      className="relative w-full"
+    >
+      <div style={{ transform: "translateZ(50px)" }} className="w-full">
+        {children}
+      </div>
+    </motion.div>
+  );
+};
 
 export default function About() {
   return (
@@ -16,6 +62,33 @@ export default function About() {
           </div>
           <h1 className="text-4xl font-extrabold text-white mb-4">About Us</h1>
         </div>
+
+        {/* 3D Community Section */}
+        <TiltCard>
+          <section className="text-center w-full">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-12 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
+              
+              {/* 3D floating elements inside the card */}
+              <motion.div style={{ transform: "translateZ(30px)" }}>
+                <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-4 drop-shadow-lg">🚀 Join Our Community</h2>
+              </motion.div>
+              
+              <motion.div style={{ transform: "translateZ(20px)" }}>
+                <p className="text-slate-400 mb-6 sm:mb-8 text-sm sm:text-lg">Join 500+ students getting daily updates</p>
+              </motion.div>
+              
+              <motion.div style={{ transform: "translateZ(40px)" }} className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                <a href="https://t.me/innovatetgpcet" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white px-4 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-colors text-sm sm:text-base shadow-lg hover:shadow-[#0088cc]/50">
+                  <Send className="w-5 h-5" /> Join Telegram
+                </a>
+                <a href="https://whatsapp.com/channel/0029VbC3hiw6WaKna525w139" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-colors text-sm sm:text-base shadow-lg hover:shadow-[#25D366]/50">
+                  <MessageCircle className="w-5 h-5" /> Join WhatsApp
+                </a>
+              </motion.div>
+            </div>
+          </section>
+        </TiltCard>
 
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 space-y-8 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
@@ -48,8 +121,8 @@ export default function About() {
                   <Mail className="w-6 h-6 text-amber-500" />
                 </div>
                 <h3 className="text-white font-bold mb-2">Email Us</h3>
-                <a href="mailto:innovate.tgpcet@gmail.com" className="text-slate-400 hover:text-amber-500 transition-colors">
-                  innovate.tgpcet@gmail.com
+                <a href="mailto:hello@passionpages.shop" className="text-slate-400 hover:text-amber-500 transition-colors">
+                  hello@passionpages.shop
                 </a>
               </div>
 

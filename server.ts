@@ -5,7 +5,7 @@ import { Client } from "@notionhq/client";
 import cors from "cors";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Enable CORS for all routes
 app.use(cors());
@@ -32,7 +32,7 @@ app.get("/api/health", (req, res) => {
   
   app.get("/api/notion/opportunities", async (req, res) => {
     try {
-      const response = await notion.databases.query({
+      const response = await (notion.databases as any).query({
         database_id: OPPORTUNITIES_DB_ID,
       });
 
@@ -57,7 +57,7 @@ app.get("/api/health", (req, res) => {
 
   app.get("/api/notion/courses", async (req, res) => {
     try {
-      const response = await notion.databases.query({
+      const response = await (notion.databases as any).query({
         database_id: COURSES_DB_ID,
       });
 
@@ -103,6 +103,62 @@ app.get("/api/health", (req, res) => {
         parent: { database_id: LEADS_DB_ID },
         properties: properties
       });
+
+      // Send Welcome Email via Brevo if API key is present
+      if (email && process.env.BREVO_API_KEY) {
+        try {
+          await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+              "accept": "application/json",
+              "api-key": process.env.BREVO_API_KEY,
+              "content-type": "application/json"
+            },
+            body: JSON.stringify({
+              sender: {
+                name: "Team Innovate TGPCET",
+                email: "hello@passionpages.shop"
+              },
+              to: [
+                {
+                  email: email,
+                  name: name || "Student"
+                }
+              ],
+              subject: "Welcome to Innovate TGPCET! 🚀",
+              htmlContent: `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+                  <h2 style="color: #0f1e34;">Hi ${name ? name.split(' ')[0] : ''}! 👋</h2>
+                  <p>Thank you for registering on <strong>Innovate TGPCET</strong>!</p>
+                  <p>We help students discover internships, free courses, and career opportunities.</p>
+                  
+                  <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p style="margin-top: 0; font-weight: bold; color: #0f1e34;">Stay connected with us:</p>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                      <li style="margin-bottom: 10px;">
+                        <a href="https://t.me/innovatetgpcet" style="color: #0088cc; text-decoration: none; font-weight: bold;">
+                          📱 Join our Telegram Channel
+                        </a>
+                      </li>
+                      <li>
+                        <a href="https://whatsapp.com/channel/0029VbC3hiw6WaKna525w139" style="color: #25D366; text-decoration: none; font-weight: bold;">
+                          💬 Join our WhatsApp Channel
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <p style="margin-bottom: 5px;">Best regards,</p>
+                  <p style="font-weight: bold; color: #0f1e34; margin-top: 0;">Team Innovate TGPCET</p>
+                </div>
+              `
+            })
+          });
+          console.log("Welcome email sent to:", email);
+        } catch (emailError) {
+          console.error("Failed to send welcome email:", emailError);
+        }
+      }
 
       res.status(200).json({ success: true, message: 'Lead saved successfully!' });
     } catch (error: any) {
@@ -151,11 +207,11 @@ app.get("/api/health", (req, res) => {
         return res.status(400).json({ error: "Name is required" });
       }
 
-      const apiKey = process.env.BREVO_API_KEY;
+      const apiKey = process.env.BREVO_API_KEY?.replace(/['"]/g, '').trim();
       if (!apiKey) {
-        console.error("BREVO_API_KEY is not configured in AI Studio Secrets");
+        console.error("BREVO_API_KEY is not configured in Vercel Environment Variables");
         return res.status(500).json({ 
-          error: "API Key missing! Please add BREVO_API_KEY in AI Studio Settings -> Secrets." 
+          error: "API Key missing! Please add BREVO_API_KEY in Vercel Settings -> Environment Variables." 
         });
       }
 
@@ -181,6 +237,60 @@ app.get("/api/health", (req, res) => {
         // but we set it to true. Still, handle any other errors.
         console.error("Brevo API error:", data);
         return res.status(response.status).json({ error: data.message || "Failed to subscribe" });
+      }
+
+      // Send Welcome Email via Brevo
+      try {
+        await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            "accept": "application/json",
+            "api-key": apiKey,
+            "content-type": "application/json"
+          },
+          body: JSON.stringify({
+            sender: {
+              name: "Team Innovate TGPCET",
+              email: "hello@passionpages.shop"
+            },
+            to: [
+              {
+                email: email,
+                name: name || "Student"
+              }
+            ],
+            subject: "Welcome to Innovate TGPCET! 🚀",
+            htmlContent: `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+                <h2 style="color: #0f1e34;">Hi ${name ? name.split(' ')[0] : ''}! 👋</h2>
+                <p>Thank you for registering on <strong>Innovate TGPCET</strong>!</p>
+                <p>We help students discover internships, free courses, and career opportunities.</p>
+                
+                <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                  <p style="margin-top: 0; font-weight: bold; color: #0f1e34;">Stay connected with us:</p>
+                  <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="margin-bottom: 10px;">
+                      <a href="https://t.me/innovatetgpcet" style="color: #0088cc; text-decoration: none; font-weight: bold;">
+                        📱 Join our Telegram Channel
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://whatsapp.com/channel/0029VbC3hiw6WaKna525w139" style="color: #25D366; text-decoration: none; font-weight: bold;">
+                        💬 Join our WhatsApp Channel
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                
+                <p style="margin-bottom: 5px;">Best regards,</p>
+                <p style="font-weight: bold; color: #0f1e34; margin-top: 0;">Team Innovate TGPCET</p>
+              </div>
+            `
+          })
+        });
+        console.log("Welcome email sent to:", email);
+      } catch (emailError) {
+        console.error("Failed to send welcome email:", emailError);
       }
 
       res.status(200).json({ success: true, message: "Subscribed successfully!" });

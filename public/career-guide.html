@@ -712,6 +712,26 @@
                         <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 15px;">Get Free Notes</button>
                         <span class="form-note"><i class="fa-solid fa-shield-halved"></i> We send updates on exams & career</span>
                     </form>
+                    
+                    <div id="successMessage" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 25px; text-align: left; color: #f8fafc; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <h3 style="color: #10b981; margin-bottom: 15px; font-size: 1.3rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-circle-check"></i> Success!
+                        </h3>
+                        <p style="margin-bottom: 12px; line-height: 1.5;">Hi! Thank you for registering on <strong>Innovate TGPCET</strong>!</p>
+                        <p style="margin-bottom: 15px; line-height: 1.5; color: #cbd5e1;">We help students discover internships, free courses, and career opportunities.</p>
+                        <p style="margin-bottom: 12px; font-weight: 600; color: #e2e8f0;">Stay connected:</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                            <a href="https://t.me/innovatetgpcet" target="_blank" style="display: flex; align-items: center; gap: 10px; background: rgba(0, 136, 204, 0.15); padding: 12px 15px; border-radius: 8px; color: #38bdf8; text-decoration: none; transition: all 0.2s ease; border: 1px solid rgba(0, 136, 204, 0.3);">
+                                <i class="fa-brands fa-telegram" style="font-size: 1.4rem;"></i>
+                                <span style="font-weight: 500;">Join our Telegram</span>
+                            </a>
+                            <a href="https://whatsapp.com/channel/0029VbC3hiw6WaKna525w139" target="_blank" style="display: flex; align-items: center; gap: 10px; background: rgba(37, 211, 102, 0.15); padding: 12px 15px; border-radius: 8px; color: #4ade80; text-decoration: none; transition: all 0.2s ease; border: 1px solid rgba(37, 211, 102, 0.3);">
+                                <i class="fa-brands fa-whatsapp" style="font-size: 1.4rem;"></i>
+                                <span style="font-weight: 500;">Join our WhatsApp</span>
+                            </a>
+                        </div>
+                        <p style="font-weight: 600; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin: 0;">Team Innovate TGPCET</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -773,6 +793,11 @@
                 if (response.ok) {
                     btn.innerText = 'Success! ✅';
                     btn.style.backgroundColor = '#10b981'; // Green success color
+                    
+                    // Hide the form and show the success message
+                    document.getElementById('notesForm').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                    
                     this.reset();
                 } else {
                     throw new Error(data.error || 'Failed to submit');
