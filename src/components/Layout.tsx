@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Home, Briefcase, BookOpen, Cpu, FolderOpen, DollarSign, Compass, Info } from 'lucide-react';
+import { Menu, X, Home, Briefcase, BookOpen, Cpu, FolderOpen, Calculator, Compass, Info } from 'lucide-react';
 import FeedbackWidget from './FeedbackWidget';
 import CustomLogo from './Logo';
 
@@ -25,6 +25,7 @@ export default function Layout() {
     { name: 'Courses', path: '/courses', icon: BookOpen },
     { name: 'AI Updates', path: '/ai-updates', icon: Cpu },
     { name: 'Resources', path: '/resources', icon: FolderOpen },
+    { name: 'CGPA Calc', path: '/cgpa-calculator', icon: Calculator },
     { name: 'Career Guide', path: '/career-guide.html', external: true, icon: Compass },
     { name: 'About', path: '/about', icon: Info },
   ];
