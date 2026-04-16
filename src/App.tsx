@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Opportunities from './pages/Opportunities';
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="about" element={<About />} />
         </Route>
       </Routes>
+      <Analytics />
     </BrowserRouter>
   );
 }
