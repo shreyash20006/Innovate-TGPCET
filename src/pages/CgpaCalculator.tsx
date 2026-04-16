@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Calculator, Save, Download, RefreshCw, AlertCircle, ChevronDown, Trash2 } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image-more';
 import { jsPDF } from 'jspdf';
 
 // --- DATA STRUCTURES ---
@@ -246,19 +246,28 @@ export default function CgpaCalculator() {
   const downloadPDF = async () => {
     if (!printRef.current) return;
     try {
-      const canvas = await html2canvas(printRef.current, { 
-        scale: 2, 
-        backgroundColor: '#020617',
-        useCORS: true, 
-        allowTaint: true 
+      const dataUrl = await domtoimage.toPng(printRef.current, {
+        bgcolor: '#020617',
+        scale: 2,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left'
+        }
       });
-      const imgData = canvas.toDataURL('image/png');
+      
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`CGPA_Report_${university}_Sem${semester}.pdf`);
+      // We need to calculate height based on the image aspect ratio
+      const img = new Image();
+      img.src = dataUrl;
+      
+      img.onload = () => {
+        const pdfHeight = (img.height * pdfWidth) / img.width;
+        pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`CGPA_Report_${university}_Sem${semester}.pdf`);
+      };
+
     } catch (error: any) {
       console.error("Error generating PDF", error);
       alert(`Failed to generate PDF. Error: ${error.message || 'Unknown error'}`);

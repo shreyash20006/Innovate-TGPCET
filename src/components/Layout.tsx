@@ -37,7 +37,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-amber-500/30 flex flex-col relative">
       {/* Ticker Bar */}
-      <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-sm font-medium overflow-hidden relative flex items-center">
+      <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-sm font-medium overflow-hidden relative flex items-center print:hidden">
         <div className="absolute left-0 z-10 bg-amber-500 px-4 flex items-center gap-2 h-full shadow-[10px_0_20px_rgba(245,158,11,1)]">
           <span className="animate-pulse">🔥</span>
           <span className="font-bold">HOT:</span>
@@ -52,7 +52,7 @@ export default function Layout() {
       </div>
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800">
+      <nav className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <AppLogo />
           
@@ -136,7 +136,7 @@ export default function Layout() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-12 mt-20 relative z-10">
+      <footer className="border-t border-slate-800 bg-slate-950 py-12 mt-20 relative z-10 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center gap-4">
           <p className="text-slate-400 text-sm max-w-2xl">
             This is an unofficial hub created by students, for students. <br/>
@@ -148,7 +148,9 @@ export default function Layout() {
         </div>
       </footer>
 
-      <FeedbackWidget />
+      <div className="print:hidden">
+        <FeedbackWidget />
+      </div>
     </div>
   );
 }

@@ -362,7 +362,7 @@ app.get("/api/health", (req, res) => {
         return res.json(fallbackNews);
       }
 
-      const url = `https://gnews.io/api/v4/search?q="artificial+intelligence"+OR+"machine+learning"+OR+"internship"+OR+"fresher"+OR+"hiring"&lang=en&apikey=${apiKey}&max=20`;
+      const url = `https://gnews.io/api/v4/search?q=technology%20OR%20AI%20OR%20jobs&lang=en&apikey=${apiKey}&max=10`;
       const response = await fetch(url);
       const data = await response.json();
 
