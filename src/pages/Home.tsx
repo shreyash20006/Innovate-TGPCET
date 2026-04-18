@@ -96,15 +96,8 @@ export default function Home() {
       {/* HERO */}
       <section className="relative z-[2] min-h-[calc(100vh-68px)] flex flex-col md:grid md:grid-cols-2 items-center px-4 sm:px-5 md:px-[60px] gap-8 md:gap-10 overflow-hidden after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-transparent after:via-cyber-pink after:to-transparent pt-16 md:pt-0">
         
-        {/* GIANT WATERMARK TEXT */}
-        <div 
-          className="absolute left-[-2vw] sm:left-[-1vw] bottom-[-2vh] sm:bottom-0 z-[1] font-display font-[900] text-[clamp(100px,18vw,280px)] leading-[0.8] tracking-[-0.04em] text-transparent pointer-events-none select-none opacity-20 md:opacity-100"
-          style={{ WebkitTextStroke: '2px var(--color-cyber-pink)' }}
-        >
-          innovate<br/>tgpcet
-        </div>
 
-        <div className="relative z-[2] text-center md:text-left flex-1 flex flex-col justify-center">
+<div className="relative z-[2] text-center md:text-left flex-1 flex flex-col justify-center">
           <div className="font-mono text-[12px] text-cyber-pink tracking-[0.25em] uppercase flex items-center justify-center md:justify-start gap-[12px] mb-[20px] after:content-[''] after:flex-1 after:h-[1px] after:bg-cyber-border after:max-w-[80px] hidden md:flex">
             <span className="w-[7px] h-[7px] rounded-full bg-cyber-lime animate-blink"></span>
             Student Tech Hub — Live
