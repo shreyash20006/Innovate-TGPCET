@@ -355,15 +355,15 @@ export default function Opportunities() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-3xl mx-auto"
+          className="text-center max-w-3xl mx-auto flex flex-col items-center"
         >
-          <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl mb-4">
-            <Briefcase className="w-8 h-8 text-amber-500" />
+          <div className="font-mono text-[11px] text-cyber-pink tracking-[0.3em] uppercase flex items-center gap-[16px] mb-[16px] before:content-[''] before:w-[40px] before:h-[1px] before:bg-cyber-pink after:content-[''] after:w-[40px] after:h-[1px] after:bg-cyber-pink">
+            Explore Futures
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
-            Opportunities
+          <h1 className="font-display text-[clamp(40px,6vw,72px)] font-[900] leading-[0.95] tracking-[-0.03em] text-cyber-white mb-[24px]">
+            Tech <em className="not-italic text-cyber-pink">Opportunities</em>
           </h1>
-          <p className="text-lg text-slate-400">
+          <p className="text-cyber-muted max-w-[480px] text-[16px] leading-[1.7] mx-auto font-body">
             Find internships, hackathons, and workshops to accelerate your career.
           </p>
         </motion.div>
@@ -371,31 +371,33 @@ export default function Opportunities() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-4"
+          className="bg-cyber-bg2/80 p-6 border border-cyber-border space-y-4 relative overflow-hidden" 
+          style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}
         >
+          <div className="absolute top-0 left-0 w-1 h-full bg-cyber-pink"></div>
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-slate-500" />
+                <Search className="h-5 w-5 text-cyber-pink" />
               </div>
               <input
                 type="text"
                 placeholder="Search opportunities..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2.5 border border-slate-800 rounded-xl leading-5 bg-slate-950 text-slate-300 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all sm:text-sm"
+                className="block w-full pl-10 pr-3 py-3 sm:py-2.5 border-none border-b border-cyber-border leading-5 bg-transparent text-cyber-lime placeholder:text-[#aaff004d] focus:outline-none focus:border-cyber-lime transition-all font-mono text-[13px] sm:text-[14px] cursor-none"
               />
             </div>
 
-            <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-4 md:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {(['All', 'Internship', 'Competition', 'Workshop', 'Accelerator', 'Simulation'] as const).map((filter) => (
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+                  className={`px-4 py-2 text-[12px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors border cursor-none ${
                     activeFilter === filter
-                      ? 'bg-amber-500 text-slate-950'
-                      : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                      ? 'bg-cyber-pink/20 text-cyber-pink border-cyber-pink'
+                      : 'bg-transparent text-cyber-muted border-cyber-border hover:border-cyber-blue hover:text-cyber-blue'
                   }`}
                 >
                   {filter}
@@ -420,10 +422,10 @@ export default function Opportunities() {
                         prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
                       );
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
+                    className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider transition-colors border cursor-none ${
                       activeTags.includes(tag)
-                        ? 'bg-amber-500/20 border-amber-500/50 text-amber-500'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300'
+                        ? 'bg-cyber-lime/20 border-cyber-lime text-cyber-lime'
+                        : 'bg-transparent border-cyber-border text-cyber-muted hover:border-cyber-pink hover:text-cyber-pink'
                     }`}
                   >
                     {tag}
@@ -552,43 +554,45 @@ const OpportunityCard: React.FC<{ opportunity: Opportunity; index: number, onApp
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
-      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:border-amber-500/50 transition-all group flex flex-col"
+      className="bg-cyber-bg2/80 border border-cyber-border p-5 sm:p-[28px] hover:border-[#ff006659] hover:shadow-[0_0_40px_rgba(255,0,102,0.1)] transition-all group flex flex-col relative overflow-hidden"
+      style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}
     >
-      <div className="flex justify-between items-start mb-4">
+      <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-cyber-pink scale-y-0 origin-top transition-transform duration-400 group-hover:scale-y-100"></div>
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-between items-start gap-4 mb-4">
         <div className="flex flex-wrap gap-2">
-          <span className="px-3 py-1 text-xs font-medium rounded-full bg-amber-500/10 text-amber-500">
+          <span className="font-mono text-[9px] tracking-[0.2em] uppercase px-3 py-1 bg-cyber-pink/20 text-cyber-pink border border-cyber-pink/50">
             {opportunity.type}
           </span>
           {opportunity.tags?.map(tag => (
-            <span key={tag} className="px-3 py-1 text-xs font-medium rounded-full bg-slate-800 text-slate-300">
+            <span key={tag} className="font-mono text-[9px] tracking-[0.2em] uppercase px-2 sm:px-3 py-1 border border-white/10 text-cyber-muted">
               {tag}
             </span>
           ))}
         </div>
-        <span className={`text-xs font-medium px-2 py-1 rounded-md flex items-center gap-1 whitespace-nowrap ${isUrgent ? 'bg-red-500/10 text-red-500' : 'bg-slate-800 text-slate-300'}`}>
+        <span className={`font-mono text-[10px] tracking-[0.1em] uppercase px-2 py-1 flex items-center gap-1 border whitespace-nowrap self-start ${isUrgent ? 'bg-[#ff00421f] text-[#ff4466] border-[#ff00424d]' : 'bg-transparent text-cyber-muted border-cyber-border'}`}>
           <Clock className="w-3 h-3" /> {timeLeft}
         </span>
       </div>
       
-      <h3 className="text-xl font-bold text-white mb-1 group-hover:text-amber-500 transition-colors">{opportunity.title}</h3>
-      {opportunity.company && <p className="text-slate-400 font-medium mb-4">{opportunity.company}</p>}
+      <h3 className="font-display text-[22px] font-[800] leading-[1.2] text-cyber-white mb-1 group-hover:text-cyber-lime transition-colors">{opportunity.title}</h3>
+      {opportunity.company && <p className="font-mono text-[12px] text-cyber-pink tracking-widest uppercase mb-4">{opportunity.company}</p>}
       
       <div className="space-y-2 mb-6">
         {opportunity.location && (
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <MapPin className="w-4 h-4" /> {opportunity.location}
+          <div className="flex items-center gap-2 text-xs font-mono text-cyber-muted uppercase tracking-wider">
+            <MapPin className="w-4 h-4 text-cyber-blue" /> {opportunity.location}
           </div>
         )}
-        <div className="flex items-center gap-2 text-sm text-slate-500">
-          <Calendar className="w-4 h-4" /> Deadline: {new Date(opportunity.deadline).toLocaleDateString()}
+        <div className="flex items-center gap-2 text-xs font-mono text-cyber-muted uppercase tracking-wider">
+          <Calendar className="w-4 h-4 text-cyber-blue" /> Deadline: {new Date(opportunity.deadline).toLocaleDateString()}
         </div>
       </div>
       
-      <div className="text-slate-400 text-sm mb-6 flex-grow">{opportunity.description}</div>
+      <div className="text-[14px] text-cyber-muted leading-[1.6] mb-6 flex-grow">{opportunity.description}</div>
       
       <button 
         onClick={onApply}
-        className="w-full bg-slate-800 hover:bg-amber-500 text-white hover:text-slate-950 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 mt-auto"
+        className="w-full bg-transparent border border-cyber-border text-cyber-pink font-display text-[13px] font-[700] tracking-[0.15em] uppercase hover:bg-cyber-pink hover:border-cyber-pink hover:text-black py-3 transition-colors flex items-center justify-center gap-2 mt-auto cursor-none"
       >
         {opportunity.buttonText || 'Apply Now'} <ExternalLink className="w-4 h-4" />
       </button>

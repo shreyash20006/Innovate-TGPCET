@@ -1,9 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;800;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Share Tech Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Exo 2", sans-serif;
+  --font-body: "Rajdhani", sans-serif;
+
+  --color-cyber-bg: var(--base-bg);
+  --color-cyber-bg2: var(--base-bg2);
+  --color-cyber-pink: var(--base-pink);
+  --color-cyber-lime: var(--base-lime);
+  --color-cyber-blue: var(--base-blue);
+  --color-cyber-white: var(--base-white);
+  --color-cyber-muted: var(--base-muted);
+  --color-cyber-border: var(--base-border);
+}
+
 @layer base {
+  :root {
+    --base-bg: #000005;
+    --base-bg2: #04000f;
+    --base-pink: #ff0066;
+    --base-lime: #aaff00;
+    --base-blue: #00cfff;
+    --base-white: #f0f4ff;
+    --base-muted: #5a6880;
+    --base-border: rgba(255,0,102,0.18);
+  }
+
+  .theme-light {
+    --base-bg: #f8fafc;
+    --base-bg2: #ffffff;
+    --base-pink: #e11d48;
+    --base-lime: #16a34a;
+    --base-blue: #0284c7;
+    --base-white: #0f172a;
+    --base-muted: #64748b;
+    --base-border: rgba(225, 29, 72, 0.25);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    cursor: none;
+  }
+  
   body {
-    background-color: #020617; /* slate-950 */
-    color: #f8fafc; /* slate-50 */
+    background-color: var(--base-bg);
+    color: var(--base-white);
+    font-family: var(--font-body), sans-serif;
+    overflow-x: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+  
+  ::selection { background: var(--base-pink); color: var(--base-bg); }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--base-pink); border-radius: 2px; }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 1000;
+    animation: grainShift 0.5s steps(1) infinite;
+  }
+  
+  .theme-light body::before {
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+  }
+}
+
+@keyframes grainShift {
+  0%   { transform: translate(0,0); }
+  20%  { transform: translate(-2px, 3px); }
+  40%  { transform: translate(2px,-2px); }
+  60%  { transform: translate(-1px,4px); }
+  80%  { transform: translate(3px,-1px); }
+  100% { transform: translate(0,0); }
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+@keyframes scrollPulse { 
+  0%,100%{opacity:0.3;transform:scaleY(0.8)} 
+  50%{opacity:1;transform:scaleY(1)} 
+}
+
+@keyframes tickLoop { 
+  from{transform:translateX(0)} 
+  to{transform:translateX(-50%)} 
+}
+
+@keyframes cornerBlink { 
+  0%,100%{opacity:1} 
+  50%{opacity:0.2} 
+}
+
+@keyframes gradientShift { 
+  0%,100%{background-position:0%} 
+  50%{background-position:100%} 
+}
+
+@keyframes glitchText {
+  0%,90%,100%  { text-shadow:none; transform:none; }
+  91%  { text-shadow:-3px 0 #aaff00,3px 0 #00cfff; transform:skewX(-2deg); }
+  92%  { text-shadow:3px 0 #ff0066; transform:skewX(1deg); }
+  93%  { text-shadow:none; transform:none; }
+  95%  { text-shadow:-2px 0 #aaff00; transform:skewX(-1deg); }
+  96%  { text-shadow:none; transform:none; }
+}
+
+@layer utilities {
+  .animate-pulse-hex {
+    animation: hexPulse 2s ease-in-out infinite;
+  }
+  .animate-blink {
+    animation: blink 1s step-end infinite;
   }
 }
 

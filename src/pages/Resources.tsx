@@ -93,13 +93,17 @@ export default function Resources() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center max-w-3xl mx-auto mb-12"
+        className="text-center max-w-3xl mx-auto mb-12 flex flex-col items-center"
       >
-        <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl mb-4">
-          <Wrench className="w-8 h-8 text-amber-500" />
+        <div className="font-mono text-[11px] text-cyber-pink tracking-[0.3em] uppercase flex items-center gap-[16px] mb-[16px] before:content-[''] before:w-[40px] before:h-[1px] before:bg-cyber-pink after:content-[''] after:w-[40px] after:h-[1px] after:bg-cyber-pink">
+          Equip Yourself
         </div>
-        <h1 className="text-4xl font-extrabold text-white mb-4">Resources</h1>
-        <p className="text-slate-400">Curated tools and platforms to enhance your productivity and learning.</p>
+        <h1 className="font-display text-[clamp(40px,6vw,72px)] font-[900] leading-[0.95] tracking-[-0.03em] text-cyber-white mb-[24px]">
+          Digital <em className="not-italic text-cyber-pink">Resources</em>
+        </h1>
+        <p className="text-cyber-muted max-w-[480px] text-[16px] leading-[1.7] mx-auto font-body">
+          Curated tools and platforms to enhance your productivity and learning.
+        </p>
       </motion.div>
 
       <div className="space-y-12">
@@ -111,27 +115,28 @@ export default function Resources() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ delay: i * 0.1, duration: 0.5 }}
           >
-            <div className="flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
-              <div className="p-2 bg-slate-900 rounded-xl border border-slate-800">
+            <div className="flex items-center gap-4 mb-6 border-b border-cyber-border pb-4">
+              <div className="p-2 bg-cyber-bg2/80 border border-cyber-border flex items-center justify-center" style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)' }}>
                 {section.icon}
               </div>
-              <h2 className="text-2xl font-bold text-white">{section.category}</h2>
+              <h2 className="font-display text-[24px] font-[800] text-cyber-white">{section.category}</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {section.items.map((item) => (
                 <a 
                   key={item.name}
                   href={item.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-slate-900 border border-slate-800 rounded-2xl p-5 hover:border-amber-500/50 transition-all flex justify-between items-center group relative overflow-hidden"
+                  className="bg-cyber-bg2/80 border border-cyber-border p-4 sm:p-5 hover:border-cyber-lime/50 transition-all flex justify-between items-center group relative overflow-hidden cursor-none"
+                  style={{ clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)' }}
                 >
-                  <div className="absolute top-0 left-0 w-1 h-full bg-amber-500 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-bottom"></div>
-                  <div className="pl-2">
-                    <h3 className="font-bold text-white mb-1 group-hover:text-amber-500 transition-colors">{item.name}</h3>
-                    <p className="text-xs text-slate-400">{item.desc}</p>
+                  <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-cyber-lime transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-bottom"></div>
+                  <div className="pl-3">
+                    <h3 className="font-display text-[16px] font-[700] text-cyber-white mb-1 group-hover:text-cyber-lime transition-colors">{item.name}</h3>
+                    <p className="font-mono text-[11px] text-cyber-muted leading-[1.6]">{item.desc}</p>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-amber-500 transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-cyber-border group-hover:text-cyber-lime transition-colors" />
                 </a>
               ))}
             </div>

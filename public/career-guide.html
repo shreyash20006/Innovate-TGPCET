@@ -4,30 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BTech / BPharma Career Guide 2026</title>
-    <!-- Modern Font: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Modern Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;800;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for Attractive Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         /* CSS Reset & Variables */
         :root {
-            --primary: #3b82f6; /* blue-500 */
-            --primary-dark: #2563eb; /* blue-600 */
-            --secondary: #8b5cf6; /* violet-500 */
-            --accent: #f59e0b; /* amber-500 */
-            --danger: #ef4444;
-            --text-main: #f8fafc; /* slate-50 */
-            --text-light: #94a3b8; /* slate-400 */
-            --bg-light: #020617; /* slate-950 */
-            --bg-alt: #0f172a; /* slate-900 */
-            --card-bg: #0f172a; /* slate-900 */
-            --card-border: #1e293b; /* slate-800 */
+            --primary: #ff0066; /* cyber-pink */
+            --primary-dark: #cc0052; 
+            --secondary: #aaff00; /* cyber-lime */
+            --accent: #00cfff; /* cyber-blue */
+            --danger: #ff0042;
+            --text-main: #f0f4ff; /* cyber-white */
+            --text-light: #5a6880; /* cyber-muted */
+            --bg-light: #000005; /* cyber-bg */
+            --bg-alt: #04000f; /* cyber-bg2 */
+            --card-bg: rgba(5, 0, 15, 0.6); 
+            --card-border: rgba(255, 0, 102, 0.18);
             --white: #ffffff;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.3);
-            --radius: 12px;
+            --shadow-sm: 0 0 10px rgba(255, 0, 102, 0.1);
+            --shadow-md: 0 0 20px rgba(255, 0, 102, 0.2);
+            --shadow-lg: 0 0 30px rgba(255, 0, 102, 0.3);
+            --radius: 0px; /* Cyberpunk sharp edges */
             --transition: all 0.3s ease;
         }
 
@@ -35,7 +35,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Rajdhani', sans-serif;
+            cursor: crosshair;
         }
 
         /* Smooth Scrolling */
@@ -48,11 +49,34 @@
             color: var(--text-main);
             line-height: 1.6;
         }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+            opacity: 0.028;
+            pointer-events: none;
+            z-index: 1000;
+            animation: grainShift 0.5s steps(1) infinite;
+        }
+        
+        @keyframes grainShift {
+            0%   { transform: translate(0,0); }
+            20%  { transform: translate(-2px, 3px); }
+            40%  { transform: translate(2px,-2px); }
+            60%  { transform: translate(-1px,4px); }
+            80%  { transform: translate(3px,-1px); }
+            100% { transform: translate(0,0); }
+        }
 
         /* Typography */
         h1, h2, h3, h4 {
-            font-weight: 700;
-            line-height: 1.2;
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
         }
 
         a {
@@ -71,80 +95,91 @@
             padding: 0 20px;
         }
 
-        /* Rounded Buttons with Hover Effects */
+        /* Cyberpunk Buttons with Hover Effects */
         .btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 12px 28px;
-            border-radius: 50px;
+            font-family: 'Share Tech Mono', monospace;
             font-weight: 600;
             text-align: center;
             cursor: pointer;
             transition: var(--transition);
-            border: none;
-            font-size: 1rem;
+            border: 1px solid var(--primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
 
         .btn-primary {
             background-color: var(--primary);
-            color: var(--white);
-            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 0, 102, 0.4);
         }
 
         .btn-primary:hover {
-            background-color: var(--primary-dark);
+            background-color: transparent;
+            color: var(--primary);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.23);
+            box-shadow: 0 0 25px rgba(255, 0, 102, 0.6);
         }
 
         .btn-accent {
-            background-color: var(--accent);
-            color: var(--white);
-            box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.39);
+            background-color: transparent;
+            border-color: var(--secondary);
+            color: var(--secondary);
+            box-shadow: 0 0 15px rgba(170, 255, 0, 0.2);
         }
 
         .btn-accent:hover {
-            background-color: #d97706;
+            background-color: var(--secondary);
+            color: #000;
             transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(170, 255, 0, 0.4);
         }
 
         .btn-outline {
             background-color: transparent;
-            border: 2px solid var(--white);
-            color: var(--white);
+            border: 1px solid var(--accent);
+            color: var(--accent);
         }
 
         .btn-outline:hover {
-            background-color: var(--white);
-            color: var(--primary);
+            background-color: var(--accent);
+            color: #000;
         }
 
-        /* "Last Date Coming Soon" Badge */
+        /* Cyber Badge */
         .badge {
             position: absolute;
-            top: -12px;
-            right: -12px;
+            top: 0px;
+            right: 0px;
             background-color: var(--danger);
             color: var(--white);
-            font-size: 0.75rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.70rem;
+            text-transform: uppercase;
             font-weight: 700;
             padding: 6px 14px;
-            border-radius: 20px;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 0 10px rgba(255, 0, 66, 0.5);
             animation: pulse 2s infinite;
             z-index: 10;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 66, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 0, 66, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 66, 0); }
         }
 
         .section-title {
             text-align: center;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 1rem;
             color: var(--text-main);
+            text-shadow: 0 0 15px rgba(255, 0, 102, 0.3);
         }
 
         .section-subtitle {
@@ -152,9 +187,12 @@
             color: var(--text-light);
             margin-bottom: 3rem;
             font-size: 1.1rem;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            letter-spacing: 0.1em;
         }
 
         /* 1. Sticky Navbar */
@@ -163,9 +201,9 @@
             top: 0;
             left: 0;
             width: 100%;
-            background: rgba(2, 6, 23, 0.95); /* slate-950 */
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-sm);
+            background: rgba(0, 0, 5, 0.85);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 20px rgba(255, 0, 102, 0.1);
             z-index: 1000;
             padding: 15px 0;
             transition: var(--transition);
@@ -179,12 +217,43 @@
         }
 
         .logo {
+            font-family: 'Exo 2', sans-serif;
             font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
+            font-weight: 900;
+            color: var(--white);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            text-transform: none;
+            letter-spacing: -0.05em;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #ff0066, #880033);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 11px;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+        
+        .logo-text span:last-child {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 8px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-top: 4px;
         }
 
         .nav-links {
@@ -194,13 +263,18 @@
         }
 
         .nav-links a {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
             font-weight: 500;
             color: var(--text-light);
             transition: var(--transition);
         }
 
         .nav-links a:hover {
-            color: var(--white);
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(255, 0, 102, 0.4);
         }
 
         .mobile-menu-btn {
@@ -208,29 +282,19 @@
             font-size: 1.5rem;
             background: none;
             border: none;
-            color: var(--text-main);
+            color: var(--primary);
             cursor: pointer;
         }
 
         /* 2. Hero Section */
         .hero {
             padding: 160px 0 100px;
-            /* Dark Blue/Purple Gradient Theme */
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background: var(--bg-light);
             color: var(--white);
             text-align: center;
             position: relative;
             overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.05)"/></svg>') repeat;
-            opacity: 0.5;
-            z-index: 2;
-            pointer-events: none;
+            border-bottom: 1px solid var(--card-border);
         }
 
         /* ── 3D Canvas stays behind everything ── */
@@ -250,16 +314,19 @@
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 4rem;
             margin-bottom: 20px;
-            line-height: 1.15;
+            line-height: 1.1;
+            text-shadow: 0 0 20px rgba(255,0,102,0.3);
         }
 
         .hero p {
             font-size: 1.25rem;
             margin-bottom: 40px;
             opacity: 0.9;
+            color: var(--text-light);
         }
+
 
         .hero-buttons {
             display: flex;
@@ -274,49 +341,67 @@
             gap: 30px;
         }
 
-        /* Card-based Layout with Light Shadows */
+        /* Cyberpunk Card Layout */
         .card {
             background: var(--card-bg);
-            border-radius: var(--radius);
             padding: 30px;
-            box-shadow: var(--shadow-md);
             transition: var(--transition);
             position: relative;
             display: flex;
             flex-direction: column;
             height: 100%;
             border: 1px solid var(--card-border);
+            clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 0 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: var(--transition);
         }
 
         .card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-5px);
             border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(255, 0, 102, 0.1);
+        }
+        
+        .card:hover::before {
+            opacity: 1;
         }
 
         .card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            background: rgba(37, 99, 235, 0.1);
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 0, 102, 0.1);
             color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             margin-bottom: 20px;
+            border: 1px solid var(--card-border);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
 
         .card-title {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             margin-bottom: 10px;
-            color: var(--text-main);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .card-desc {
             color: var(--text-light);
             margin-bottom: 20px;
             flex-grow: 1;
+            font-size: 0.95rem;
         }
 
         .card-list {
@@ -325,21 +410,21 @@
 
         .card-list li {
             position: relative;
-            padding-left: 28px;
+            padding-left: 20px;
             margin-bottom: 10px;
             color: var(--text-main);
             font-size: 0.95rem;
         }
 
         .card-list li::before {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
+            content: '>';
+            font-family: 'Share Tech Mono', monospace;
             position: absolute;
             left: 0;
-            top: 2px;
+            top: 0px;
             color: var(--primary);
             font-size: 0.9rem;
+            font-weight: bold;
         }
 
         .card .btn {
@@ -349,11 +434,14 @@
 
         /* Clean Spacing for Sections */
         section {
-            padding: 80px 0;
+            padding: 100px 0;
+            position: relative;
         }
 
         .bg-alt {
             background-color: var(--bg-alt);
+            border-top: 1px solid var(--card-border);
+            border-bottom: 1px solid var(--card-border);
         }
 
         /* 5. Comparison Section */
@@ -364,26 +452,30 @@
         
         .compare-card .card-icon {
             margin: 0 auto 20px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
+            background: rgba(255, 0, 102, 0.1);
+            color: var(--secondary);
+            border-color: rgba(170, 255, 0, 0.3);
         }
 
         .vs-badge {
             display: inline-block;
-            background: var(--bg-light);
-            color: var(--text-light);
+            background: rgba(170, 255, 0, 0.1);
+            color: var(--secondary);
             padding: 4px 12px;
-            border-radius: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             margin-bottom: 15px;
-            border: 1px solid var(--card-border);
+            border: 1px solid rgba(170, 255, 0, 0.3);
+            letter-spacing: 0.15em;
         }
 
         /* 6. Lead Capture Section */
         .lead-capture {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background: var(--bg-alt);
             position: relative;
+            border-top: 1px solid var(--card-border);
         }
 
         .lead-container {
@@ -391,10 +483,10 @@
             align-items: center;
             gap: 50px;
             background: var(--card-bg);
-            border-radius: 24px;
             padding: 50px;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 0 30px rgba(255, 0, 102, 0.05);
             border: 1px solid var(--card-border);
+            clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%);
         }
 
         .lead-content {
@@ -404,21 +496,23 @@
         .lead-content h2 {
             font-size: 2.5rem;
             margin-bottom: 15px;
-            color: var(--text-main);
+            color: var(--white);
+            text-shadow: 0 0 15px rgba(255, 0, 102, 0.3);
         }
 
         .lead-content p {
             color: var(--text-light);
             font-size: 1.1rem;
             margin-bottom: 20px;
+            font-family: 'Share Tech Mono', monospace;
         }
 
         .lead-form {
             flex: 1;
-            background: var(--bg-light);
+            background: rgba(0, 0, 5, 0.8);
             padding: 30px;
-            border-radius: 16px;
             border: 1px solid var(--card-border);
+            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
         }
 
         .form-group {
@@ -428,45 +522,52 @@
         .form-control {
             width: 100%;
             padding: 14px 20px;
-            border-radius: 12px;
             border: 1px solid var(--card-border);
-            background: var(--card-bg);
+            background: transparent;
             color: var(--text-main);
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Share Tech Mono', monospace;
+            clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
         }
 
         .form-control::placeholder {
-            color: var(--text-light);
+            color: rgba(90, 104, 128, 0.6);
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            background: rgba(255, 0, 102, 0.05);
         }
 
         .form-note {
             display: block;
             text-align: center;
-            margin-top: 12px;
-            font-size: 0.85rem;
+            margin-top: 15px;
+            font-size: 0.75rem;
+            font-family: 'Share Tech Mono', monospace;
             color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         .form-note i {
-            color: #10b981;
-            margin-right: 4px;
+            color: var(--secondary);
+            margin-right: 6px;
         }
 
         /* Footer */
         footer {
-            background: #0f172a;
-            color: #94a3b8;
+            background: var(--bg-light);
+            color: var(--text-light);
             text-align: center;
-            padding: 30px 0;
-            font-size: 0.9rem;
+            padding: 40px 0;
+            font-size: 0.85rem;
+            font-family: 'Share Tech Mono', monospace;
+            border-top: 1px solid var(--card-border);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         /* Mobile Responsiveness */
@@ -518,8 +619,12 @@
     <!-- 1. Sticky Navbar -->
     <nav class="navbar">
         <div class="container nav-container">
-            <a href="#" class="logo">
-                <i class="fa-solid fa-graduation-cap"></i> CareerGuide
+            <a href="/" class="logo" style="text-decoration: none;">
+                <div class="logo-icon">IT</div>
+                <div class="logo-text">
+                    <span style="font-family: 'Exo 2', sans-serif;">innovate.<em style="color:var(--primary); font-style:normal;">tgpcet</em></span>
+                    <span>Innovating the Future 🚀</span>
+                </div>
             </a>
             <button class="mobile-menu-btn" id="mobile-menu-btn">
                 <i class="fa-solid fa-bars"></i>
@@ -528,7 +633,7 @@
                 <a href="#btech">BTech Options</a>
                 <a href="#bpharma">BPharma Options</a>
                 <a href="#compare">Compare</a>
-                <a href="#lead-capture" class="btn btn-primary" style="padding: 8px 20px; color: white;">Get Free Notes</a>
+                <a href="#lead-capture" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.75rem;">Get Free Notes</a>
             </div>
         </div>
     </nav>
@@ -539,11 +644,11 @@
         <canvas id="three-canvas"></canvas>
 
         <div class="container hero-content">
-            <h1>BTech / BPharma ke baad kya kare? <br><span style="color: #fcd34d;">(2026 Guide)</span></h1>
+            <h1 style="color: var(--white); text-shadow: 0 0 20px rgba(255,0,102,0.3);">BTech / BPharma ke baad kya kare? <br><span style="color: var(--secondary);">(2026 Guide)</span></h1>
             <p>Top Career Options + Direct Apply Links. Don't miss out on the best opportunities for higher studies, government jobs, and management.</p>
             <div class="hero-buttons">
-                <a href="#btech" class="btn btn-accent">Apply Now</a>
-                <a href="#bpharma" class="btn btn-outline">Explore Options</a>
+                <a href="#btech" class="btn btn-primary">Apply Now</a>
+                <a href="#bpharma" class="btn btn-outline" style="border-radius: 0; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);">Explore Options</a>
             </div>
         </div>
     </header>
@@ -851,14 +956,14 @@
       const pGeo = new THREE.BufferGeometry();
       pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
       const pMat = new THREE.PointsMaterial({
-        color: 0x6688dd, size: 0.13, transparent: true, opacity: 0.75
+        color: 0xff0066, size: 0.13, transparent: true, opacity: 0.75
       });
       scene.add(new THREE.Points(pGeo, pMat));
 
       /* ══ 2. WIREFRAME ICOSAHEDRON (large, left) ══ */
       const ico = new THREE.Mesh(
         new THREE.IcosahedronGeometry(6.5, 1),
-        new THREE.MeshBasicMaterial({ color: 0x2244aa, wireframe: true, transparent: true, opacity: 0.18 })
+        new THREE.MeshBasicMaterial({ color: 0xff0066, wireframe: true, transparent: true, opacity: 0.18 })
       );
       ico.position.set(-15, 2, -6);
       scene.add(ico);
@@ -866,7 +971,7 @@
       /* ══ 3. WIREFRAME OCTAHEDRON (right side) ══ */
       const oct = new THREE.Mesh(
         new THREE.OctahedronGeometry(5, 0),
-        new THREE.MeshBasicMaterial({ color: 0xf5b800, wireframe: true, transparent: true, opacity: 0.22 })
+        new THREE.MeshBasicMaterial({ color: 0xaaff00, wireframe: true, transparent: true, opacity: 0.22 })
       );
       oct.position.set(15, -2, -4);
       scene.add(oct);
@@ -874,14 +979,14 @@
       /* ══ 4. TORUS KNOT (top right, small) ══ */
       const tk = new THREE.Mesh(
         new THREE.TorusKnotGeometry(1.8, 0.45, 90, 16),
-        new THREE.MeshBasicMaterial({ color: 0x4466ff, wireframe: true, transparent: true, opacity: 0.28 })
+        new THREE.MeshBasicMaterial({ color: 0x00cfff, wireframe: true, transparent: true, opacity: 0.28 })
       );
       tk.position.set(10, 7, -2);
       scene.add(tk);
 
       /* ══ 5. NETWORK CONNECTION LINES (30 random lines) ══ */
       const lineMat = new THREE.LineBasicMaterial({
-        color: 0x334488, transparent: true, opacity: 0.28
+        color: 0xff0066, transparent: true, opacity: 0.28
       });
       for (let i = 0; i < 30; i++) {
         const ax = (Math.random() - 0.5) * 44, ay = (Math.random() - 0.5) * 30, az = (Math.random() - 0.5) * 12 - 8;
@@ -894,7 +999,7 @@
       }
 
       /* ══ 6. SMALL FLOATING DODECAHEDRA (5 pieces) ══ */
-      const dodColors = [0x6688ff, 0xf5b800, 0x44aadd, 0xff6644, 0x44dd88];
+      const dodColors = [0xff0066, 0xaaff00, 0x00cfff, 0xff0066, 0xaaff00];
       const dodecas   = [];
       for (let i = 0; i < 5; i++) {
         const d = new THREE.Mesh(

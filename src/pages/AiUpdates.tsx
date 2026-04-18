@@ -94,13 +94,17 @@ export default function AiUpdates() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center max-w-3xl mx-auto mb-12"
+        className="text-center max-w-3xl mx-auto mb-12 flex flex-col items-center"
       >
-        <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl mb-4">
-          <Cpu className="w-8 h-8 text-amber-500" />
+        <div className="font-mono text-[11px] text-cyber-pink tracking-[0.3em] uppercase flex items-center gap-[16px] mb-[16px] before:content-[''] before:w-[40px] before:h-[1px] before:bg-cyber-pink after:content-[''] after:w-[40px] after:h-[1px] after:bg-cyber-pink">
+          Tech Intelligence
         </div>
-        <h1 className="text-4xl font-extrabold text-white mb-4">AI Updates</h1>
-        <p className="text-slate-400">Stay informed with the latest developments in Artificial Intelligence.</p>
+        <h1 className="font-display text-[clamp(40px,6vw,72px)] font-[900] leading-[0.95] tracking-[-0.03em] text-cyber-white mb-[24px]">
+          AI <em className="not-italic text-cyber-pink">Updates</em>
+        </h1>
+        <p className="text-cyber-muted max-w-[480px] text-[16px] leading-[1.7] mx-auto font-body">
+          Stay informed with the latest developments in Artificial Intelligence & Technology.
+        </p>
       </motion.div>
 
       {/* Search & Category Filters */}
@@ -110,13 +114,14 @@ export default function AiUpdates() {
         className="mb-10 space-y-6"
       >
         <div className="relative max-w-xl mx-auto">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-cyber-pink" />
           <input 
             type="text" 
             placeholder="Search updates..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 text-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all shadow-lg"
+            className="w-full bg-cyber-bg2/80 border border-cyber-border py-4 pl-12 pr-4 text-cyber-lime font-mono text-[14px] placeholder:text-cyber-muted focus:border-cyber-lime outline-none transition-all shadow-[0_0_20px_rgba(170,255,0,0.05)] cursor-none"
+            style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))' }}
           />
         </div>
 
@@ -125,10 +130,10 @@ export default function AiUpdates() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+              className={`flex items-center gap-2 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-none border ${
                 activeCategory === cat 
-                  ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20' 
-                  : 'bg-slate-900 text-slate-400 border border-slate-800 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-cyber-pink text-white border-cyber-pink' 
+                  : 'bg-transparent text-cyber-muted border-cyber-border hover:border-cyber-blue hover:text-cyber-blue'
               }`}
             >
               {cat}
@@ -156,30 +161,31 @@ export default function AiUpdates() {
                 viewport={{ once: true, margin: "-50px" }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3, delay: i * 0.1 }}
-                className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-amber-500/50 transition-all flex flex-col relative overflow-hidden group"
+                className="bg-cyber-bg2/80 border border-cyber-border p-5 sm:p-[28px] hover:border-[#ff006659] transition-all flex flex-col relative overflow-hidden group"
+                style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}
               >
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-cyber-pink scale-y-0 origin-top transition-transform duration-400 group-hover:scale-y-100"></div>
               {news.isNew && (
-                <div className="absolute top-4 right-4 bg-amber-500/10 text-amber-500 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 z-10">
+                <div className="absolute top-4 right-4 font-mono text-[9px] tracking-[0.2em] uppercase px-3 py-1 bg-cyber-lime/10 text-cyber-lime border border-cyber-lime/30 flex items-center gap-1 z-10">
                   <Sparkles className="w-3 h-3" /> New
                 </div>
               )}
               
-              <div className="text-sm text-amber-500 font-bold mb-3 pr-12 leading-relaxed">
+              <div className="font-mono text-[11px] text-cyber-pink uppercase tracking-widest mb-3 pr-12 leading-relaxed">
                 {news.hook}
               </div>
               
-              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-amber-500 transition-colors">
+              <h3 className="font-display text-[20px] font-[800] text-cyber-white mb-2 group-hover:text-cyber-lime transition-colors leading-[1.3]">
                 {news.title}
               </h3>
               
               <div className="flex items-center gap-2 mb-4">
                 {news.category && (
-                  <span className="px-2 py-1 bg-slate-800 rounded-md text-slate-300 text-xs font-medium">
+                  <span className="px-2 py-1 border border-white/10 text-cyber-muted font-mono text-[9px] uppercase tracking-widest">
                     {news.category}
                   </span>
                 )}
-                <span className="text-xs text-slate-500">{news.date}</span>
+                <span className="font-mono text-[10px] text-cyber-muted tracking-wider">{news.date}</span>
               </div>
               
               {news.imageUrl && (
@@ -221,28 +227,28 @@ export default function AiUpdates() {
                 </ul>
               )}
 
-              <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-800">
+              <div className="flex items-center justify-between mt-auto pt-4 border-t border-cyber-border">
                 {news.url ? (
                   <a 
                     href={news.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-amber-500 font-medium flex items-center gap-2 hover:gap-3 transition-all w-fit"
+                    className="text-cyber-pink font-mono text-[11px] font-[700] uppercase tracking-widest flex items-center gap-2 transition-all hover:text-cyber-lime w-fit cursor-none"
                   >
                     Read Full Story <ArrowRight className="w-4 h-4" />
                   </a>
                 ) : (
-                  <button className="text-amber-500 font-medium flex items-center gap-2 hover:gap-3 transition-all">
+                  <button className="text-cyber-pink font-mono text-[11px] font-[700] uppercase tracking-widest flex items-center gap-2 transition-all hover:text-cyber-lime cursor-none">
                     Read Full Story <ArrowRight className="w-4 h-4" />
                   </button>
                 )}
                 
                 <button 
                   onClick={() => handleShare(news)} 
-                  className="text-slate-400 hover:text-amber-500 transition-colors p-2"
+                  className="text-cyber-muted hover:text-cyber-blue transition-colors p-2 cursor-none"
                   title="Share"
                 >
-                  {copiedId === news.id ? <Check className="w-5 h-5 text-green-500" /> : <Share2 className="w-5 h-5" />}
+                  {copiedId === news.id ? <Check className="w-5 h-5 text-[#00ff88]" /> : <Share2 className="w-5 h-5" />}
                 </button>
               </div>
               </motion.div>

@@ -56,106 +56,121 @@ export default function About() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-12"
       >
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center p-3 bg-amber-500/10 rounded-2xl mb-4">
-            <Info className="w-8 h-8 text-amber-500" />
+        <div className="text-center flex flex-col items-center mb-12">
+          <div className="font-mono text-[11px] text-cyber-pink tracking-[0.3em] uppercase flex items-center gap-[16px] mb-[16px] before:content-[''] before:w-[40px] before:h-[1px] before:bg-cyber-pink after:content-[''] after:w-[40px] after:h-[1px] after:bg-cyber-pink">
+            System Info
           </div>
-          <h1 className="text-4xl font-extrabold text-white mb-4">About Us</h1>
+          <h1 className="font-display text-[clamp(40px,6vw,72px)] font-[900] leading-[0.95] tracking-[-0.03em] text-cyber-white">
+            About <em className="not-italic text-cyber-pink">Us</em>
+          </h1>
         </div>
 
         {/* 3D Community Section */}
         <TiltCard>
           <section className="text-center w-full">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 md:p-12 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
+            <div 
+              className="bg-cyber-bg2/80 border border-cyber-border p-6 sm:p-8 md:p-12 relative overflow-hidden shadow-[0_0_40px_rgba(255,0,102,0.15)]"
+              style={{ clipPath: 'polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px))' }}
+            >
+              <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-cyber-pink to-cyber-blue"></div>
               
               {/* 3D floating elements inside the card */}
               <motion.div style={{ transform: "translateZ(30px)" }}>
-                <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-white mb-2 sm:mb-4 drop-shadow-lg">🚀 Join Our Community</h2>
+                <h2 className="font-display text-[24px] sm:text-[36px] md:text-[48px] font-[900] text-cyber-white mb-2 sm:mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                  <span className="text-cyber-lime">_</span>Join Our Network
+                </h2>
               </motion.div>
               
               <motion.div style={{ transform: "translateZ(20px)" }}>
-                <p className="text-slate-400 mb-6 sm:mb-8 text-sm sm:text-lg">Join 500+ students getting daily updates</p>
+                <p className="font-mono text-[10px] sm:text-[14px] md:text-[16px] text-cyber-muted uppercase tracking-widest mb-6 sm:mb-10">Join 500+ nodes getting daily updates</p>
               </motion.div>
               
-              <motion.div style={{ transform: "translateZ(40px)" }} className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-                <a href="https://t.me/innovatetgpcet" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white px-4 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-colors text-sm sm:text-base shadow-lg hover:shadow-[#0088cc]/50">
-                  <Send className="w-5 h-5" /> Join Telegram
+              <motion.div style={{ transform: "translateZ(40px)" }} className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
+                <a href="https://t.me/innovatetgpcet" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 bg-transparent border border-[#0088cc] hover:bg-[#0088cc]/20 text-[#0088cc] px-6 py-4 font-display font-bold uppercase tracking-widest transition-all text-sm shadow-[0_0_20px_rgba(0,136,204,0.2)] hover:shadow-[0_0_30px_rgba(0,136,204,0.5)] cursor-none" style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)'}}>
+                  <Send className="w-5 h-5" /> Initialize Telegram
                 </a>
-                <a href="https://whatsapp.com/channel/0029VbC3hiw6WaKna525w139" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-3 sm:px-8 sm:py-4 rounded-xl font-bold transition-colors text-sm sm:text-base shadow-lg hover:shadow-[#25D366]/50">
-                  <MessageCircle className="w-5 h-5" /> Join WhatsApp
+                <a href="https://whatsapp.com/channel/0029VbC3hiw6WaKna525w139" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 bg-transparent border border-[#25D366] hover:bg-[#25D366]/20 text-[#25D366] px-6 py-4 font-display font-bold uppercase tracking-widest transition-all text-sm shadow-[0_0_20px_rgba(37,211,102,0.2)] hover:shadow-[0_0_30px_rgba(37,211,102,0.5)] cursor-none" style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)'}}>
+                  <MessageCircle className="w-5 h-5" /> Initialize WhatsApp
                 </a>
               </motion.div>
             </div>
           </section>
         </TiltCard>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12 space-y-8 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+        <div className="bg-cyber-bg2/80 border border-cyber-border p-8 md:p-12 space-y-12 relative overflow-hidden" style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%)' }}>
+          <div className="absolute top-0 right-0 w-[50px] h-[50px] border-r-2 border-t-2 border-cyber-pink opacity-50"></div>
+          <div className="absolute bottom-0 left-0 w-[50px] h-[50px] border-l-2 border-b-2 border-cyber-lime opacity-50"></div>
+          
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-              <Heart className="w-6 h-6 text-amber-500" /> Our Mission
+            <h2 className="font-display text-[28px] font-[800] text-cyber-white mb-6 flex items-center gap-3">
+              <span className="w-8 h-8 flex items-center justify-center bg-cyber-pink/20 border border-cyber-pink">
+                <Heart className="w-4 h-4 text-cyber-pink" />
+              </span>
+               Core Directive
             </h2>
-            <p className="text-slate-300 leading-relaxed text-lg font-medium italic">
-              "Helping students access free resources and opportunities."
+            <p className="text-cyber-lime font-mono text-[14px] leading-relaxed tracking-wider border-l-2 border-cyber-lime pl-4 mb-6 uppercase">
+              "Bypass paywalls. Accelerate education."
             </p>
-            <p className="text-slate-400 mt-4 leading-relaxed">
-              We believe that education and career growth should not be hindered by paywalls. 
-              This platform was built to centralize high-quality notes, legitimate internship opportunities, 
-              and the latest tech updates—all completely free for students.
+            <p className="text-cyber-muted leading-[1.8] text-[15px]">
+              We believe that education and career growth should access an open network. 
+              This node was built to centralize high-quality data packets, legitimate internships, 
+              and the latest tech updates—all decentralized and completely free for users.
             </p>
           </section>
 
-          <hr className="border-slate-800" />
+          <hr className="border-cyber-border border-dashed" />
 
           {/* Contact & Connect Section */}
           <section>
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <Mail className="w-6 h-6 text-amber-500" /> Connect With Us
+            <h2 className="font-display text-[28px] font-[800] text-cyber-white mb-8 flex items-center gap-3">
+              <span className="w-8 h-8 flex items-center justify-center bg-cyber-blue/20 border border-cyber-blue">
+                <Mail className="w-4 h-4 text-cyber-blue" />
+              </span>
+              Establish Uplink
             </h2>
             
             <div className="grid sm:grid-cols-2 gap-6">
               {/* Email Card */}
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col items-center text-center hover:border-amber-500/50 transition-colors">
-                <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mb-4">
-                  <Mail className="w-6 h-6 text-amber-500" />
+              <div className="bg-transparent border border-cyber-border p-6 flex flex-col items-center text-center hover:border-cyber-blue transition-colors group cursor-none" style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}>
+                <div className="w-12 h-12 bg-cyber-blue/10 border border-cyber-blue flex items-center justify-center mb-4 group-hover:bg-cyber-blue/20 transition-colors">
+                  <Mail className="w-5 h-5 text-cyber-blue" />
                 </div>
-                <h3 className="text-white font-bold mb-2">Email Us</h3>
-                <a href="mailto:hello@passionpages.shop" className="text-slate-400 hover:text-amber-500 transition-colors">
+                <h3 className="font-display text-cyber-white font-[700] mb-2 uppercase tracking-widest">Protocol: Email</h3>
+                <a href="mailto:hello@passionpages.shop" className="font-mono text-sm text-cyber-muted hover:text-cyber-blue transition-colors cursor-none">
                   hello@passionpages.shop
                 </a>
               </div>
 
               {/* Instagram Card */}
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col items-center text-center hover:border-pink-500/50 transition-colors">
-                <div className="w-12 h-12 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 rounded-full flex items-center justify-center mb-4">
-                  <Instagram className="w-6 h-6 text-white" />
+              <div className="bg-transparent border border-cyber-border p-6 flex flex-col items-center text-center hover:border-[#ff0066] transition-colors group cursor-none" style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}>
+                <div className="w-12 h-12 bg-[#ff0066]/10 border border-[#ff0066] flex items-center justify-center mb-4 group-hover:bg-[#ff0066]/20 transition-colors">
+                  <Instagram className="w-5 h-5 text-[#ff0066]" />
                 </div>
-                <h3 className="text-white font-bold mb-2">Follow on Instagram</h3>
+                <h3 className="font-display text-cyber-white font-[700] mb-2 uppercase tracking-widest">Protocol: Instagram</h3>
                 <a 
                   href="https://www.instagram.com/innovate.tgpcet/?hl=en" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="mt-2 px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white text-sm font-bold rounded-full transition-all shadow-lg shadow-pink-500/25 flex items-center gap-2"
+                  className="mt-4 px-6 py-2 border border-[#ff0066] text-[#ff0066] hover:bg-[#ff0066] hover:text-black font-mono text-sm uppercase tracking-widest transition-all cursor-none"
                 >
-                  <Instagram className="w-4 h-4" />
-                  Follow
+                  <Instagram className="w-4 h-4 inline-block mr-2 -mt-1" />
+                  Connect
                 </a>
               </div>
             </div>
           </section>
 
-          <hr className="border-slate-800" />
+          <hr className="border-cyber-border border-dashed" />
 
-          <section className="bg-slate-950 rounded-2xl p-6 border border-slate-800 relative">
-            <div className="absolute top-0 left-0 w-1 h-full bg-amber-500 rounded-l-2xl"></div>
-            <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-amber-500" /> Disclaimer
+          <section className="bg-transparent p-6 border border-cyber-border relative" style={{ clipPath: 'polygon(0 16px, 16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%)' }}>
+            <div className="absolute top-0 left-0 w-1 h-full bg-[#ff4466]"></div>
+            <h2 className="font-display text-[20px] font-[800] text-cyber-white mb-4 flex items-center gap-3 uppercase tracking-wider">
+              <ShieldAlert className="w-5 h-5 text-[#ff4466]" /> Legal Override
             </h2>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              This is an <strong className="text-amber-500">unofficial, student-driven platform</strong>. It is not affiliated with, endorsed by, or officially connected to any specific college, university, or organization. 
+            <p className="font-mono text-cyber-muted text-[13px] leading-[1.8]">
+              This is an <strong className="text-[#ff4466] font-normal">unofficial, root-level node</strong> operated by students. We are not tethered to, endorsed by, or officially connected to any corporate or academic mainframe. 
               <br /><br />
-              All notes, links, and opportunities are crowdsourced or curated for informational purposes. We do not charge any fees, and we do not sell any data.
+              All data packets and links are crowdsourced. We charge zero credits, and your telemetry is not for sale.
             </p>
           </section>
         </div>
