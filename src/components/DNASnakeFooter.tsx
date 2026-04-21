@@ -214,25 +214,10 @@ export default function DNASnakeFooter() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      mountRef.current?.removeChild(renderer.domElement);
-      
-      // Cleanup geometries and materials
-      coreGeom.dispose();
-      coreMat.dispose();
-      glowGeom.dispose();
-      glowMat.dispose();
-      rungGeom.dispose();
-      rungMat.dispose();
-      nodeGeom.dispose();
-      nodeMatA.dispose();
-      nodeMatB.dispose();
-      nodeGlowGeom.dispose();
-      nodeGlowMatA.dispose();
-      nodeGlowMatB.dispose();
-      ringGeom.dispose();
-      ringMat.dispose();
-      partGeom.dispose();
-      partMat.dispose();
+      if (mountRef.current && renderer.domElement.parentNode === mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
+      scene.clear();
       renderer.dispose();
     };
   }, []);
