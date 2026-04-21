@@ -125,7 +125,7 @@ export default function Home() {
               AI Updates ✦
             </a>
           </div>
-        </div>
+        </motion.div>
 
         <div className="relative z-[2] flex justify-center items-center h-[40vh] sm:h-[50vh] min-h-[300px] md:min-h-0 md:h-auto w-full md:flex-1">
           <HeroCanvas />
