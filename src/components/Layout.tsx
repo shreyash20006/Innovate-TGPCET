@@ -5,6 +5,7 @@ import { Menu, X, Home, Briefcase, BookOpen, Cpu, FolderOpen, Calculator, Compas
 import AIChatbot from './AIChatbot';
 import Background3D from './Background3D';
 import CustomCursor from './CustomCursor';
+import DNASnakeFooter from './DNASnakeFooter';
 
 const AppLogo = () => (
   <Link to="/" className="flex items-center gap-2 sm:gap-3 group decoration-transparent">
