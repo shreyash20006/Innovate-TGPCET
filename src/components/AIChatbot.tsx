@@ -33,7 +33,7 @@ export default function AIChatbot() {
         className="fixed bottom-4 right-4 sm:bottom-[30px] sm:right-[30px] z-[999] w-[48px] h-[48px] sm:w-[58px] sm:h-[58px] flex items-center justify-center border-none cursor-none bg-gradient-to-br from-[#ff0066] to-[#880033] shadow-[0_0_30px_rgba(255,0,102,0.6)] animate-pulse hover:scale-110 transition-transform"
         style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
       >
-        <Bot className="w-6 h-6 text-white" />
+        <Bot className="w-6 h-6 text-cyber-white" />
       </button>
 
       <AnimatePresence>

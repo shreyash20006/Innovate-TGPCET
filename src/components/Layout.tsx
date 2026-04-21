@@ -9,7 +9,7 @@ import DNASnakeFooter from './DNASnakeFooter';
 
 const AppLogo = () => (
   <Link to="/" className="flex items-center gap-2 sm:gap-3 group decoration-transparent">
-    <div className="min-w-[36px] w-[36px] h-[36px] sm:min-w-[44px] sm:w-[44px] sm:h-[44px] bg-gradient-to-br from-[#ff0066] to-[#880033] flex items-center justify-center text-white font-black text-[11px] sm:text-[13px] tracking-tight relative transition-transform duration-300 group-hover:scale-105" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)', animation: 'hexPulse 3s ease-in-out infinite' }}>
+    <div className="min-w-[36px] w-[36px] h-[36px] sm:min-w-[44px] sm:w-[44px] sm:h-[44px] bg-gradient-to-br from-[#ff0066] to-[#880033] flex items-center justify-center text-cyber-white font-black text-[11px] sm:text-[13px] tracking-tight relative transition-transform duration-300 group-hover:scale-105" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)', animation: 'hexPulse 3s ease-in-out infinite' }}>
       IT
     </div>
     <div className="flex flex-col">
@@ -153,7 +153,7 @@ export default function Layout() {
               </AnimatePresence>
             </button>
 
-            <button className="ml-4 px-[22px] py-[9px] bg-cyber-pink text-white font-display text-[13px] font-bold uppercase tracking-wide rounded-lg cursor-none hover:bg-cyber-white hover:text-cyber-pink transition-all duration-200 shadow-[0_0_20px_rgba(255,0,102,0.4)] hover:shadow-[0_0_30px_rgba(255,0,102,0.5)] hover:-translate-y-[1px]">
+            <button className="ml-4 px-[22px] py-[9px] bg-cyber-pink text-cyber-white font-display text-[13px] font-bold uppercase tracking-wide rounded-lg cursor-none hover:bg-cyber-white hover:text-cyber-pink transition-all duration-200 shadow-[0_0_20px_rgba(255,0,102,0.4)] hover:shadow-[0_0_30px_rgba(255,0,102,0.5)] hover:-translate-y-[1px]">
               Get Opportunities →
             </button>
           </div>

@@ -83,6 +83,31 @@
   }
 }
 
+/* ── LIGHT MODE TEXT SAFETY NET ── */
+/* Ensures any remaining hardcoded text-white is readable in light mode */
+@layer utilities {
+  /* cyber-white already resolves to --text-primary (dark in light mode) */
+  /* This catches any raw Tailwind text-white that slipped through */
+  .theme-light .text-white,
+  .theme-light [class*="text-white"] {
+    color: var(--text-primary) !important;
+  }
+
+  /* Keep neon-on-dark card text always white — cards stay dark */
+  .theme-light .bg-cyber-card .text-white,
+  .theme-light [class*="bg-[#1A1A"],
+  .theme-light [class*="bg-[#1E2A"],
+  .theme-light [class*="bg-[#2A2A"] {
+    color: #ffffff !important;
+  }
+
+  /* Paragraphs & descriptions — ensure readable in light mode */
+  .theme-light p,
+  .theme-light .text-cyber-muted {
+    color: var(--text-muted);
+  }
+}
+
 @keyframes grainShift {
   0%   { transform: translate(0,0); }
   20%  { transform: translate(-2px, 3px); }

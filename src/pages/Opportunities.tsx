@@ -204,7 +204,7 @@ export const OPPORTUNITIES: Opportunity[] = [
         <p className="font-semibold text-amber-400">High-Demand Healthcare Careers | Limited Seats</p>
         <p className="text-emerald-400 text-[10px] sm:text-xs font-bold bg-emerald-400/10 inline-block px-2 py-1 rounded border border-emerald-400/20">MSME | NASSCOM | ISO | MCA Certified</p>
         <div className="mt-2 text-sm text-slate-300">
-          <p className="font-bold text-white mb-1">💡 Available Programs:</p>
+          <p className="font-bold text-cyber-white mb-1">💡 Available Programs:</p>
           <ul className="list-disc pl-4 space-y-1">
             <li>Advance Medical Coding</li>
             <li>Pharmacovigilance</li>
@@ -449,7 +449,7 @@ export default function Opportunities() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-full mb-4 animate-pulse">
                 <Briefcase className="w-8 h-8 text-amber-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Loading Opportunities...</h3>
+              <h3 className="text-xl font-bold text-cyber-white mb-2">Loading Opportunities...</h3>
               <p className="text-slate-400">Fetching the latest data from Notion.</p>
             </motion.div>
           ) : filteredOpportunities.length > 0 ? (
@@ -466,7 +466,7 @@ export default function Opportunities() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-full mb-4">
                 <Search className="w-8 h-8 text-slate-500" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">No opportunities found</h3>
+              <h3 className="text-xl font-bold text-cyber-white mb-2">No opportunities found</h3>
               <p className="text-slate-400">Try adjusting your search or filters.</p>
             </motion.div>
           )}
@@ -490,7 +490,7 @@ export default function Opportunities() {
             >
               <button 
                 onClick={() => setSelectedOpp(null)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors"
+                className="absolute top-6 right-6 text-slate-400 hover:text-cyber-white transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -499,7 +499,7 @@ export default function Opportunities() {
                 <span className="px-3 py-1 text-xs font-medium rounded-full bg-amber-500/10 text-amber-500 mb-4 inline-block">
                   {selectedOpp.type}
                 </span>
-                <h2 className="text-2xl font-bold text-white mb-2">{selectedOpp.title}</h2>
+                <h2 className="text-2xl font-bold text-cyber-white mb-2">{selectedOpp.title}</h2>
                 {selectedOpp.company && <p className="text-lg text-slate-400">{selectedOpp.company}</p>}
               </div>
 
@@ -507,26 +507,26 @@ export default function Opportunities() {
                 {selectedOpp.location && (
                   <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
                     <div className="text-slate-500 text-sm mb-1">Location</div>
-                    <div className="text-white font-medium flex items-center gap-2">
+                    <div className="text-cyber-white font-medium flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-amber-500" /> {selectedOpp.location}
                     </div>
                   </div>
                 )}
                 <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
                   <div className="text-slate-500 text-sm mb-1">Deadline</div>
-                  <div className="text-white font-medium flex items-center gap-2">
+                  <div className="text-cyber-white font-medium flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-amber-500" /> {new Date(selectedOpp.deadline).toLocaleDateString()}
                   </div>
                 </div>
               </div>
 
               <div className="prose prose-invert max-w-none mb-8">
-                <h3 className="text-lg font-bold text-white mb-4">About the Opportunity</h3>
+                <h3 className="text-lg font-bold text-cyber-white mb-4">About the Opportunity</h3>
                 <div className="text-slate-300 leading-relaxed">{selectedOpp.description}</div>
               </div>
 
               <div className="bg-slate-950 rounded-2xl border border-slate-800 p-6 text-center">
-                <h3 className="text-lg font-bold text-white mb-2">Ready to apply?</h3>
+                <h3 className="text-lg font-bold text-cyber-white mb-2">Ready to apply?</h3>
                 <p className="text-slate-400 mb-6">You will be redirected to the official application page.</p>
                 <a 
                   href={selectedOpp.applyLink} 

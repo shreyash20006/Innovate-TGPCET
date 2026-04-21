@@ -48,8 +48,8 @@ export default function FeedbackWidget() {
             className="absolute bottom-16 right-0 w-80 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-2xl"
           >
             <div className="flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
-              <h3 className="text-white font-bold">Feedback</h3>
-              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white transition-colors">
+              <h3 className="text-cyber-white font-bold">Feedback</h3>
+              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-cyber-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -83,7 +83,7 @@ export default function FeedbackWidget() {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Tell us what you think..."
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm resize-none h-24"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-cyber-white placeholder-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm resize-none h-24"
                   />
                 </div>
 

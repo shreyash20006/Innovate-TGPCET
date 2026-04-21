@@ -92,7 +92,7 @@ export default function Courses() {
             placeholder="Search courses..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#1E2A3A] border border-cyber-border py-4 pl-12 pr-4 text-white font-mono text-[14px] placeholder:text-white/70 focus:border-cyber-lime outline-none transition-all shadow-[0_0_20px_rgba(170,255,0,0.05)] cursor-none"
+            className="w-full bg-[#1E2A3A] border border-cyber-border py-4 pl-12 pr-4 text-cyber-white font-mono text-[14px] placeholder:text-cyber-white/70 focus:border-cyber-lime outline-none transition-all shadow-[0_0_20px_rgba(170,255,0,0.05)] cursor-none"
             style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))' }}
           />
         </div>
@@ -105,7 +105,7 @@ export default function Courses() {
               onClick={() => setActiveCategory(cat)}
               className={`flex items-center gap-2 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-none border ${
                 activeCategory === cat 
-                  ? 'bg-cyber-pink text-white border-cyber-pink' 
+                  ? 'bg-cyber-pink text-cyber-white border-cyber-pink' 
                   : 'bg-cyber-card text-cyber-text-secondary border-cyber-border hover:border-cyber-blue hover:text-cyber-blue'
               }`}
             >
@@ -131,7 +131,7 @@ export default function Courses() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-900 border border-slate-800 mb-6 shadow-lg animate-pulse">
                 <GraduationCap className="w-10 h-10 text-amber-500" />
               </div>
-              <h3 className="text-3xl font-bold text-white mb-3">Loading Courses...</h3>
+              <h3 className="text-3xl font-bold text-cyber-white mb-3">Loading Courses...</h3>
               <p className="text-slate-400 max-w-md mx-auto">Fetching the latest courses from Notion.</p>
             </motion.div>
           ) : filteredCourses.length > 0 ? (
@@ -144,7 +144,7 @@ export default function Courses() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3, delay: i * 0.1 }}
                 key={course.id}
-                className="group bg-[#1E2A3A] border border-cyber-border p-5 sm:p-[28px] hover:border-[#aaff0066] transition-all duration-300 flex flex-col relative overflow-hidden text-white"
+                className="group bg-[#1E2A3A] border border-cyber-border p-5 sm:p-[28px] hover:border-[#aaff0066] transition-all duration-300 flex flex-col relative overflow-hidden text-cyber-white"
                 style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}
               >
                 <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-cyber-lime scale-y-0 origin-bottom transition-transform duration-400 group-hover:scale-y-100"></div>
@@ -156,7 +156,7 @@ export default function Courses() {
                   </span>
                 </div>
                 
-                <h3 className="font-display text-[22px] font-[800] leading-[1.2] text-white mb-3 group-hover:text-cyber-lime transition-colors z-10">
+                <h3 className="font-display text-[22px] font-[800] leading-[1.2] text-cyber-white mb-3 group-hover:text-cyber-lime transition-colors z-10">
                   {course.title}
                 </h3>
                 
@@ -184,7 +184,7 @@ export default function Courses() {
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-900 border border-slate-800 mb-6 shadow-lg">
                 <GraduationCap className="w-10 h-10 text-slate-500" />
               </div>
-              <h3 className="text-3xl font-bold text-white mb-3">No Courses Found</h3>
+              <h3 className="text-3xl font-bold text-cyber-white mb-3">No Courses Found</h3>
               <p className="text-slate-400 max-w-md mx-auto">Try adjusting your search or filters.</p>
             </motion.div>
           )}

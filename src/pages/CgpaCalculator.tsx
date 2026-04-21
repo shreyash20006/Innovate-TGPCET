@@ -520,7 +520,7 @@ export default function CgpaCalculator() {
               </div>
 
               {/* SGPA Result Area */}
-              <div className="mt-8 p-6 sm:p-8 bg-[#1E2A3A] border border-cyber-border flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden text-white" style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
+              <div className="mt-8 p-6 sm:p-8 bg-[#1E2A3A] border border-cyber-border flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden text-cyber-white" style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
                 {/* Subtle background glow */}
                 <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-cyber-pink/20 blur-[60px] rounded-full pointer-events-none"></div>
                 
@@ -562,7 +562,7 @@ export default function CgpaCalculator() {
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-28 print:hidden">
             
             {/* Premium CGPA Card */}
-            <div className="bg-[#1E2A3A] border border-cyber-border p-8 text-center shadow-[0_0_30px_rgba(170,255,0,0.05)] relative overflow-hidden group text-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
+            <div className="bg-[#1E2A3A] border border-cyber-border p-8 text-center shadow-[0_0_30px_rgba(170,255,0,0.05)] relative overflow-hidden group text-cyber-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
               <div className="absolute inset-0 bg-cyber-lime/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyber-lime to-transparent"></div>
               
@@ -580,7 +580,7 @@ export default function CgpaCalculator() {
             </div>
 
             {/* Saved Semesters List */}
-            <div className="bg-[#1E2A3A] border border-cyber-border p-6 shadow-[0_0_30px_rgba(255,0,102,0.05)] text-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
+            <div className="bg-[#1E2A3A] border border-cyber-border p-6 shadow-[0_0_30px_rgba(255,0,102,0.05)] text-cyber-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="font-display text-[16px] font-[800] text-cyber-white flex items-center gap-2 uppercase tracking-wide">
                   <Save className="w-4 h-4 text-cyber-pink" /> Data Archives
@@ -622,7 +622,7 @@ export default function CgpaCalculator() {
             </div>
 
             {/* Grading Scale Info */}
-            <div className="bg-[#1E2A3A] border border-cyber-border p-6 shadow-[0_0_30px_rgba(255,0,102,0.05)] text-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
+            <div className="bg-[#1E2A3A] border border-cyber-border p-6 shadow-[0_0_30px_rgba(255,0,102,0.05)] text-cyber-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
               <h3 className="font-mono text-[10px] font-bold text-cyber-muted mb-4 uppercase tracking-[0.3em] text-center">Grading Matrix Limiters</h3>
               <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
                 <div className="flex justify-between items-center p-2.5 bg-transparent border-b border-cyber-border hover:border-cyber-lime/50 transition-colors">
@@ -666,15 +666,15 @@ export default function CgpaCalculator() {
         {/* HIDDEN PRINT TEMPLATE */}
         <div className="fixed overflow-hidden w-0 h-0 pointer-events-none opacity-0 z-[-1]">
           <div style={{ display: 'none' }} ref={printTemplateRef}>
-            <div className="w-[800px] bg-cyber-bg2 p-10 text-white font-sans flex flex-col items-center">
+            <div className="w-[800px] bg-cyber-bg2 p-10 text-cyber-white font-sans flex flex-col items-center">
             {/* Header & Mission (Top) */}
             <div className="flex flex-col items-center w-full mb-8 border-b border-slate-800 pb-8">
               <CustomLogo className="w-16 h-16 mb-4 drop-shadow-[0_0_10px_rgba(234,179,8,0.3)]" />
-              <h1 className="text-3xl font-black text-white tracking-tight mb-1">innovate.tgpcet</h1>
+              <h1 className="text-3xl font-black text-cyber-white tracking-tight mb-1">innovate.tgpcet</h1>
               <p className="text-sm text-slate-400 uppercase tracking-widest mb-6">Official CGPA Report</p>
               
               <div className="bg-slate-900/40 p-5 rounded-2xl border border-slate-800/80 max-w-2xl text-center w-full">
-                <h3 className="text-sm font-bold text-white mb-2 tracking-tight uppercase">Our Mission</h3>
+                <h3 className="text-sm font-bold text-cyber-white mb-2 tracking-tight uppercase">Our Mission</h3>
                 <p className="text-amber-500 font-semibold text-sm mb-3">"Helping students access free resources and opportunities."</p>
                 <p className="text-slate-400/90 text-[11px] leading-relaxed mx-auto">
                   We believe that education and career growth should not be hindered by paywalls. This platform was built to centralize high-quality notes, legitimate internship opportunities, and the latest tech updates—all completely free for students.
@@ -711,7 +711,7 @@ export default function CgpaCalculator() {
                   <p className="text-slate-400 text-sm font-bold uppercase tracking-wider">Current SGPA</p>
                   <p className="text-xs text-slate-500 mt-1">Semester {semester}</p>
                 </div>
-                <div className="text-5xl font-black text-white tracking-tight drop-shadow-md relative z-10">
+                <div className="text-5xl font-black text-cyber-white tracking-tight drop-shadow-md relative z-10">
                   {currentSgpa} <span className="text-xl text-amber-500 font-medium">/ 10</span>
                 </div>
               </div>
@@ -732,7 +732,7 @@ export default function CgpaCalculator() {
 
             {/* Marks Table */}
             <div className="w-full mb-8">
-              <h2 className="text-xl font-bold text-white mb-4 border-b border-slate-800 pb-2 flex justify-between">
+              <h2 className="text-xl font-bold text-cyber-white mb-4 border-b border-slate-800 pb-2 flex justify-between">
                 <span>Academic Performance</span>
                 <span className="text-sm text-amber-500 bg-amber-500/10 px-3 py-1 rounded-full">{totalCredits} Credits</span>
               </h2>

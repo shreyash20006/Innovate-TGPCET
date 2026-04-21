@@ -132,7 +132,7 @@ export default function AiUpdates() {
               onClick={() => setActiveCategory(cat)}
               className={`flex items-center gap-2 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-none border ${
                 activeCategory === cat 
-                  ? 'bg-cyber-pink text-white border-cyber-pink' 
+                  ? 'bg-cyber-pink text-cyber-white border-cyber-pink' 
                   : 'bg-transparent text-cyber-muted border-cyber-border hover:border-cyber-blue hover:text-cyber-blue'
               }`}
             >
@@ -264,7 +264,7 @@ export default function AiUpdates() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-full mb-4">
             <Search className="w-8 h-8 text-slate-500" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">No updates found</h3>
+          <h3 className="text-xl font-bold text-cyber-white mb-2">No updates found</h3>
           <p className="text-slate-400">Try adjusting your search parameters.</p>
         </motion.div>
       )}
