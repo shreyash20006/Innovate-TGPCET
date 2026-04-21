@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Info, ShieldAlert, Heart, Mail, Instagram, Send, MessageCircle } from 'lucide-react';
+import { Info, ShieldAlert, Heart, Mail, Instagram, Send, MessageCircle, Youtube } from 'lucide-react';
 
 const TiltCard = ({ children }: { children: React.ReactNode }) => {
   const x = useMotionValue(0);
@@ -129,7 +129,7 @@ export default function About() {
               Establish Uplink
             </h2>
             
-            <div className="grid sm:grid-cols-2 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Email Card */}
               <div className="bg-transparent border border-cyber-border p-6 flex flex-col items-center text-center hover:border-cyber-blue transition-colors group cursor-none" style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}>
                 <div className="w-12 h-12 bg-cyber-blue/10 border border-cyber-blue flex items-center justify-center mb-4 group-hover:bg-cyber-blue/20 transition-colors">
@@ -155,6 +155,23 @@ export default function About() {
                 >
                   <Instagram className="w-4 h-4 inline-block mr-2 -mt-1" />
                   Connect
+                </a>
+              </div>
+
+              {/* YouTube Card */}
+              <div className="bg-transparent border border-cyber-border p-6 flex flex-col items-center text-center hover:border-[#ff0000] transition-colors group cursor-none sm:col-span-2 lg:col-span-1" style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}>
+                <div className="w-12 h-12 bg-[#ff0000]/10 border border-[#ff0000] flex items-center justify-center mb-4 group-hover:bg-[#ff0000]/20 transition-colors">
+                  <Youtube className="w-5 h-5 text-[#ff0000]" />
+                </div>
+                <h3 className="font-display text-cyber-white font-[700] mb-2 uppercase tracking-widest">Protocol: YouTube</h3>
+                <a 
+                  href="https://www.youtube.com/channel/UCklqMwCH9yn4KngY6SXyeAQ" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="mt-4 px-6 py-2 border border-[#ff0000] text-[#ff0000] hover:bg-[#ff0000] hover:text-black font-mono text-sm uppercase tracking-widest transition-all cursor-none"
+                >
+                  <Youtube className="w-4 h-4 inline-block mr-2 -mt-1" />
+                  Subscribe
                 </a>
               </div>
             </div>
