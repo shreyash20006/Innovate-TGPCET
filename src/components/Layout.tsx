@@ -253,45 +253,7 @@ export default function Layout() {
       </AnimatePresence>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-cyber-border bg-cyber-bg/80 py-[60px] sm:py-[100px] px-5 sm:px-[60px] mt-20 relative z-30 print:hidden backdrop-blur-md overflow-hidden">
-        <div className="w-full flex flex-col items-start text-left">
-          <div className="font-display font-[900] text-[clamp(40px,12vw,180px)] leading-[0.85] tracking-[-0.05em] text-transparent mb-[40px] sm:mb-[80px] pointer-events-none break-words w-full text-left" style={{ WebkitTextStroke: '2px var(--color-cyber-border)' }}>
-            innovate<br className="sm:hidden" /><span className="hidden sm:inline"> </span>tgpcet
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-start justify-start mb-8 sm:mb-12">
-            <a 
-              href="https://www.youtube.com/channel/UCklqMwCH9yn4KngY6SXyeAQ" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-cyber-muted hover:text-cyber-pink transition-colors flex items-center gap-2"
-            >
-              <Youtube size={20} />
-              <span className="font-mono text-xs uppercase tracking-wider font-bold">Subscribe to our Channel</span>
-            </a>
-            <a 
-              href="https://youtu.be/TAXVZTU2BZg" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-cyber-muted hover:text-cyber-pink transition-colors flex items-center gap-2"
-            >
-              <Video size={20} />
-              <span className="font-mono text-xs uppercase tracking-wider font-bold">Watch Latest Video</span>
-            </a>
-          </div>
-
-          <div className="w-full flex-col sm:flex-row flex justify-between items-start sm:items-center border-t border-cyber-border pt-[32px] gap-4">
-            <div className="font-mono text-[11px] text-cyber-muted tracking-widest text-left">
-              © {new Date().getFullYear()} <em className="text-cyber-pink not-italic">innovate.tgpcet</em> · All rights reserved
-            </div>
-            <div className="font-mono text-[10px] text-cyber-muted/60 sm:text-right text-left max-w-[400px] leading-[1.6]">
-              Unofficial hub created by students, for students.<br/>
-              Not affiliated with any corporate entity. Resources for informational purposes only.
-            </div>
-          </div>
-        </div>
-      </footer>
+      <DNASnakeFooter />
 
       <div className="print:hidden z-50 relative">
         <AIChatbot />
