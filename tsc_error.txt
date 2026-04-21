@@ -1,0 +1,4 @@
+src/pages/NotebookLM.tsx(140,20): error TS2345: Argument of type '(prev: any) => any[]' is not assignable to parameter of type 'SourceItem[]'.
+src/pages/NotebookLM.tsx(834,10): error TS2552: Cannot find name 'StudioPanel'. Did you mean 'StudyKitPanel'?
+src/pages/NotebookLM.tsx(849,39): error TS2322: Type '{ key: any; job: any; }' is not assignable to type '{ job: Job; }'.
+  Property 'key' does not exist on type '{ job: Job; }'.

@@ -371,7 +371,7 @@ export default function Opportunities() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-cyber-bg2/80 p-6 border border-cyber-border space-y-4 relative overflow-hidden" 
+          className="bg-[#1E2A3A] p-6 border border-cyber-border space-y-4 relative overflow-hidden" 
           style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}
         >
           <div className="absolute top-0 left-0 w-1 h-full bg-cyber-pink"></div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { Menu, X, Home, Briefcase, BookOpen, Cpu, FolderOpen, Calculator, Compass, Info, Moon, Sun, Youtube, Video } from 'lucide-react';
 import AIChatbot from './AIChatbot';
 import Background3D from './Background3D';
@@ -26,6 +26,14 @@ export default function Layout() {
     return localStorage.getItem('theme') === 'light';
   });
   const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (isLightMode) {
@@ -85,7 +93,7 @@ export default function Layout() {
       </div>
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-cyber-bg/80 backdrop-blur-[24px] border-b border-cyber-border print:hidden h-[68px]">
+      <nav className={`sticky top-0 z-40 transition-all duration-300 print:hidden h-[68px] ${scrolled ? "bg-cyber-bg/90 backdrop-blur-[24px] border-b border-cyber-border shadow-lg" : "bg-transparent border-transparent"}`}>
         <div className="max-w-[1400px] mx-auto px-4 sm:px-[60px] h-full flex items-center justify-between">
           <AppLogo />
           
@@ -124,7 +132,7 @@ export default function Layout() {
                   <motion.div
                     key="sun"
                     initial={{ y: 20, opacity: 0, rotate: 90 }}
-                    animate={{ y: 0, opacity: 1, rotate: 0 }}
+                    animate={{ y: 0, opacity: 1, rotate: 360 }}
                     exit={{ y: -20, opacity: 0, rotate: -90 }}
                     transition={{ duration: 0.3 }}
                   >
@@ -134,7 +142,7 @@ export default function Layout() {
                   <motion.div
                     key="moon"
                     initial={{ y: 20, opacity: 0, rotate: -90 }}
-                    animate={{ y: 0, opacity: 1, rotate: 0 }}
+                    animate={{ y: 0, opacity: 1, rotate: 360 }}
                     exit={{ y: -20, opacity: 0, rotate: 90 }}
                     transition={{ duration: 0.3 }}
                   >
@@ -232,7 +240,17 @@ export default function Layout() {
 
       {/* Main Content */}
       <main className="flex-grow relative z-30">
-        <Outlet />
+        <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.15, type: "tween" }}
+        >
+          <Outlet />
+        </motion.div>
+      </AnimatePresence>
       </main>
 
       {/* Footer */}

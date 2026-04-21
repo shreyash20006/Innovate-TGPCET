@@ -520,7 +520,7 @@ export default function CgpaCalculator() {
               </div>
 
               {/* SGPA Result Area */}
-              <div className="mt-8 p-6 sm:p-8 bg-cyber-bg2 border border-cyber-border flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden" style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
+              <div className="mt-8 p-6 sm:p-8 bg-[#1E2A3A] border border-cyber-border flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden text-white" style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
                 {/* Subtle background glow */}
                 <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-cyber-pink/20 blur-[60px] rounded-full pointer-events-none"></div>
                 
@@ -562,7 +562,7 @@ export default function CgpaCalculator() {
           <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-28 print:hidden">
             
             {/* Premium CGPA Card */}
-            <div className="bg-cyber-bg2/80 border border-cyber-border p-8 text-center shadow-[0_0_30px_rgba(170,255,0,0.05)] relative overflow-hidden group" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
+            <div className="bg-[#1E2A3A] border border-cyber-border p-8 text-center shadow-[0_0_30px_rgba(170,255,0,0.05)] relative overflow-hidden group text-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
               <div className="absolute inset-0 bg-cyber-lime/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyber-lime to-transparent"></div>
               
@@ -580,7 +580,7 @@ export default function CgpaCalculator() {
             </div>
 
             {/* Saved Semesters List */}
-            <div className="bg-cyber-bg2/80 border border-cyber-border p-6 shadow-[0_0_30px_rgba(255,0,102,0.05)]" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
+            <div className="bg-[#1E2A3A] border border-cyber-border p-6 shadow-[0_0_30px_rgba(255,0,102,0.05)] text-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
               <div className="flex justify-between items-center mb-6">
                 <h3 className="font-display text-[16px] font-[800] text-cyber-white flex items-center gap-2 uppercase tracking-wide">
                   <Save className="w-4 h-4 text-cyber-pink" /> Data Archives
@@ -622,7 +622,7 @@ export default function CgpaCalculator() {
             </div>
 
             {/* Grading Scale Info */}
-            <div className="bg-cyber-bg2/80 border border-cyber-border p-6 shadow-[0_0_30px_rgba(255,0,102,0.05)]" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
+            <div className="bg-[#1E2A3A] border border-cyber-border p-6 shadow-[0_0_30px_rgba(255,0,102,0.05)] text-white" style={{ clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%)' }}>
               <h3 className="font-mono text-[10px] font-bold text-cyber-muted mb-4 uppercase tracking-[0.3em] text-center">Grading Matrix Limiters</h3>
               <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
                 <div className="flex justify-between items-center p-2.5 bg-transparent border-b border-cyber-border hover:border-cyber-lime/50 transition-colors">

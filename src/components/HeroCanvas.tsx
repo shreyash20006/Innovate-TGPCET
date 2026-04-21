@@ -7,6 +7,16 @@ export default function HeroCanvas() {
   useEffect(() => {
     if (!mountRef.current) return;
 
+    const [isLightMode, setIsLightMode] = React.useState(document.body.classList.contains('theme-light'));
+    
+    React.useEffect(() => {
+      const observer = new MutationObserver(() => {
+        setIsLightMode(document.body.classList.contains('theme-light'));
+      });
+      observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      return () => observer.disconnect();
+    }, []);
+    
     const width = 480;
     const height = 480;
 
@@ -95,6 +105,14 @@ export default function HeroCanvas() {
       renderer.render(scene, camera);
     };
 
+    const applyTheme = () => {
+      const isLight = document.body.classList.contains('theme-light');
+      materialWire.color.setHex(isLight ? 0xCC0033 : 0xff0066);
+      materialWire.opacity = isLight ? 0.9 : 0.7;
+      
+      materialRing.color.setHex(isLight ? 0x005577 : 0x00cfff);
+    };
+    
     animate();
 
     return () => {

@@ -120,7 +120,7 @@ export default function AiUpdates() {
             placeholder="Search updates..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-cyber-bg2/80 border border-cyber-border py-4 pl-12 pr-4 text-cyber-lime font-mono text-[14px] placeholder:text-cyber-muted focus:border-cyber-lime outline-none transition-all shadow-[0_0_20px_rgba(170,255,0,0.05)] cursor-none"
+            className="w-full bg-[#1E2A3A] border border-cyber-border py-4 pl-12 pr-4 text-cyber-lime font-mono text-[14px] placeholder:text-cyber-muted focus:border-cyber-lime outline-none transition-all shadow-[0_0_20px_rgba(170,255,0,0.05)] cursor-none"
             style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))' }}
           />
         </div>

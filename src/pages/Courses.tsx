@@ -71,10 +71,10 @@ export default function Courses() {
         <h1 className="font-display text-[clamp(40px,6vw,72px)] font-[900] leading-[0.95] tracking-[-0.03em] text-cyber-white mb-[24px]">
           Free <em className="not-italic text-cyber-pink">Courses</em>
         </h1>
-        <p className="text-cyber-muted max-w-[480px] text-[16px] leading-[1.7] mx-auto font-body mb-6">
+        <p className="text-cyber-text-secondary max-w-[480px] text-[16px] leading-[1.7] mx-auto font-body mb-6">
           Enhance your skills with top-rated free courses from across the web.
         </p>
-        <div className="inline-flex items-center bg-cyber-pink/10 text-cyber-muted font-mono text-[10px] uppercase tracking-wider px-4 py-2 border border-cyber-pink/30">
+        <div className="inline-flex items-center bg-cyber-pink/10 text-cyber-white font-mono text-[10px] uppercase tracking-wider px-4 py-2 border border-cyber-pink">
           <span className="font-bold text-cyber-pink mr-2 animate-blink">Note:</span> Links redirect to external platforms
         </div>
       </motion.div>
@@ -92,7 +92,7 @@ export default function Courses() {
             placeholder="Search courses..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-cyber-bg2/80 border border-cyber-border py-4 pl-12 pr-4 text-cyber-lime font-mono text-[14px] placeholder:text-cyber-muted focus:border-cyber-lime outline-none transition-all shadow-[0_0_20px_rgba(170,255,0,0.05)] cursor-none"
+            className="w-full bg-[#1E2A3A] border border-cyber-border py-4 pl-12 pr-4 text-white font-mono text-[14px] placeholder:text-white/70 focus:border-cyber-lime outline-none transition-all shadow-[0_0_20px_rgba(170,255,0,0.05)] cursor-none"
             style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px))' }}
           />
         </div>
@@ -106,7 +106,7 @@ export default function Courses() {
               className={`flex items-center gap-2 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest whitespace-nowrap transition-all duration-300 cursor-none border ${
                 activeCategory === cat 
                   ? 'bg-cyber-pink text-white border-cyber-pink' 
-                  : 'bg-transparent text-cyber-muted border-cyber-border hover:border-cyber-blue hover:text-cyber-blue'
+                  : 'bg-cyber-card text-cyber-text-secondary border-cyber-border hover:border-cyber-blue hover:text-cyber-blue'
               }`}
             >
               <div className="w-4 h-4 flex items-center justify-center opacity-70">
@@ -144,7 +144,7 @@ export default function Courses() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3, delay: i * 0.1 }}
                 key={course.id}
-                className="group bg-cyber-bg2/80 border border-cyber-border p-5 sm:p-[28px] hover:border-[#aaff0066] transition-all duration-300 flex flex-col relative overflow-hidden"
+                className="group bg-[#1E2A3A] border border-cyber-border p-5 sm:p-[28px] hover:border-[#aaff0066] transition-all duration-300 flex flex-col relative overflow-hidden text-white"
                 style={{ clipPath: 'polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%)' }}
               >
                 <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-cyber-lime scale-y-0 origin-bottom transition-transform duration-400 group-hover:scale-y-100"></div>
@@ -156,11 +156,11 @@ export default function Courses() {
                   </span>
                 </div>
                 
-                <h3 className="font-display text-[22px] font-[800] leading-[1.2] text-cyber-white mb-3 group-hover:text-cyber-lime transition-colors z-10">
+                <h3 className="font-display text-[22px] font-[800] leading-[1.2] text-white mb-3 group-hover:text-cyber-lime transition-colors z-10">
                   {course.title}
                 </h3>
                 
-                <p className="text-[14px] text-cyber-muted leading-[1.6] mb-8 flex-grow z-10">
+                <p className="text-[14px] text-[#CCCCCC] leading-[1.6] mb-8 flex-grow z-10">
                   {course.desc}
                 </p>
                 

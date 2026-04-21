@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import HeroCanvas from '../components/HeroCanvas';
 import { OPPORTUNITIES } from './Opportunities';
@@ -86,6 +86,9 @@ export default function Home() {
     }
   };
 
+    const { scrollY } = useScroll();
+  const yParallax = useTransform(scrollY, [0, 500], [0, 150]);
+
   const upcomingOpportunities = OPPORTUNITIES
     .filter(opp => new Date(opp.deadline).getTime() > Date.now())
     .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
@@ -97,7 +100,7 @@ export default function Home() {
       <section className="relative z-[2] min-h-[calc(100vh-68px)] flex flex-col md:grid md:grid-cols-2 items-center px-4 sm:px-5 md:px-[60px] gap-8 md:gap-10 overflow-hidden after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gradient-to-r after:from-transparent after:via-cyber-pink after:to-transparent pt-16 md:pt-0">
         
 
-<div className="relative z-[2] text-center md:text-left flex-1 flex flex-col justify-center">
+<motion.div style={{ y: yParallax }} className="relative z-[2] text-center md:text-left flex-1 flex flex-col justify-center">
           <div className="font-mono text-[12px] text-cyber-pink tracking-[0.25em] uppercase flex items-center justify-center md:justify-start gap-[12px] mb-[20px] after:content-[''] after:flex-1 after:h-[1px] after:bg-cyber-border after:max-w-[80px] hidden md:flex">
             <span className="w-[7px] h-[7px] rounded-full bg-cyber-lime animate-blink"></span>
             Student Tech Hub — Live
