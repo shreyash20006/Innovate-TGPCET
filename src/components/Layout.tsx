@@ -49,6 +49,7 @@ export default function Layout() {
     { name: 'Resources', path: '/resources', icon: FolderOpen },
     { name: 'CGPA Calc', path: '/cgpa-calculator', icon: Calculator },
     { name: 'Career Guide', path: '/career-guide.html', external: true, icon: Compass },
+    { name: 'YouTube', path: 'https://www.youtube.com/channel/UCklqMwCH9yn4KngY6SXyeAQ', external: true, icon: Youtube },
     { name: 'About', path: '/about', icon: Info },
   ];
 
@@ -94,6 +95,8 @@ export default function Layout() {
                 <a
                   key={link.name}
                   href={link.path}
+                  target={link.path.startsWith('http') ? '_blank' : undefined}
+                  rel={link.path.startsWith('http') ? 'noopener noreferrer' : undefined}
                   className="px-[13px] py-[8px] rounded-md text-cyber-muted hover:text-cyber-white transition-colors"
                 >
                   {link.name}
@@ -212,7 +215,7 @@ export default function Layout() {
                   }`;
 
                   return link.external ? (
-                    <a key={link.name} href={link.path} className={className}>
+                    <a key={link.name} href={link.path} target={link.path.startsWith('http') ? '_blank' : undefined} rel={link.path.startsWith('http') ? 'noopener noreferrer' : undefined} className={className}>
                       {content}
                     </a>
                   ) : (
