@@ -1,15 +1,18 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Music2, Search, Play, Pause, ExternalLink, Heart, LogIn, LogOut,
-  User, Clock, Users, Copy, Check, Radio, X, ChevronUp,
+  User, Clock, Users, Copy, Check, Radio, X, ChevronUp, AlertTriangle,
+  Youtube, TrendingUp,
 } from 'lucide-react';
 import NowPlayingScreen from './NowPlayingScreen';
+import { searchYouTubeVideos, getTrendingMusic, fmtViews, YouTubeAPIError, isApiKeyConfigured } from '../utils/youtubeApi';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SpotifyUser { id: string; display_name: string; email: string; images: { url: string }[]; product: string; }
 interface Track {
   id: string; name: string; artists: string; album: string;
   image: string; preview_url: string | null; duration_ms: number; external_url: string;
+  viewCount?: string; // YouTube view count
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -29,34 +32,7 @@ function mapTrack(t: any): Track {
   };
 }
 
-/**
- * Search via Apple iTunes API — FREE, no auth, browser CORS-friendly.
- * Returns 30-second preview URLs just like Spotify preview_url.
- * Used as primary search because Spotify requires Premium for the app owner.
- */
-async function itunesSearch(query: string): Promise<Track[]> {
-  const params = new URLSearchParams({
-    term: query,
-    media: 'music',
-    entity: 'song',
-    limit: '25',
-    country: 'in',
-  });
-  const r = await fetch(`https://itunes.apple.com/search?${params}`);
-  if (!r.ok) throw new Error(`iTunes error ${r.status}`);
-  const data = await r.json();
-  return (data.results || []).map((t: any): Track => ({
-    id: String(t.trackId || t.collectionId || Math.random()),
-    name: t.trackName || t.collectionName || '',
-    artists: t.artistName || '',
-    album: t.collectionName || '',
-    // Upgrade artwork from 100px → 400px for nicer covers
-    image: (t.artworkUrl100 || '').replace('100x100bb', '400x400bb'),
-    preview_url: t.previewUrl || null,
-    duration_ms: t.trackTimeMillis || 0,
-    external_url: t.trackViewUrl || '',
-  }));
-}
+// itunesSearch removed — replaced by YouTube Data API v3 (see src/utils/youtubeApi.ts)
 
 // ─── CSS Keyframes (injected once) ───────────────────────────────────────────
 const CSS_ANIMATIONS = `
@@ -245,66 +221,81 @@ function useSpotifyToken() {
   return { token, logout };
 }
 
-// ─── Track Card ───────────────────────────────────────────────────────────────
+// ─── YouTube-style Track Card ─────────────────────────────────────────────────
 function TrackCard({ track, playing, onPlay, onFavorite, isFav }: {
   track: Track; playing: boolean; onPlay: () => void; onFavorite: () => void; isFav: boolean;
 }) {
+  const duration = track.duration_ms ? fmt(track.duration_ms) : '';
+  const views    = track.viewCount   ? fmtViews(track.viewCount) : '';
+
   return (
     <div
-      className="group flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all duration-200"
+      className="group flex items-center gap-3 p-2.5 rounded-2xl cursor-pointer transition-all duration-200"
       style={{
-        background: playing ? 'rgba(29,185,84,0.1)' : undefined,
-        border: playing ? '1px solid rgba(29,185,84,0.3)' : '1px solid transparent',
+        background: playing ? 'rgba(29,185,84,0.08)' : 'transparent',
+        border: playing ? '1px solid rgba(29,185,84,0.25)' : '1px solid rgba(255,255,255,0.04)',
         animation: 'mh-fadeup 0.3s ease-out both',
       }}
-      onClick={onPlay}  // Always clickable — YouTube handles playback
+      onMouseEnter={e => { if (!playing) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
+      onMouseLeave={e => { if (!playing) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+      onClick={onPlay}
     >
-      <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
-        {track.image ? <img src={track.image} alt={track.album} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-800 flex items-center justify-center text-xl">🎵</div>}
-        <div className={`absolute inset-0 flex items-center justify-center bg-black/60 transition-opacity ${playing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-          {playing ? <Equalizer active /> : <Play className="w-4 h-4 text-white" />}
+      {/* 16:9 thumbnail with duration overlay + hover play button */}
+      <div className="relative rounded-xl overflow-hidden shrink-0"
+        style={{ width: 88, height: 56 }}>
+        {track.image
+          ? <img src={track.image} alt={track.name} className="w-full h-full object-cover" />
+          : <div className="w-full h-full flex items-center justify-center text-2xl" style={{ background: '#1a1a2e' }}>🎵</div>}
+        {/* Duration badge */}
+        {duration && (
+          <span className="absolute bottom-1 right-1 text-[8px] font-bold px-1 py-0.5 rounded"
+            style={{ background: 'rgba(0,0,0,0.82)', color: '#fff' }}>{duration}</span>
+        )}
+        {/* Play overlay */}
+        <div className={`absolute inset-0 flex items-center justify-center transition-opacity
+          ${playing ? 'opacity-100 bg-black/40' : 'opacity-0 bg-black/50 group-hover:opacity-100'}`}>
+          {playing
+            ? <Equalizer active />
+            : <Play className="w-5 h-5 text-white" fill="currentColor" />}
         </div>
+        {/* Playing indicator line */}
+        {playing && <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: '#1DB954' }} />}
       </div>
+
+      {/* Track info */}
       <div className="flex-1 min-w-0">
-        <div className={`text-sm font-semibold truncate ${playing ? 'text-[#1DB954]' : 'text-white'}`}>{track.name}</div>
-        <div className="text-xs truncate text-gray-400">{track.artists}</div>
-        <div className="text-xs truncate text-gray-600">{track.album}</div>
+        <div className={`text-sm font-semibold leading-tight line-clamp-2 mb-0.5 ${playing ? 'text-[#1DB954]' : 'text-white'}`}
+          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {track.name}
+        </div>
+        <div className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{track.artists}</div>
+        {views && <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{views}</div>}
       </div>
-      <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-xs font-mono text-gray-600">{fmt(track.duration_ms)}</span>
+
+      {/* Actions */}
+      <div className="flex flex-col items-center gap-1.5 shrink-0">
         <button
           onClick={e => { e.stopPropagation(); onFavorite(); }}
-          className={`transition-all hover:scale-110 active:scale-90 ${isFav ? 'text-[#ff2d78]' : 'text-gray-500 hover:text-[#ff2d78]'}`}>
+          className="transition-all hover:scale-110 active:scale-90"
+          style={{ color: isFav ? '#ff2d78' : 'rgba(255,255,255,0.25)' }}
+          title={isFav ? 'Remove from favorites' : 'Add to favorites'}>
           <Heart className="w-4 h-4" fill={isFav ? 'currentColor' : 'none'} />
         </button>
         {track.external_url && (
-          <a href={track.external_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-            className="text-gray-500 hover:text-[#1DB954] transition-colors"><ExternalLink className="w-4 h-4" /></a>
+          <a href={track.external_url} target="_blank" rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="transition-colors hover:text-[#1DB954]"
+            style={{ color: 'rgba(255,255,255,0.2)' }}
+            title="Open in YouTube">
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
         )}
       </div>
     </div>
   );
 }
 
-// ─── YouTube Search (Piped API — free, no key) ───────────────────────────────
-const PIPED_INSTANCES = [
-  'https://pipedapi.kavin.rocks',
-  'https://api.piped.projectsegfau.lt',
-  'https://piped-api.garudalinux.org',
-];
-async function searchYouTube(track: Track): Promise<string | null> {
-  const q = encodeURIComponent(`${track.name} ${track.artists} full song audio`);
-  for (const base of PIPED_INSTANCES) {
-    try {
-      const r = await fetch(`${base}/search?q=${q}&filter=videos`, { signal: AbortSignal.timeout(5000) });
-      if (!r.ok) continue;
-      const data = await r.json();
-      const item = data.items?.find((i: any) => i.url && i.duration > 60);
-      if (item?.url) return item.url.replace('/watch?v=', '');
-    } catch { /* try next instance */ }
-  }
-  return null;
-}
+// Piped API removed — YouTube video IDs now come directly from YouTube Data API v3 (track.id)
 
 // ─── Mini Now Playing Bar (tappable → opens full-screen player) ────────────────
 function MiniPlayerBar({ track, ytVideoId, ytLoading, roomCode, isHost, onClick }: {
@@ -542,25 +533,17 @@ export default function MusicHub() {
   const [loadingUser, setLoadingUser] = useState(false);
   const [nowPlaying, setNowPlaying] = useState<Track | null>(null);
   const [showNowPlaying, setShowNowPlaying] = useState(false);
-  const [ytVideoId, setYtVideoId] = useState<string | null>(null);
-  const [ytLoading, setYtLoading] = useState(false);
   const [tokenError, setTokenError] = useState(false);
+  const [ytError, setYtError] = useState<string>('');         // quota / key errors
+  const [trendingLoaded, setTrendingLoaded] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('spotify_favs') || '[]'); } catch { return []; } });
   const [activeTab, setActiveTab] = useState<'search' | 'top' | 'favorites'>('search');
   const [showRoomModal, setShowRoomModal] = useState(false);
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
 
-  // YouTube search runs at MusicHub level so mini-bar + full-screen share state
-  useEffect(() => {
-    if (!nowPlaying) return;
-    setYtVideoId(null);
-    setYtLoading(true);
-    searchYouTube(nowPlaying).then(vid => {
-      setYtVideoId(vid);
-      setYtLoading(false);
-    });
-  }, [nowPlaying]);
+  // ytVideoId is now the track.id (YouTube video ID) — no separate lookup!
+  const ytVideoId = nowPlaying?.id ?? null;
 
   // Inject CSS animations once
   useEffect(() => {
@@ -595,14 +578,30 @@ export default function MusicHub() {
   useEffect(() => { localStorage.setItem('spotify_favs', JSON.stringify(favorites)); }, [favorites]);
 
   async function search() {
-    if (!query.trim()) return; // No Spotify auth required — iTunes is free
-    setSearching(true); setActiveTab('search');
+    if (!query.trim()) return;
+    setSearching(true); setActiveTab('search'); setYtError('');
     try {
-      const tracks = await itunesSearch(query.trim());
+      const tracks = await searchYouTubeVideos(query.trim(), 20);
       setResults(tracks);
+      if (!tracks.length) setYtError('No results found for that query.');
     } catch (e: any) {
-      console.error('iTunes search failed:', e.message);
+      console.error('[YouTube search]', e.message);
       setResults([]);
+      if (e instanceof YouTubeAPIError) setYtError(e.message);
+      else setYtError('Search failed. Please check your connection and try again.');
+    } finally { setSearching(false); }
+  }
+
+  // Load trending when switching to 'top' tab
+  async function loadTrending() {
+    if (trendingLoaded || topTracks.length) return;
+    setSearching(true); setYtError('');
+    try {
+      const tracks = await getTrendingMusic();
+      setTopTracks(tracks);
+      setTrendingLoaded(true);
+    } catch (e: any) {
+      if (e instanceof YouTubeAPIError) setYtError(e.message);
     } finally { setSearching(false); }
   }
 
@@ -614,9 +613,11 @@ export default function MusicHub() {
     });
   }, [activeRoom, token]);
 
-  const displayTracks = activeTab === 'search' ? results
-    : activeTab === 'top' ? topTracks
-    : [...results, ...topTracks].filter((t, i, arr) => arr.findIndex(x => x.id === t.id) === i && favorites.includes(t.id));
+  const displayTracks = activeTab === 'search'    ? results
+    : activeTab === 'top'     ? topTracks
+    : [...results, ...topTracks].filter(
+        (t, i, arr) => arr.findIndex(x => x.id === t.id) === i && favorites.includes(t.id)
+      );
 
   return (
     <div className="min-h-screen relative pb-28" style={{ background: 'var(--bg-primary, #0a0a14)' }}>
@@ -632,7 +633,7 @@ export default function MusicHub() {
             </div>
             <div>
               <h1 className="text-base font-bold text-white leading-none">Music Hub</h1>
-              <p className="text-[10px] text-gray-500 mt-0.5">Search via iTunes · Connect Spotify</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">Powered by YouTube · Connect Spotify for rooms</p>
             </div>
           </div>
 
@@ -692,6 +693,33 @@ export default function MusicHub() {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-6">
+
+        {/* ── YouTube API key warning ── */}
+        {!isApiKeyConfigured() && (
+          <div className="flex items-start gap-3 p-4 rounded-2xl mb-5"
+            style={{ background: 'rgba(255,160,0,0.08)', border: '1px solid rgba(255,160,0,0.3)' }}>
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#FFA000' }} />
+            <div>
+              <p className="text-sm font-semibold" style={{ color: '#FFA000' }}>YouTube API Key Missing</p>
+              <p className="text-xs mt-1" style={{ color: 'rgba(255,160,0,0.8)' }}>
+                Add <code className="bg-black/30 px-1 rounded">VITE_YOUTUBE_API_KEY</code> to your <code className="bg-black/30 px-1 rounded">.env</code> file or Vercel env vars.
+                Get a free key at <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="underline">console.cloud.google.com</a>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ── Quota / search error ── */}
+        {ytError && (
+          <div className="flex items-start gap-3 p-4 rounded-2xl mb-5"
+            style={{ background: 'rgba(255,45,120,0.07)', border: '1px solid rgba(255,45,120,0.25)' }}>
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#ff2d78' }} />
+            <div className="flex-1">
+              <p className="text-sm" style={{ color: '#ff2d78' }}>{ytError}</p>
+            </div>
+            <button onClick={() => setYtError('')} className="text-gray-500 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
+          </div>
+        )}
 
         {/* ── Not logged in: show search + login CTA ── */}
         {!token && (
@@ -753,25 +781,26 @@ export default function MusicHub() {
               <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
-                  placeholder="Search songs, artists, albums…"
+                  placeholder="Search any song on YouTube…"
                   className="w-full pl-10 pr-4 py-3.5 rounded-2xl text-sm text-white outline-none placeholder-gray-600"
                   style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }} />
               </div>
               <button onClick={search} disabled={searching || !query.trim()}
                 className="px-5 py-3 rounded-2xl font-bold text-sm text-white disabled:opacity-40 transition-all hover:scale-105 active:scale-95"
-                style={{ background: '#1DB954', boxShadow: '0 0 20px rgba(29,185,84,0.3)' }}>
-                {searching ? '…' : 'Search'}
+                style={{ background: '#FF0000', boxShadow: '0 0 20px rgba(255,0,0,0.3)' }}>
+                {searching ? '…' : <Youtube className="w-4 h-4" />}
               </button>
             </div>
 
             {/* Tabs */}
             <div className="flex gap-1 mb-5 p-1 rounded-2xl w-fit" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
               {([
-                { id: 'search', label: 'Results', icon: Search },
-                { id: 'top',    label: 'Your Top', icon: Clock },
+                { id: 'search',    label: 'Search',    icon: Search },
+                { id: 'top',       label: 'Trending',  icon: TrendingUp },
                 { id: 'favorites', label: `❤️ ${favorites.length}`, icon: Heart },
               ] as const).map(tab => (
-                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                <button key={tab.id}
+                  onClick={() => { setActiveTab(tab.id); if (tab.id === 'top') loadTrending(); }}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
                   style={activeTab === tab.id ? { background: '#1DB954', color: 'white', boxShadow: '0 0 15px rgba(29,185,84,0.3)' } : { color: '#666' }}>
                   <tab.icon className="w-3.5 h-3.5" />{tab.label}
@@ -780,17 +809,28 @@ export default function MusicHub() {
             </div>
 
             {/* Track list */}
-            {displayTracks.length === 0 ? (
+            {searching && displayTracks.length === 0 && (
+              <div className="flex flex-col items-center py-16">
+                <div className="flex gap-2 mb-4">
+                  {[0,1,2,3].map(i => (
+                    <div key={i} className="w-1.5 h-8 rounded-full animate-pulse" style={{ background: '#1DB954', animationDelay: `${i*0.15}s`, animationDuration: '0.8s' }} />
+                  ))}
+                </div>
+                <p className="text-gray-600 text-sm">Searching YouTube…</p>
+              </div>
+            )}
+            {!searching && displayTracks.length === 0 && (
               <div className="text-center py-16" style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
-                <div className="text-5xl mb-4">{activeTab === 'favorites' ? '💔' : activeTab === 'top' ? '🎵' : '🔍'}</div>
+                <div className="text-5xl mb-4">{activeTab === 'favorites' ? '💔' : activeTab === 'top' ? '📈' : '🎬'}</div>
                 <p className="text-gray-600 text-sm">
                   {activeTab === 'favorites' ? 'Heart a track to save it here.'
-                   : activeTab === 'top' ? 'Listen to more music on Spotify to see your top tracks.'
-                   : 'Search for a song to get started.'}
+                   : activeTab === 'top' ? 'Click Trending to load top YouTube music.'
+                   : 'Search any song, artist, or album above.'}
                 </p>
               </div>
-            ) : (
-              <div className="space-y-1">
+            )}
+            {displayTracks.length > 0 && (
+              <div className="space-y-1.5">
                 {displayTracks.map(t => (
                   <TrackCard key={t.id} track={t} playing={nowPlaying?.id === t.id}
                     onPlay={() => { setNowPlaying(t); setShowNowPlaying(true); }}
@@ -808,7 +848,7 @@ export default function MusicHub() {
         <MiniPlayerBar
           track={nowPlaying}
           ytVideoId={ytVideoId}
-          ytLoading={ytLoading}
+          ytLoading={false}
           roomCode={activeRoom}
           isHost={isHost}
           onClick={() => setShowNowPlaying(true)}
@@ -821,7 +861,7 @@ export default function MusicHub() {
           track={nowPlaying}
           queue={[...results, ...topTracks].filter((t, i, a) => a.findIndex(x => x.id === t.id) === i)}
           ytVideoId={ytVideoId}
-          ytLoading={ytLoading}
+          ytLoading={false}
           isHost={isHost}
           roomCode={activeRoom}
           onClose={() => setShowNowPlaying(false)}
