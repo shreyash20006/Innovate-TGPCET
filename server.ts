@@ -448,7 +448,8 @@ app.get("/api/health", (req, res) => {
 
 const SPOTIFY_CLIENT_ID     = process.env.SPOTIFY_CLIENT_ID || '';
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || '';
-const SPOTIFY_REDIRECT_URI  = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/auth/spotify/callback';
+// Must match exactly what is registered in the Spotify developer dashboard
+const SPOTIFY_REDIRECT_URI  = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/callback';
 
 // In-memory token store (replace with DB/session in production)
 const spotifyTokenStore = new Map<string, { access_token: string; expires_at: number }>();
@@ -469,15 +470,18 @@ app.get('/auth/spotify/login', (_req: any, res: any) => {
     response_type: 'code',
     client_id: SPOTIFY_CLIENT_ID,
     scope: scopes,
-    redirect_uri: SPOTIFY_REDIRECT_URI,
+    redirect_uri: SPOTIFY_REDIRECT_URI, // → https://innovate-tgpcet.vercel.app/callback
     state: Math.random().toString(36).substring(2),
   });
   res.redirect(`https://accounts.spotify.com/authorize?${params}`);
 });
 
-app.get('/auth/spotify/callback', async (req: any, res: any) => {
-  const { code, error } = req.query as Record<string, string>;
-  if (error || !code) return res.redirect('/#/music-hub?error=access_denied');
+// POST /api/spotify/token — called by the frontend /callback page
+// Receives the authorization code, exchanges it for an access token,
+// stores it server-side and returns a safe sessionId to the client.
+app.post('/api/spotify/token', async (req: any, res: any) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ error: 'code required' });
   try {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
@@ -493,18 +497,22 @@ app.get('/auth/spotify/callback', async (req: any, res: any) => {
       body: body.toString(),
     });
     const tokens = await tokenRes.json() as any;
-    if (!tokens.access_token) throw new Error('No access token');
+    if (!tokens.access_token) throw new Error(tokens.error_description || 'No access token');
     const sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
     spotifyTokenStore.set(sessionId, {
       access_token: tokens.access_token,
       expires_at: Date.now() + tokens.expires_in * 1000,
     });
-    res.redirect(`/#/music-hub?session=${sessionId}`);
-  } catch (err) {
-    console.error('Spotify callback error:', err);
-    res.redirect('/#/music-hub?error=token_exchange_failed');
+    res.json({ sessionId });
+  } catch (err: any) {
+    console.error('Spotify token exchange error:', err.message);
+    res.status(500).json({ error: err.message || 'Token exchange failed' });
   }
 });
+
+// Note: /auth/spotify/callback is no longer used.
+// Spotify now redirects to the frontend /callback page instead,
+// which calls POST /api/spotify/token above.
 
 app.get('/api/spotify/me', async (req: any, res: any) => {
   const token = getSpotifyToken(req.query.session as string);

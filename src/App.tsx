@@ -10,6 +10,8 @@ import Resources from './pages/Resources';
 import About from './pages/About';
 import CgpaCalculator from './pages/CgpaCalculator';
 import MusicHub from './pages/MusicHub';
+import SpotifyCallback from './pages/SpotifyCallback';
+
 
 
 export default function App() {
@@ -26,7 +28,8 @@ export default function App() {
           <Route path="about" element={<About />} />
           <Route path="music-hub" element={<MusicHub />} />
         </Route>
-
+        {/* Spotify OAuth callback — outside Layout so there's no nav chrome */}
+        <Route path="/callback" element={<SpotifyCallback />} />
       </Routes>
       <Analytics />
     </BrowserRouter>

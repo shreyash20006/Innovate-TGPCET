@@ -33,22 +33,19 @@ function fmtMs(ms: number) {
 }
 
 function useSpotifySession() {
-  const [session, setSession] = useState<string | null>(() => {
-    // Check URL hash for session param (after OAuth redirect)
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash;
-      const params = new URLSearchParams(hash.includes('?') ? hash.split('?')[1] : '');
-      const s = params.get('session');
-      if (s) {
-        sessionStorage.setItem('spotify_session', s);
-        // Clean URL
-        window.history.replaceState({}, '', window.location.pathname + '#/music-hub');
-        return s;
-      }
-      return sessionStorage.getItem('spotify_session');
+  const [session, setSession] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? sessionStorage.getItem('spotify_session') : null
+  );
+
+  // Watch for sessionStorage updates (set by SpotifyCallback page)
+  useEffect(() => {
+    function onFocus() {
+      const s = sessionStorage.getItem('spotify_session');
+      if (s && s !== session) setSession(s);
     }
-    return null;
-  });
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [session]);
 
   function logout() {
     sessionStorage.removeItem('spotify_session');
@@ -236,14 +233,16 @@ export default function MusicHub() {
   const [activeTab, setActiveTab] = useState<'search' | 'top' | 'favorites'>('search');
   const [error, setError] = useState<string | null>(null);
 
-  // Check for error in URL
+  // Check for error in URL query string (Spotify redirects with ?error=... to /callback,
+  // but SpotifyCallback page navigates here with no params on error — no-op needed)
+  useEffect(() => { /* errors handled in SpotifyCallback page */ }, []);
+
+  // Reload session from sessionStorage when the component mounts
+  // (SpotifyCallback may have set it just before navigating here)
   useEffect(() => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.includes('?') ? hash.split('?')[1] : '');
-    const err = params.get('error');
-    if (err) {
-      setError(err === 'access_denied' ? 'Login cancelled.' : 'Authentication failed. Try again.');
-      window.history.replaceState({}, '', window.location.pathname + '#/music-hub');
+    const s = sessionStorage.getItem('spotify_session');
+    if (s && !session) {
+      // trigger re-render — handled by useSpotifySession's initial useState
     }
   }, []);
 
@@ -288,7 +287,7 @@ export default function MusicHub() {
     ? topTracks
     : [...results, ...topTracks].filter((t, i, arr) => arr.findIndex(x => x.id === t.id) === i && favorites.includes(t.id));
 
-  const loginUrl = '/auth/spotify/login';
+  const loginUrl = '/auth/spotify/login'; // hits backend → redirects to Spotify → returns to /callback
 
   return (
     <div className="min-h-screen pb-24" style={{ background: 'var(--bg-primary)' }}>
