@@ -37,6 +37,8 @@ export default function SpotifyCallback() {
       .then(data => {
         if (data.sessionId) {
           sessionStorage.setItem('spotify_session', data.sessionId);
+          // Notify any mounted listeners (e.g. MusicHub) that session is available
+          window.dispatchEvent(new CustomEvent('spotify-session-ready', { detail: data.sessionId }));
           setStatus('success');
           setMessage('Connected! Redirecting…');
           setTimeout(() => navigate('/music-hub', { replace: true }), 1200);

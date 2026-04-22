@@ -559,6 +559,88 @@ app.get('/api/spotify/top-tracks', async (req: any, res: any) => {
   })));
 });
 
+// ─── Spotify Sync Rooms (Long-Distance Listening) ─────────────────────────────
+// In-memory: roomCode → { hostSession, track, isPlaying, currentTime, updatedAt, members }
+interface SyncRoom {
+  hostSession: string;
+  track: any;
+  isPlaying: boolean;
+  currentTime: number;
+  updatedAt: number;
+  members: number;
+}
+const syncRooms = new Map<string, SyncRoom>();
+
+function makeRoomCode() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+// POST /api/spotify/room/create
+app.post('/api/spotify/room/create', (req: any, res: any) => {
+  const { session } = req.body;
+  if (!getSpotifyToken(session)) return res.status(401).json({ error: 'Not authenticated' });
+  let code = makeRoomCode();
+  while (syncRooms.has(code)) code = makeRoomCode();
+  syncRooms.set(code, {
+    hostSession: session,
+    track: null, isPlaying: false, currentTime: 0,
+    updatedAt: Date.now(), members: 1,
+  });
+  // Auto-cleanup after 1 hour
+  setTimeout(() => syncRooms.delete(code), 3_600_000);
+  res.json({ roomCode: code });
+});
+
+// GET /api/spotify/room/:code — guest polls this
+app.get('/api/spotify/room/:code', (req: any, res: any) => {
+  const room = syncRooms.get(req.params.code.toUpperCase());
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+  // Calculate elapsed time for seamless sync
+  const elapsed = room.isPlaying ? (Date.now() - room.updatedAt) / 1000 : 0;
+  res.json({
+    track: room.track,
+    isPlaying: room.isPlaying,
+    currentTime: room.currentTime + elapsed,
+    members: room.members,
+  });
+});
+
+// PUT /api/spotify/room/:code/sync — host pushes state
+app.put('/api/spotify/room/:code/sync', (req: any, res: any) => {
+  const room = syncRooms.get(req.params.code.toUpperCase());
+  if (!room) return res.status(404).json({ error: 'Room not found' });
+  const { session, track, isPlaying, currentTime } = req.body;
+  if (room.hostSession !== session) return res.status(403).json({ error: 'Not host' });
+  room.track = track ?? room.track;
+  room.isPlaying = isPlaying ?? room.isPlaying;
+  room.currentTime = currentTime ?? room.currentTime;
+  room.updatedAt = Date.now();
+  res.json({ ok: true });
+});
+
+// POST /api/spotify/room/:code/join
+app.post('/api/spotify/room/:code/join', (req: any, res: any) => {
+  const room = syncRooms.get(req.params.code.toUpperCase());
+  if (!room) return res.status(404).json({ error: 'Room not found or expired' });
+  room.members = Math.min(room.members + 1, 10);
+  const elapsed = room.isPlaying ? (Date.now() - room.updatedAt) / 1000 : 0;
+  res.json({
+    track: room.track,
+    isPlaying: room.isPlaying,
+    currentTime: room.currentTime + elapsed,
+    members: room.members,
+  });
+});
+
+// DELETE /api/spotify/room/:code — host closes room
+app.delete('/api/spotify/room/:code', (req: any, res: any) => {
+  const room = syncRooms.get(req.params.code.toUpperCase());
+  if (!room) return res.status(404).json({ error: 'Not found' });
+  const { session } = req.body;
+  if (room.hostSession !== session) return res.status(403).json({ error: 'Not host' });
+  syncRooms.delete(req.params.code.toUpperCase());
+  res.json({ closed: true });
+});
 // ─── End Spotify ──────────────────────────────────────────────────────────────
 
 // Vite middleware for development

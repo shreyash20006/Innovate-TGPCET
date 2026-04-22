@@ -1,151 +1,174 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring as useMS } from 'framer-motion';
 import {
-  Music2, Search, Play, Pause, ExternalLink,
-  Heart, LogIn, LogOut, User, ChevronRight, Clock
+  Music2, Search, Play, Pause, ExternalLink, Heart, LogIn, LogOut,
+  User, Clock, Users, Copy, Check, Link2, Radio, X, Volume2, ChevronRight
 } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-interface SpotifyUser {
-  id: string;
-  display_name: string;
-  email: string;
-  images: { url: string }[];
-  country: string;
-  product: string;
-}
-
+interface SpotifyUser { id: string; display_name: string; email: string; images: { url: string }[]; product: string; }
 interface Track {
-  id: string;
-  name: string;
-  artists: string;
-  album: string;
-  image: string;
-  preview_url: string | null;
-  duration_ms: number;
-  external_url: string;
+  id: string; name: string; artists: string; album: string;
+  image: string; preview_url: string | null; duration_ms: number; external_url: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function fmtMs(ms: number) {
-  const s = Math.floor(ms / 1000);
-  return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
+const fmt = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`; };
+
+// ─── 3D Animated Background ──────────────────────────────────────────────────
+const NOTE_COUNT = 18;
+function FloatingNotes() {
+  const notes = ['♪', '♫', '♬', '♩', '🎵', '🎶'];
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {Array.from({ length: NOTE_COUNT }).map((_, i) => (
+        <motion.div key={i}
+          className="absolute text-2xl select-none"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            opacity: 0.06 + Math.random() * 0.08,
+            color: i % 3 === 0 ? '#1DB954' : i % 3 === 1 ? '#ff2d78' : '#a855f7',
+          }}
+          animate={{
+            y: [0, -40 - Math.random() * 60, 0],
+            x: [0, (Math.random() - 0.5) * 30, 0],
+            rotate: [0, (Math.random() - 0.5) * 40, 0],
+            scale: [1, 1.2 + Math.random() * 0.3, 1],
+          }}
+          transition={{ duration: 4 + Math.random() * 6, repeat: Infinity, delay: Math.random() * 6, ease: 'easeInOut' }}
+        >
+          {notes[Math.floor(Math.random() * notes.length)]}
+        </motion.div>
+      ))}
+      {/* Pulsing gradient orbs */}
+      {[0, 1, 2].map(i => (
+        <motion.div key={`orb-${i}`}
+          className="absolute rounded-full blur-3xl"
+          style={{
+            width: 300 + i * 100, height: 300 + i * 100,
+            left: `${20 + i * 30}%`, top: `${10 + i * 25}%`,
+            background: i === 0 ? 'rgba(29,185,84,0.05)' : i === 1 ? 'rgba(255,45,120,0.04)' : 'rgba(168,85,247,0.04)',
+          }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 6 + i * 2, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ))}
+    </div>
+  );
 }
 
+// ─── Vinyl Record ─────────────────────────────────────────────────────────────
+function VinylRecord({ artwork, spinning }: { artwork: string; spinning: boolean }) {
+  return (
+    <motion.div
+      className="relative w-32 h-32 rounded-full mx-auto shadow-2xl"
+      animate={{ rotate: spinning ? 360 : 0 }}
+      transition={{ duration: 3, repeat: spinning ? Infinity : 0, ease: 'linear' }}
+      style={{ boxShadow: spinning ? '0 0 40px rgba(29,185,84,0.4)' : '0 4px 20px rgba(0,0,0,0.5)' }}
+    >
+      {/* Grooves */}
+      <div className="absolute inset-0 rounded-full border-4 border-black/70" />
+      <div className="absolute inset-3 rounded-full border-2 border-black/50" />
+      <div className="absolute inset-6 rounded-full border border-black/40" />
+      {/* Artwork center */}
+      <div className="absolute inset-8 rounded-full overflow-hidden border-2 border-black/30">
+        {artwork
+          ? <img src={artwork} className="w-full h-full object-cover" alt="" />
+          : <div className="w-full h-full bg-gray-800 flex items-center justify-center text-xl">🎵</div>
+        }
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Equalizer Bars ───────────────────────────────────────────────────────────
+function Equalizer({ active }: { active: boolean }) {
+  return (
+    <div className="flex items-end gap-[3px] h-5">
+      {[0, 1, 2, 3, 4].map(i => (
+        <motion.div key={i}
+          className="w-[3px] rounded-full"
+          style={{ background: '#1DB954' }}
+          animate={active ? { height: ['4px', `${8 + Math.random() * 12}px`, '4px'] } : { height: '4px' }}
+          transition={{ duration: 0.4 + i * 0.1, repeat: active ? Infinity : 0, ease: 'easeInOut', delay: i * 0.08 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Session hook (fixed) ─────────────────────────────────────────────────────
 function useSpotifySession() {
   const [session, setSession] = useState<string | null>(() =>
     typeof window !== 'undefined' ? sessionStorage.getItem('spotify_session') : null
   );
 
-  // Watch for sessionStorage updates (set by SpotifyCallback page)
   useEffect(() => {
+    // Listen for the custom event dispatched by SpotifyCallback
+    function onReady(e: Event) {
+      const s = (e as CustomEvent).detail || sessionStorage.getItem('spotify_session');
+      if (s) setSession(s);
+    }
+    // Also check sessionStorage on every focus (tab switch)
     function onFocus() {
       const s = sessionStorage.getItem('spotify_session');
       if (s && s !== session) setSession(s);
     }
+    window.addEventListener('spotify-session-ready', onReady);
     window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+    return () => { window.removeEventListener('spotify-session-ready', onReady); window.removeEventListener('focus', onFocus); };
   }, [session]);
 
-  function logout() {
-    sessionStorage.removeItem('spotify_session');
-    setSession(null);
-  }
-
+  function logout() { sessionStorage.removeItem('spotify_session'); setSession(null); }
   return { session, logout };
 }
 
 // ─── Track Card ───────────────────────────────────────────────────────────────
-function TrackCard({
-  track, playing, onPlay, onFavorite, isFav
-}: {
-  track: Track;
-  playing: boolean;
-  onPlay: () => void;
-  onFavorite: () => void;
-  isFav: boolean;
+function TrackCard({ track, playing, onPlay, onFavorite, isFav }: {
+  track: Track; playing: boolean; onPlay: () => void; onFavorite: () => void; isFav: boolean;
 }) {
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`group flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all duration-200
-        ${playing
-          ? 'bg-[var(--accent-red)]/10 border border-[var(--accent-red)]/30'
-          : 'hover:bg-white/5 border border-transparent'
-        }`}
-      onClick={track.preview_url ? onPlay : undefined}
+    <motion.div layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.01, x: 2 }}
+      className={`group flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all duration-200 ${playing
+        ? 'bg-[#1DB954]/10 border border-[#1DB954]/30'
+        : 'hover:bg-white/5 border border-transparent hover:border-white/10'
+      }`}
+      onClick={() => track.preview_url && onPlay()}
     >
-      {/* Artwork */}
       <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
-        {track.image
-          ? <img src={track.image} alt={track.album} className="w-full h-full object-cover" />
-          : <div className="w-full h-full bg-[var(--bg-card)] flex items-center justify-center text-xl">🎵</div>
-        }
-        {/* Play overlay */}
-        <AnimatePresence>
-          {(playing || track.preview_url) && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: playing ? 1 : 0 }}
-              className={`absolute inset-0 flex items-center justify-center bg-black/60 ${playing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
-            >
-              {playing
-                ? <div className="flex gap-0.5 items-end h-4">
-                    {[0, 1, 2].map(i => (
-                      <motion.div key={i} className="w-1 bg-[var(--accent-red)] rounded"
-                        animate={{ height: ['4px', '16px', '4px'] }}
-                        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
-                      />
-                    ))}
-                  </div>
-                : <Play className="w-4 h-4 text-white" />
-              }
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <div className={`text-sm font-semibold truncate ${playing ? 'text-[var(--accent-red)]' : 'text-[var(--text-primary)]'}`}>
-          {track.name}
+        {track.image ? <img src={track.image} alt={track.album} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-800 flex items-center justify-center text-xl">🎵</div>}
+        <div className={`absolute inset-0 flex items-center justify-center bg-black/60 transition-opacity ${playing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+          {playing ? <Equalizer active /> : <Play className="w-4 h-4 text-white" />}
         </div>
-        <div className="text-xs text-[var(--text-secondary)] truncate">{track.artists}</div>
-        <div className="text-xs text-[var(--text-muted)] truncate">{track.album}</div>
       </div>
-
-      {/* Actions */}
+      <div className="flex-1 min-w-0">
+        <div className={`text-sm font-semibold truncate ${playing ? 'text-[#1DB954]' : ''}`} style={!playing ? { color: 'var(--text-primary)' } : {}}>{track.name}</div>
+        <div className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>{track.artists}</div>
+        <div className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{track.album}</div>
+      </div>
       <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="text-xs text-[var(--text-muted)] font-mono">{fmtMs(track.duration_ms)}</span>
-        <motion.button
-          onClick={e => { e.stopPropagation(); onFavorite(); }}
-          whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}
-          className={`transition-colors ${isFav ? 'text-[var(--accent-red)]' : 'text-[var(--text-muted)] hover:text-[var(--accent-red)]'}`}
-        >
+        <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>{fmt(track.duration_ms)}</span>
+        <motion.button onClick={e => { e.stopPropagation(); onFavorite(); }} whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}
+          className={`transition-colors ${isFav ? 'text-[#ff2d78]' : 'text-gray-500 hover:text-[#ff2d78]'}`}>
           <Heart className="w-4 h-4" fill={isFav ? 'currentColor' : 'none'} />
         </motion.button>
         {track.external_url && (
-          <a href={track.external_url} target="_blank" rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()}
-            className="text-[var(--text-muted)] hover:text-[var(--accent-cyan)] transition-colors">
-            <ExternalLink className="w-4 h-4" />
-          </a>
+          <a href={track.external_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+            className="text-gray-500 hover:text-[#1DB954] transition-colors"><ExternalLink className="w-4 h-4" /></a>
         )}
       </div>
-
-      {!track.preview_url && (
-        <span className="text-[10px] text-[var(--text-muted)] bg-white/5 px-1.5 py-0.5 rounded shrink-0">
-          No preview
-        </span>
-      )}
+      {!track.preview_url && <span className="text-[10px] text-gray-600 bg-white/5 px-1.5 py-0.5 rounded shrink-0">No preview</span>}
     </motion.div>
   );
 }
 
-// ─── Mini Audio Player ─────────────────────────────────────────────────────────
-function NowPlaying({ track, onClose }: { track: Track | null; onClose: () => void }) {
+// ─── Now Playing Bar ──────────────────────────────────────────────────────────
+function NowPlayingBar({ track, roomCode, isHost, onSyncToRoom }: {
+  track: Track | null; roomCode: string | null; isHost: boolean;
+  onSyncToRoom: (t: Track, playing: boolean, time: number) => void;
+}) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -153,9 +176,18 @@ function NowPlaying({ track, onClose }: { track: Track | null; onClose: () => vo
   useEffect(() => {
     if (!audioRef.current || !track?.preview_url) return;
     audioRef.current.src = track.preview_url;
-    audioRef.current.play().then(() => setPlaying(true)).catch(() => {});
+    audioRef.current.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
     setProgress(0);
   }, [track]);
+
+  // Sync to room every 5s when host
+  useEffect(() => {
+    if (!isHost || !roomCode || !track) return;
+    const id = setInterval(() => {
+      onSyncToRoom(track, playing, audioRef.current?.currentTime ?? 0);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [isHost, roomCode, track, playing, onSyncToRoom]);
 
   function toggle() {
     if (!audioRef.current) return;
@@ -164,60 +196,215 @@ function NowPlaying({ track, onClose }: { track: Track | null; onClose: () => vo
   }
 
   if (!track) return null;
-
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border-color)]"
-        style={{ background: 'var(--bg-secondary)', backdropFilter: 'blur(20px)' }}
-      >
-        {/* Progress bar */}
-        <div className="h-0.5 bg-white/10">
-          <motion.div className="h-full bg-[var(--accent-red)]" style={{ width: `${progress}%` }} />
-        </div>
-
+      <motion.div initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
+        className="fixed bottom-0 left-0 right-0 z-50"
+        style={{ background: 'rgba(10,10,20,0.95)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(29,185,84,0.2)' }}>
+        <div className="h-0.5 bg-white/10"><motion.div className="h-full" style={{ background: '#1DB954', width: `${progress}%` }} /></div>
         <div className="flex items-center gap-3 px-4 py-3 max-w-5xl mx-auto">
-          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
-            {track.image
-              ? <img src={track.image} className="w-full h-full object-cover" alt="" />
-              : <div className="w-full h-full bg-[var(--bg-card)] flex items-center justify-center">🎵</div>
-            }
+          <VinylRecord artwork={track.image} spinning={playing} />
+          {/* Track info */}
+          <div className="flex-1 min-w-0 ml-2">
+            <div className="text-sm font-bold text-white truncate">{track.name}</div>
+            <div className="text-xs text-gray-400 truncate">{track.artists}</div>
+            {roomCode && (
+              <div className="flex items-center gap-1 mt-0.5">
+                <Radio className="w-3 h-3 text-[#1DB954]" />
+                <span className="text-[10px] text-[#1DB954] font-mono">{isHost ? 'HOSTING' : 'SYNCED'} · {roomCode}</span>
+              </div>
+            )}
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{track.name}</div>
-            <div className="text-xs text-[var(--text-muted)] truncate">{track.artists}</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--text-muted)] font-mono hidden sm:block">Preview · 30s</span>
-            <motion.button
-              onClick={toggle}
-              whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white"
-              style={{ background: 'var(--accent-red)' }}
-            >
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-500 font-mono hidden sm:block">30s preview</span>
+            <motion.button onClick={toggle} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white shadow-lg"
+              style={{ background: '#1DB954', boxShadow: playing ? '0 0 20px rgba(29,185,84,0.5)' : 'none' }}>
               {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
             </motion.button>
-            <button onClick={onClose} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-lg leading-none">×</button>
           </div>
         </div>
-
-        <audio
-          ref={audioRef}
-          onTimeUpdate={() => {
-            const a = audioRef.current;
-            if (a && a.duration) setProgress((a.currentTime / a.duration) * 100);
-          }}
-          onEnded={() => { setPlaying(false); setProgress(0); }}
-        />
+        <audio ref={audioRef}
+          onTimeUpdate={() => { const a = audioRef.current; if (a?.duration) setProgress((a.currentTime / a.duration) * 100); }}
+          onEnded={() => { setPlaying(false); setProgress(0); }} />
       </motion.div>
     </AnimatePresence>
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────────────────
+// ─── Sync Room Modal ──────────────────────────────────────────────────────────
+function SyncRoomModal({ session, nowPlaying, onClose, onGuestSync }: {
+  session: string; nowPlaying: Track | null;
+  onClose: () => void;
+  onGuestSync: (track: Track, isPlaying: boolean, time: number) => void;
+}) {
+  const [mode, setMode] = useState<'pick' | 'host' | 'join'>('pick');
+  const [roomCode, setRoomCode] = useState('');
+  const [joinCode, setJoinCode] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [members, setMembers] = useState(1);
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function createRoom() {
+    setLoading(true);
+    const r = await fetch('/api/spotify/room/create', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session }),
+    });
+    const d = await r.json();
+    if (d.roomCode) { setRoomCode(d.roomCode); setMode('host'); }
+    setLoading(false);
+  }
+
+  async function joinRoom() {
+    if (joinCode.length < 4) return;
+    setLoading(true);
+    const r = await fetch(`/api/spotify/room/${joinCode.toUpperCase()}/join`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session }),
+    });
+    const d = await r.json();
+    if (d.error) { setStatus('Room not found. Check the code!'); setLoading(false); return; }
+    setMembers(d.members);
+    if (d.track) onGuestSync(d.track, d.isPlaying, d.currentTime);
+    setRoomCode(joinCode.toUpperCase());
+    setMode('join');
+    setLoading(false);
+  }
+
+  function copyCode() {
+    navigator.clipboard.writeText(roomCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  // Guest: poll every 3s
+  useEffect(() => {
+    if (mode !== 'join' || !roomCode) return;
+    const id = setInterval(async () => {
+      const r = await fetch(`/api/spotify/room/${roomCode}`);
+      const d = await r.json();
+      if (!d.error && d.track) onGuestSync(d.track, d.isPlaying, d.currentTime);
+      if (d.members) setMembers(d.members);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [mode, roomCode, onGuestSync]);
+
+  // Host: push every 5s
+  useEffect(() => {
+    if (mode !== 'host' || !roomCode || !nowPlaying) return;
+    const id = setInterval(() => {
+      fetch(`/api/spotify/room/${roomCode}/sync`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session, track: nowPlaying, isPlaying: true, currentTime: 0 }),
+      });
+    }, 5000);
+    return () => clearInterval(id);
+  }, [mode, roomCode, nowPlaying, session]);
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-60 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)' }}
+      onClick={e => e.target === e.currentTarget && onClose()}>
+      <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+        className="w-full max-w-sm rounded-3xl p-6 relative"
+        style={{ background: '#0f0f1a', border: '1px solid rgba(29,185,84,0.3)', boxShadow: '0 0 60px rgba(29,185,84,0.15)' }}>
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
+
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(29,185,84,0.15)', border: '1px solid rgba(29,185,84,0.3)' }}>
+            <Radio className="w-5 h-5 text-[#1DB954]" />
+          </div>
+          <div>
+            <h3 className="text-white font-bold">Long Distance Listening</h3>
+            <p className="text-xs text-gray-500">Listen together, anywhere in the world 🌍</p>
+          </div>
+        </div>
+
+        {/* Pick mode */}
+        {mode === 'pick' && (
+          <div className="space-y-3">
+            <motion.button onClick={createRoom} disabled={loading}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+              className="w-full py-4 rounded-2xl font-bold text-white flex items-center justify-center gap-3 disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg,#1DB954,#17a348)', boxShadow: '0 0 30px rgba(29,185,84,0.3)' }}>
+              <Users className="w-5 h-5" />
+              {loading ? 'Creating…' : 'Create a Room (Host)'}
+            </motion.button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
+              <div className="relative flex justify-center"><span className="px-3 text-xs text-gray-500 bg-[#0f0f1a]">or</span></div>
+            </div>
+            <div className="flex gap-2">
+              <input value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())} placeholder="Enter room code"
+                maxLength={6}
+                className="flex-1 px-4 py-3 rounded-xl text-sm text-white outline-none font-mono tracking-widest uppercase"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                onKeyDown={e => e.key === 'Enter' && joinRoom()} />
+              <motion.button onClick={joinRoom} disabled={loading || joinCode.length < 4}
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                className="px-4 py-3 rounded-xl text-white font-semibold text-sm disabled:opacity-40"
+                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
+                {loading ? '…' : 'Join'}
+              </motion.button>
+            </div>
+            {status && <p className="text-red-400 text-xs text-center">{status}</p>}
+          </div>
+        )}
+
+        {/* Host: show room code */}
+        {mode === 'host' && (
+          <div className="text-center space-y-4">
+            <p className="text-gray-400 text-sm">Share this code with your partner</p>
+            <div className="flex items-center justify-center gap-3">
+              <div className="text-4xl font-black font-mono tracking-[0.2em] text-[#1DB954]">{roomCode}</div>
+              <motion.button onClick={copyCode} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                className="p-2 rounded-lg" style={{ background: 'rgba(29,185,84,0.15)', border: '1px solid rgba(29,185,84,0.3)' }}>
+                {copied ? <Check className="w-4 h-4 text-[#1DB954]" /> : <Copy className="w-4 h-4 text-[#1DB954]" />}
+              </motion.button>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+              <Users className="w-4 h-4" /><span>{members} connected</span>
+              <span className="w-2 h-2 rounded-full bg-[#1DB954] animate-pulse ml-1" />
+            </div>
+            <p className="text-xs text-gray-600">Your partner joins → music syncs automatically 🎵</p>
+            {nowPlaying
+              ? <div className="flex items-center gap-3 p-3 rounded-xl text-left" style={{ background: 'rgba(29,185,84,0.08)', border: '1px solid rgba(29,185,84,0.15)' }}>
+                  {nowPlaying.image && <img src={nowPlaying.image} className="w-10 h-10 rounded-lg object-cover" alt="" />}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-white truncate">{nowPlaying.name}</div>
+                    <div className="text-xs text-gray-500 truncate">{nowPlaying.artists}</div>
+                  </div>
+                  <Equalizer active />
+                </div>
+              : <p className="text-xs text-gray-600">Play a song preview to sync it</p>
+            }
+          </div>
+        )}
+
+        {/* Guest: show synced state */}
+        {mode === 'join' && (
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-[#1DB954] animate-pulse" />
+              <span className="text-[#1DB954] text-sm font-semibold">Live Synced · {roomCode}</span>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+              <Users className="w-4 h-4" /><span>{members} listening together</span>
+            </div>
+            <p className="text-xs text-gray-600">Music playing in sync with your partner 🎶</p>
+            <p className="text-[10px] text-gray-700">Syncs every 3 seconds automatically</p>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MusicHub() {
   const { session, logout } = useSpotifySession();
   const [user, setUser] = useState<SpotifyUser | null>(null);
@@ -227,243 +414,191 @@ export default function MusicHub() {
   const [searching, setSearching] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
   const [nowPlaying, setNowPlaying] = useState<Track | null>(null);
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('spotify_favs') || '[]'); } catch { return []; }
-  });
+  const [favorites, setFavorites] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('spotify_favs') || '[]'); } catch { return []; } });
   const [activeTab, setActiveTab] = useState<'search' | 'top' | 'favorites'>('search');
-  const [error, setError] = useState<string | null>(null);
+  const [showRoomModal, setShowRoomModal] = useState(false);
+  const [activeRoom, setActiveRoom] = useState<string | null>(null);
+  const [isHost, setIsHost] = useState(false);
 
-  // Check for error in URL query string (Spotify redirects with ?error=... to /callback,
-  // but SpotifyCallback page navigates here with no params on error — no-op needed)
-  useEffect(() => { /* errors handled in SpotifyCallback page */ }, []);
-
-  // Reload session from sessionStorage when the component mounts
-  // (SpotifyCallback may have set it just before navigating here)
-  useEffect(() => {
-    const s = sessionStorage.getItem('spotify_session');
-    if (s && !session) {
-      // trigger re-render — handled by useSpotifySession's initial useState
-    }
-  }, []);
-
-  // Load user profile on session acquire
+  // Load profile + top tracks when session is available
   useEffect(() => {
     if (!session) { setUser(null); return; }
     setLoadingUser(true);
     fetch(`/api/spotify/me?session=${session}`)
       .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data && !data.error) setUser(data); })
+      .then(d => { if (d && !d.error) setUser(d); })
       .finally(() => setLoadingUser(false));
 
     fetch(`/api/spotify/top-tracks?session=${session}`)
       .then(r => r.ok ? r.json() : [])
-      .then(data => setTopTracks(Array.isArray(data) ? data : []));
+      .then(d => setTopTracks(Array.isArray(d) ? d : []));
   }, [session]);
 
-  // Save favorites to localStorage
-  useEffect(() => {
-    localStorage.setItem('spotify_favs', JSON.stringify(favorites));
-  }, [favorites]);
+  useEffect(() => { localStorage.setItem('spotify_favs', JSON.stringify(favorites)); }, [favorites]);
 
   async function search() {
     if (!query.trim() || !session) return;
-    setSearching(true);
-    setActiveTab('search');
+    setSearching(true); setActiveTab('search');
     try {
-      const r = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}&session=${session}`);
-      const data = await r.json();
-      setResults(Array.isArray(data) ? data : []);
+      const r = await fetch(`/api/spotify/search?q=${encodeURIComponent(query.trim())}&session=${session}`);
+      const d = await r.json();
+      setResults(Array.isArray(d) ? d : []);
     } catch { setResults([]); }
     finally { setSearching(false); }
   }
 
-  function toggleFav(id: string) {
-    setFavorites(f => f.includes(id) ? f.filter(x => x !== id) : [...f, id]);
+  const syncToRoom = useCallback(async (track: Track, isPlaying: boolean, currentTime: number) => {
+    if (!activeRoom || !session) return;
+    await fetch(`/api/spotify/room/${activeRoom}/sync`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session, track, isPlaying, currentTime }),
+    });
+  }, [activeRoom, session]);
+
+  function onGuestSync(track: Track, _isPlaying: boolean, _time: number) {
+    setNowPlaying(track);
   }
 
-  const displayTracks = activeTab === 'search'
-    ? results
-    : activeTab === 'top'
-    ? topTracks
+  const displayTracks = activeTab === 'search' ? results
+    : activeTab === 'top' ? topTracks
     : [...results, ...topTracks].filter((t, i, arr) => arr.findIndex(x => x.id === t.id) === i && favorites.includes(t.id));
 
-  const loginUrl = '/auth/spotify/login'; // hits backend → redirects to Spotify → returns to /callback
-
   return (
-    <div className="min-h-screen pb-24" style={{ background: 'var(--bg-primary)' }}>
-      {/* Header */}
-      <div className="sticky top-0 z-40 border-b" style={{ borderColor: 'var(--border-color)', background: 'var(--bg-secondary)', backdropFilter: 'blur(20px)' }}>
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+    <div className="min-h-screen relative pb-28" style={{ background: 'var(--bg-primary)' }}>
+      <FloatingNotes />
+
+      {/* ── Header ── */}
+      <div className="sticky top-0 z-40" style={{ background: 'rgba(10,10,20,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(29,185,84,0.15)' }}>
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--accent-red)' }}>
+            <motion.div whileHover={{ rotate: 15, scale: 1.1 }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: '#1DB954', boxShadow: '0 0 20px rgba(29,185,84,0.4)' }}>
               <Music2 className="w-5 h-5 text-white" />
-            </div>
+            </motion.div>
             <div>
-              <h1 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Music Hub</h1>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Powered by Spotify</p>
+              <h1 className="text-base font-bold text-white leading-none">Music Hub</h1>
+              <p className="text-[10px] text-gray-500 mt-0.5">Powered by Spotify</p>
             </div>
           </div>
 
-          {session && user ? (
-            <div className="flex items-center gap-3">
-              {user.images?.[0]?.url
-                ? <img src={user.images[0].url} alt={user.display_name} className="w-8 h-8 rounded-full object-cover" />
-                : <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'var(--accent-red)' }}>
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-              }
-              <div className="hidden sm:block">
-                <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{user.display_name}</div>
-                {user.product === 'premium' && (
-                  <div className="text-[10px] text-emerald-400">Premium ✓</div>
-                )}
+          <div className="flex items-center gap-2">
+            {session && (
+              <motion.button onClick={() => setShowRoomModal(true)}
+                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                style={{ background: activeRoom ? 'rgba(29,185,84,0.2)' : 'rgba(255,255,255,0.06)', color: activeRoom ? '#1DB954' : '#aaa', border: `1px solid ${activeRoom ? 'rgba(29,185,84,0.4)' : 'rgba(255,255,255,0.1)'}` }}>
+                <Radio className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{activeRoom ? `Room · ${activeRoom}` : 'Sync Room'}</span>
+              </motion.button>
+            )}
+
+            {session && user ? (
+              <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  {user.images?.[0]?.url
+                    ? <img src={user.images[0].url} className="w-6 h-6 rounded-full" alt="" />
+                    : <User className="w-4 h-4 text-gray-400" />}
+                  <span className="text-xs text-white font-medium">{user.display_name}</span>
+                  {user.product === 'premium' && <span className="text-[9px] text-[#1DB954] font-bold">PRO</span>}
+                </div>
+                <button onClick={logout} className="p-2 rounded-lg text-gray-500 hover:text-white transition-colors">
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
-              <button onClick={logout} className="p-2 rounded-lg hover:bg-white/5 transition-colors" style={{ color: 'var(--text-muted)' }} title="Logout">
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <motion.a
-              href={loginUrl}
-              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all"
-              style={{ background: '#1DB954' }}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.856zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.97-.519.781.781 0 01.52-.971c3.632-1.102 8.147-.568 11.23 1.328a.78.78 0 01.257 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.935.935 0 01-.954 1.608z" />
-              </svg>
-              Connect Spotify
-            </motion.a>
-          )}
+            ) : (
+              <motion.a href="/auth/spotify/login" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white"
+                style={{ background: '#1DB954', boxShadow: '0 0 20px rgba(29,185,84,0.4)' }}>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.856zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.97-.519.781.781 0 01.52-.971c3.632-1.102 8.147-.568 11.23 1.328a.78.78 0 01.257 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.935.935 0 01-.954 1.608z"/>
+                </svg>
+                Connect Spotify
+              </motion.a>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        {/* Error banner */}
-        <AnimatePresence>
-          {error && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="mb-4 px-4 py-3 rounded-xl text-sm text-red-400 border border-red-500/30 flex items-center justify-between"
-              style={{ background: 'rgba(239,68,68,0.08)' }}>
-              <span>{error}</span>
-              <button onClick={() => setError(null)} className="text-lg leading-none ml-4">×</button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-6">
 
-        {/* Not logged in state */}
+        {/* ── Not logged in ── */}
         {!session && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20"
-          >
-            <div className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center" style={{ background: '#1DB954' }}>
-              <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.856zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.97-.519.781.781 0 01.52-.971c3.632-1.102 8.147-.568 11.23 1.328a.78.78 0 01.257 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.935.935 0 01-.954 1.608z" />
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="text-center py-20">
+            <motion.div
+              animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-24 h-24 rounded-3xl mx-auto mb-8 flex items-center justify-center"
+              style={{ background: '#1DB954', boxShadow: '0 0 60px rgba(29,185,84,0.4)' }}>
+              <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.856zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.97-.519.781.781 0 01.52-.971c3.632-1.102 8.147-.568 11.23 1.328a.78.78 0 01.257 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.935.935 0 01-.954 1.608z"/>
               </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
-              Connect Your Spotify
-            </h2>
-            <p className="mb-8 max-w-md mx-auto text-sm" style={{ color: 'var(--text-muted)' }}>
-              Login with Spotify to search songs, preview tracks, and build your favorites list.
-            </p>
-            <motion.a
-              href={loginUrl}
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl text-white font-bold text-lg shadow-2xl"
-              style={{ background: '#1DB954', boxShadow: '0 0 40px rgba(29,185,84,0.3)' }}
-            >
-              <LogIn className="w-5 h-5" />
-              Login with Spotify
+            </motion.div>
+            <h2 className="text-3xl font-black mb-3 text-white">Music Hub</h2>
+            <p className="text-gray-400 mb-2 max-w-md mx-auto">Search songs, listen to previews, and <span className="text-[#1DB954] font-semibold">listen together</span> with your partner — no matter how far apart.</p>
+            <p className="text-gray-600 text-sm mb-8">🌍 Long-distance listening · ❤️ Favorites · 🎵 30s previews</p>
+            <motion.a href="/auth/spotify/login" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-white font-black text-lg"
+              style={{ background: '#1DB954', boxShadow: '0 0 50px rgba(29,185,84,0.5)' }}>
+              <LogIn className="w-5 h-5" /> Login with Spotify
             </motion.a>
-            <div className="mt-6 flex flex-wrap justify-center gap-4 text-xs" style={{ color: 'var(--text-muted)' }}>
-              {['Search any song', 'Preview 30s clips', 'Save favorites', 'See your top tracks'].map(f => (
-                <div key={f} className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#1DB954' }} />
-                  {f}
-                </div>
-              ))}
-            </div>
           </motion.div>
         )}
 
-        {/* Logged in — Dashboard */}
+        {/* ── Dashboard ── */}
         {session && (
           <>
-            {/* Search bar */}
+            {/* Search */}
             <div className="flex gap-3 mb-6">
               <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
-                <input
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && search()}
-                  placeholder="Search songs, artists, albums..."
-                  className="w-full pl-10 pr-4 py-3 rounded-2xl text-sm outline-none"
-                  style={{
-                    background: 'var(--bg-card)',
-                    color: 'var(--text-primary)',
-                    border: '1px solid var(--border-color)',
-                  }}
-                />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
+                  placeholder="Search songs, artists, albums…"
+                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl text-sm text-white outline-none placeholder-gray-600"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }} />
               </div>
-              <motion.button
-                onClick={search}
-                disabled={searching || !query.trim()}
+              <motion.button onClick={search} disabled={searching || !query.trim()}
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                className="px-5 py-3 rounded-2xl font-semibold text-sm text-white disabled:opacity-40"
-                style={{ background: 'var(--accent-red)' }}
-              >
-                {searching ? 'Searching...' : 'Search'}
+                className="px-5 py-3 rounded-2xl font-bold text-sm text-white disabled:opacity-40"
+                style={{ background: '#1DB954', boxShadow: '0 0 20px rgba(29,185,84,0.3)' }}>
+                {searching ? '…' : 'Search'}
               </motion.button>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-1 mb-5 p-1 rounded-xl w-fit" style={{ background: 'var(--bg-card)' }}>
-              {[
+            <div className="flex gap-1 mb-5 p-1 rounded-2xl w-fit" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              {([
                 { id: 'search', label: 'Results', icon: Search },
-                { id: 'top', label: 'Your Top', icon: Clock },
-                { id: 'favorites', label: `Favorites (${favorites.length})`, icon: Heart },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
-                    activeTab === tab.id ? 'text-white' : 'hover:text-[var(--text-primary)]'
-                  }`}
-                  style={activeTab === tab.id ? { background: 'var(--accent-red)', color: 'white' } : { color: 'var(--text-muted)' }}
-                >
-                  <tab.icon className="w-3.5 h-3.5" />
-                  {tab.label}
+                { id: 'top',    label: 'Your Top', icon: Clock },
+                { id: 'favorites', label: `❤️ ${favorites.length}`, icon: Heart },
+              ] as const).map(tab => (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
+                  style={activeTab === tab.id ? { background: '#1DB954', color: 'white', boxShadow: '0 0 15px rgba(29,185,84,0.3)' } : { color: '#666' }}>
+                  <tab.icon className="w-3.5 h-3.5" />{tab.label}
                 </button>
               ))}
             </div>
 
             {/* Track list */}
             {displayTracks.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="text-5xl mb-4">
-                  {activeTab === 'favorites' ? '💔' : activeTab === 'top' ? '🎵' : '🔍'}
-                </div>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                  {activeTab === 'favorites' ? 'No favorites yet. Heart a track to save it.'
-                   : activeTab === 'top' ? 'Play more music on Spotify to see your top tracks.'
-                   : 'Search for your favourite songs above.'}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
+                <div className="text-5xl mb-4">{activeTab === 'favorites' ? '💔' : activeTab === 'top' ? '🎵' : '🔍'}</div>
+                <p className="text-gray-600 text-sm">
+                  {activeTab === 'favorites' ? 'Heart a track to save it here.'
+                   : activeTab === 'top' ? 'Listen to more music on Spotify to see your top tracks.'
+                   : 'Search for a song to get started.'}
                 </p>
-              </div>
+              </motion.div>
             ) : (
               <div className="space-y-1">
                 <AnimatePresence>
-                  {displayTracks.map(track => (
-                    <TrackCard
-                      key={track.id}
-                      track={track}
-                      playing={nowPlaying?.id === track.id}
-                      onPlay={() => setNowPlaying(track.preview_url ? track : null)}
-                      onFavorite={() => toggleFav(track.id)}
-                      isFav={favorites.includes(track.id)}
-                    />
+                  {displayTracks.map(t => (
+                    <TrackCard key={t.id} track={t} playing={nowPlaying?.id === t.id}
+                      onPlay={() => setNowPlaying(t)}
+                      onFavorite={() => setFavorites(f => f.includes(t.id) ? f.filter(x => x !== t.id) : [...f, t.id])}
+                      isFav={favorites.includes(t.id)} />
                   ))}
                 </AnimatePresence>
               </div>
@@ -472,8 +607,21 @@ export default function MusicHub() {
         )}
       </div>
 
-      {/* Now Playing mini player */}
-      <NowPlaying track={nowPlaying} onClose={() => setNowPlaying(null)} />
+      {/* ── Now Playing ── */}
+      <NowPlayingBar track={nowPlaying} roomCode={activeRoom} isHost={isHost} onSyncToRoom={syncToRoom} />
+
+      {/* ── Sync Room Modal ── */}
+      <AnimatePresence>
+        {showRoomModal && session && (
+          <SyncRoomModal session={session} nowPlaying={nowPlaying}
+            onClose={() => setShowRoomModal(false)}
+            onGuestSync={(track, isPlaying, time) => {
+              setNowPlaying(track);
+              setActiveRoom(joinCode => joinCode);
+              setIsHost(false);
+            }} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
