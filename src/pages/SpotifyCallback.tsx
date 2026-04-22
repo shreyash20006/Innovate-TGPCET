@@ -35,15 +35,16 @@ export default function SpotifyCallback() {
     })
       .then(r => r.json())
       .then(data => {
-        if (data.sessionId) {
-          sessionStorage.setItem('spotify_session', data.sessionId);
-          // Notify any mounted listeners (e.g. MusicHub) that session is available
-          window.dispatchEvent(new CustomEvent('spotify-session-ready', { detail: data.sessionId }));
+        if (data.accessToken) {
+          // Store the actual Spotify access token — sent as Bearer on all API calls
+          sessionStorage.setItem('spotify_token', data.accessToken);
+          sessionStorage.setItem('spotify_token_expires', String(Date.now() + (data.expiresIn || 3600) * 1000));
+          window.dispatchEvent(new CustomEvent('spotify-session-ready', { detail: data.accessToken }));
           setStatus('success');
           setMessage('Connected! Redirecting…');
           setTimeout(() => navigate('/music-hub', { replace: true }), 1200);
         } else {
-          throw new Error(data.error || 'Token exchange failed');
+          throw new Error(data.error || 'No access token received');
         }
       })
       .catch(err => {

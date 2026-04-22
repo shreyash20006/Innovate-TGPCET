@@ -98,30 +98,36 @@ function Equalizer({ active }: { active: boolean }) {
   );
 }
 
-// ─── Session hook (fixed) ─────────────────────────────────────────────────────
-function useSpotifySession() {
-  const [session, setSession] = useState<string | null>(() =>
-    typeof window !== 'undefined' ? sessionStorage.getItem('spotify_session') : null
+// ─── Session/Token hook ──────────────────────────────────────────────────────
+function useSpotifyToken() {
+  const [token, setToken] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? sessionStorage.getItem('spotify_token') : null
   );
 
   useEffect(() => {
-    // Listen for the custom event dispatched by SpotifyCallback
     function onReady(e: Event) {
-      const s = (e as CustomEvent).detail || sessionStorage.getItem('spotify_session');
-      if (s) setSession(s);
+      const t = (e as CustomEvent).detail || sessionStorage.getItem('spotify_token');
+      if (t) setToken(t);
     }
-    // Also check sessionStorage on every focus (tab switch)
     function onFocus() {
-      const s = sessionStorage.getItem('spotify_session');
-      if (s && s !== session) setSession(s);
+      const t = sessionStorage.getItem('spotify_token');
+      if (t && t !== token) setToken(t);
     }
     window.addEventListener('spotify-session-ready', onReady);
     window.addEventListener('focus', onFocus);
-    return () => { window.removeEventListener('spotify-session-ready', onReady); window.removeEventListener('focus', onFocus); };
-  }, [session]);
+    return () => {
+      window.removeEventListener('spotify-session-ready', onReady);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [token]);
 
-  function logout() { sessionStorage.removeItem('spotify_session'); setSession(null); }
-  return { session, logout };
+  function logout() {
+    sessionStorage.removeItem('spotify_token');
+    sessionStorage.removeItem('spotify_token_expires');
+    setToken(null);
+  }
+
+  return { token, logout };
 }
 
 // ─── Track Card ───────────────────────────────────────────────────────────────
@@ -406,7 +412,10 @@ function SyncRoomModal({ session, nowPlaying, onClose, onGuestSync }: {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MusicHub() {
-  const { session, logout } = useSpotifySession();
+  const { token, logout } = useSpotifyToken();
+  // helper: fetch with Spotify Bearer auth
+  const spotifyFetch = (url: string, opts: RequestInit = {}) =>
+    fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: `Bearer ${token}` } });
   const [user, setUser] = useState<SpotifyUser | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Track[]>([]);
@@ -420,27 +429,27 @@ export default function MusicHub() {
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
 
-  // Load profile + top tracks when session is available
+  // Load profile + top tracks when token is available
   useEffect(() => {
-    if (!session) { setUser(null); return; }
+    if (!token) { setUser(null); return; }
     setLoadingUser(true);
-    fetch(`/api/spotify/me?session=${session}`)
+    spotifyFetch('/api/spotify/me')
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d && !d.error) setUser(d); })
       .finally(() => setLoadingUser(false));
 
-    fetch(`/api/spotify/top-tracks?session=${session}`)
+    spotifyFetch('/api/spotify/top-tracks')
       .then(r => r.ok ? r.json() : [])
       .then(d => setTopTracks(Array.isArray(d) ? d : []));
-  }, [session]);
+  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { localStorage.setItem('spotify_favs', JSON.stringify(favorites)); }, [favorites]);
 
   async function search() {
-    if (!query.trim() || !session) return;
+    if (!query.trim() || !token) return;
     setSearching(true); setActiveTab('search');
     try {
-      const r = await fetch(`/api/spotify/search?q=${encodeURIComponent(query.trim())}&session=${session}`);
+      const r = await spotifyFetch(`/api/spotify/search?q=${encodeURIComponent(query.trim())}`);
       const d = await r.json();
       setResults(Array.isArray(d) ? d : []);
     } catch { setResults([]); }
@@ -462,6 +471,9 @@ export default function MusicHub() {
   const displayTracks = activeTab === 'search' ? results
     : activeTab === 'top' ? topTracks
     : [...results, ...topTracks].filter((t, i, arr) => arr.findIndex(x => x.id === t.id) === i && favorites.includes(t.id));
+
+  // Use token as the "session" indicator for UI
+  const session = token; // alias — UI checks this for auth state
 
   return (
     <div className="min-h-screen relative pb-28" style={{ background: 'var(--bg-primary)' }}>

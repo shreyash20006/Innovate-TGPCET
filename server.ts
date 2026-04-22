@@ -444,44 +444,41 @@ app.get("/api/health", (req, res) => {
   });
 
 
-// ─── Spotify OAuth + Search ──────────────────────────────────────────────────
+// ─── Spotify OAuth + Search (Stateless — works on Vercel serverless) ─────────
+// Token is stored client-side (sessionStorage) and passed as Bearer header.
+// No server-side store needed — each function invocation is independent.
 
-const SPOTIFY_CLIENT_ID     = process.env.SPOTIFY_CLIENT_ID || '';
+const SPOTIFY_CLIENT_ID     = process.env.SPOTIFY_CLIENT_ID     || '';
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || '';
-// Must match exactly what is registered in the Spotify developer dashboard
-const SPOTIFY_REDIRECT_URI  = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/callback';
+const SPOTIFY_REDIRECT_URI  = process.env.SPOTIFY_REDIRECT_URI  || 'http://localhost:3000/callback';
 
-// In-memory token store (replace with DB/session in production)
-const spotifyTokenStore = new Map<string, { access_token: string; expires_at: number }>();
-
-function getSpotifyToken(sessionId: string): string | null {
-  const entry = spotifyTokenStore.get(sessionId);
-  if (!entry) return null;
-  if (Date.now() > entry.expires_at) { spotifyTokenStore.delete(sessionId); return null; }
-  return entry.access_token;
+/** Extract Spotify access token from request (Bearer header OR ?token= param) */
+function getToken(req: any): string | null {
+  const auth = req.headers?.authorization as string | undefined;
+  if (auth?.startsWith('Bearer ')) return auth.slice(7);
+  return (req.query?.token as string) || null;
 }
 
+// GET /auth/spotify/login — redirects to Spotify consent screen
 app.get('/auth/spotify/login', (_req: any, res: any) => {
-  const scopes = [
-    'user-read-private', 'user-read-email',
-    'user-top-read', 'streaming', 'user-modify-playback-state',
-  ].join(' ');
+  if (!SPOTIFY_CLIENT_ID) return res.status(500).json({ error: 'SPOTIFY_CLIENT_ID not configured' });
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: SPOTIFY_CLIENT_ID,
-    scope: scopes,
-    redirect_uri: SPOTIFY_REDIRECT_URI, // → https://innovate-tgpcet.vercel.app/callback
+    scope: 'user-read-private user-read-email user-top-read streaming user-modify-playback-state',
+    redirect_uri: SPOTIFY_REDIRECT_URI,
     state: Math.random().toString(36).substring(2),
   });
   res.redirect(`https://accounts.spotify.com/authorize?${params}`);
 });
 
-// POST /api/spotify/token — called by the frontend /callback page
-// Receives the authorization code, exchanges it for an access token,
-// stores it server-side and returns a safe sessionId to the client.
+// POST /api/spotify/token — exchanges code for token, returns it to the client
+// Client stores the access_token in sessionStorage and sends it as Bearer header.
 app.post('/api/spotify/token', async (req: any, res: any) => {
   const { code } = req.body;
   if (!code) return res.status(400).json({ error: 'code required' });
+  if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET)
+    return res.status(500).json({ error: 'Spotify credentials not configured on server' });
   try {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
@@ -496,68 +493,78 @@ app.post('/api/spotify/token', async (req: any, res: any) => {
       },
       body: body.toString(),
     });
-    const tokens = await tokenRes.json() as any;
-    if (!tokens.access_token) throw new Error(tokens.error_description || 'No access token');
-    const sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    spotifyTokenStore.set(sessionId, {
-      access_token: tokens.access_token,
-      expires_at: Date.now() + tokens.expires_in * 1000,
+    const data = await tokenRes.json() as any;
+    if (!data.access_token) {
+      console.error('Spotify token error:', data);
+      throw new Error(data.error_description || data.error || 'No access_token from Spotify');
+    }
+    // Return the token directly — client stores it
+    res.json({
+      accessToken: data.access_token,
+      expiresIn: data.expires_in,   // seconds (typically 3600)
+      tokenType: data.token_type,
     });
-    res.json({ sessionId });
   } catch (err: any) {
     console.error('Spotify token exchange error:', err.message);
     res.status(500).json({ error: err.message || 'Token exchange failed' });
   }
 });
 
-// Note: /auth/spotify/callback is no longer used.
-// Spotify now redirects to the frontend /callback page instead,
-// which calls POST /api/spotify/token above.
-
+// GET /api/spotify/me — returns user profile
 app.get('/api/spotify/me', async (req: any, res: any) => {
-  const token = getSpotifyToken(req.query.session as string);
-  if (!token) return res.status(401).json({ error: 'Not authenticated' });
-  const r = await fetch('https://api.spotify.com/v1/me', { headers: { Authorization: `Bearer ${token}` } });
-  if (!r.ok) return res.status(r.status).json({ error: 'Spotify error' });
-  res.json(await r.json());
+  const token = getToken(req);
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+  try {
+    const r = await fetch('https://api.spotify.com/v1/me', { headers: { Authorization: `Bearer ${token}` } });
+    const data = await r.json() as any;
+    if (!r.ok) return res.status(r.status).json({ error: data.error?.message || 'Spotify error' });
+    res.json(data);
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
+// GET /api/spotify/search?q=... — search tracks
 app.get('/api/spotify/search', async (req: any, res: any) => {
-  const { q, session } = req.query as Record<string, string>;
+  const { q } = req.query as Record<string, string>;
+  const token = getToken(req);
   if (!q?.trim()) return res.status(400).json({ error: 'q required' });
-  const token = getSpotifyToken(session);
-  if (!token) return res.status(401).json({ error: 'Not authenticated' });
-  const params = new URLSearchParams({ q: q.trim(), type: 'track', limit: '20', market: 'IN' });
-  const r = await fetch(`https://api.spotify.com/v1/search?${params}`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!r.ok) return res.status(r.status).json({ error: 'Search failed' });
-  const data = await r.json() as any;
-  res.json((data.tracks?.items || []).map((t: any) => ({
-    id: t.id, name: t.name,
-    artists: t.artists.map((a: any) => a.name).join(', '),
-    album: t.album.name,
-    image: t.album.images?.[0]?.url || '',
-    preview_url: t.preview_url,
-    duration_ms: t.duration_ms,
-    external_url: t.external_urls?.spotify,
-  })));
+  if (!token)    return res.status(401).json({ error: 'No token provided' });
+  try {
+    const params = new URLSearchParams({ q: q.trim(), type: 'track', limit: '20', market: 'IN' });
+    const r = await fetch(`https://api.spotify.com/v1/search?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await r.json() as any;
+    if (!r.ok) return res.status(r.status).json({ error: data.error?.message || 'Search failed' });
+    res.json((data.tracks?.items || []).map((t: any) => ({
+      id: t.id, name: t.name,
+      artists: t.artists.map((a: any) => a.name).join(', '),
+      album: t.album.name,
+      image: t.album.images?.[0]?.url || '',
+      preview_url: t.preview_url,
+      duration_ms: t.duration_ms,
+      external_url: t.external_urls?.spotify,
+    })));
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
+// GET /api/spotify/top-tracks — user's top played tracks
 app.get('/api/spotify/top-tracks', async (req: any, res: any) => {
-  const token = getSpotifyToken(req.query.session as string);
-  if (!token) return res.status(401).json({ error: 'Not authenticated' });
-  const r = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=short_term', { headers: { Authorization: `Bearer ${token}` } });
-  if (!r.ok) return res.status(r.status).json({ error: 'Failed' });
-  const data = await r.json() as any;
-  res.json((data.items || []).map((t: any) => ({
-    id: t.id, name: t.name,
-    artists: t.artists.map((a: any) => a.name).join(', '),
-    album: t.album.name,
-    image: t.album.images?.[0]?.url || '',
-    preview_url: t.preview_url,
-    duration_ms: t.duration_ms,
-    external_url: t.external_urls?.spotify,
-  })));
+  const token = getToken(req);
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+  try {
+    const r = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=short_term', { headers: { Authorization: `Bearer ${token}` } });
+    const data = await r.json() as any;
+    if (!r.ok) return res.status(r.status).json({ error: data.error?.message || 'Failed' });
+    res.json((data.items || []).map((t: any) => ({
+      id: t.id, name: t.name,
+      artists: t.artists.map((a: any) => a.name).join(', '),
+      album: t.album.name,
+      image: t.album.images?.[0]?.url || '',
+      preview_url: t.preview_url,
+      duration_ms: t.duration_ms,
+      external_url: t.external_urls?.spotify,
+    })));
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
+
 
 // ─── Spotify Sync Rooms (Long-Distance Listening) ─────────────────────────────
 // In-memory: roomCode → { hostSession, track, isPlaying, currentTime, updatedAt, members }
