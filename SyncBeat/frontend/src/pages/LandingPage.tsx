@@ -75,11 +75,23 @@ export default function LandingPage() {
           </div>
           <span className="font-bold text-lg gradient-text">SyncBeat</span>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-white/50 text-sm">Hey, {profile?.username} 👋</span>
-          <div className="w-8 h-8 rounded-full gradient-pink-purple flex items-center justify-center text-white text-xs font-bold">
-            {profile?.username?.[0]?.toUpperCase()}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-white/50 text-sm hidden sm:block">Hey, {profile?.username} 👋</span>
+            <div className="w-8 h-8 rounded-full gradient-pink-purple flex items-center justify-center text-white text-xs font-bold shadow-[0_0_10px_rgba(255,0,102,0.3)]">
+              {profile?.username?.[0]?.toUpperCase()}
+            </div>
           </div>
+          <button 
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.reload();
+            }}
+            className="p-2 text-white/30 hover:text-red-400 transition-colors"
+            title="Logout"
+          >
+            <Zap className="w-4 h-4" />
+          </button>
         </div>
       </nav>
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { Lock } from 'lucide-react';
 import HeroCanvas from '../components/HeroCanvas';
 import { OPPORTUNITIES } from './Opportunities';
 import { sendToWebhook } from '../utils/webhookService';
@@ -149,9 +150,13 @@ export default function Home() {
               Register Now ↗
             </button>
 
-            <a href="#ai" className="px-[32px] py-[13px] bg-transparent text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border border-white/20 cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:border-cyber-blue hover:text-cyber-blue hover:shadow-[0_0_25px_rgba(0,207,255,0.3)]" style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)' }}>
-              AI Updates ✦
-            </a>
+            <Link 
+              to="/login" 
+              className="px-[32px] py-[13px] bg-transparent text-cyber-muted font-display text-[14px] font-[700] tracking-[0.1em] uppercase border border-cyber-border cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:border-cyber-pink hover:text-cyber-pink hover:shadow-[0_0_25px_rgba(255,0,102,0.2)]" 
+              style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)' }}
+            >
+              Admin Login <Lock className="w-4 h-4" />
+            </Link>
           </div>
         </motion.div>
 

@@ -154,6 +154,31 @@ export default function Layout() {
               </AnimatePresence>
             </button>
 
+            {localStorage.getItem('admin_auth') === 'true' ? (
+              <div className="flex items-center gap-2">
+                <Link 
+                  to="/admin" 
+                  className="ml-4 px-[14px] py-[6px] border border-cyber-pink/30 text-cyber-pink font-display text-[11px] font-bold uppercase tracking-wide rounded-lg hover:bg-cyber-pink hover:text-white transition-all"
+                >
+                  Dashboard
+                </Link>
+                <button 
+                  onClick={() => { localStorage.removeItem('admin_auth'); window.location.href = '/'; }}
+                  className="p-2 text-cyber-muted hover:text-red-500 transition-colors"
+                  title="Logout"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <Link 
+                to="/login" 
+                className="ml-4 px-[14px] py-[6px] border border-cyber-border text-cyber-muted font-display text-[11px] font-bold uppercase tracking-wide rounded-lg hover:border-cyber-pink hover:text-cyber-pink transition-all"
+              >
+                Login
+              </Link>
+            )}
+
             <button className="ml-2 px-[14px] py-[6px] bg-cyber-pink text-cyber-white font-display text-[11px] font-bold uppercase tracking-wide rounded-lg cursor-none hover:bg-cyber-white hover:text-cyber-pink transition-all duration-200 shadow-[0_0_20px_rgba(255,0,102,0.4)] hover:shadow-[0_0_30px_rgba(255,0,102,0.5)] hover:-translate-y-[1px] whitespace-nowrap">
               Get Opportunities →
             </button>
@@ -234,6 +259,36 @@ export default function Layout() {
                     </Link>
                   );
                 })}
+
+                {/* Mobile Auth Button */}
+                {localStorage.getItem('admin_auth') === 'true' ? (
+                  <>
+                    <Link 
+                      to="/admin" 
+                      className="flex flex-col items-center justify-center p-4 rounded-2xl border bg-cyber-pink/10 border-cyber-pink/30 text-cyber-pink hover:bg-cyber-pink hover:text-white transition-all group"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Cpu className="w-6 h-6 mb-2" />
+                      <span className="text-sm font-bold text-center leading-tight uppercase">Admin</span>
+                    </Link>
+                    <button 
+                      onClick={() => { localStorage.removeItem('admin_auth'); window.location.href = '/'; }}
+                      className="flex flex-col items-center justify-center p-4 rounded-2xl border bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all group"
+                    >
+                      <X className="w-6 h-6 mb-2" />
+                      <span className="text-sm font-bold text-center leading-tight uppercase">Logout</span>
+                    </button>
+                  </>
+                ) : (
+                  <Link 
+                    to="/login" 
+                    className="col-span-2 flex flex-col items-center justify-center p-4 rounded-2xl border bg-cyber-border border-cyber-border/30 text-cyber-muted hover:bg-cyber-bg2 hover:border-cyber-border hover:text-cyber-white transition-all group"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Lock className="w-6 h-6 mb-2 group-hover:text-cyber-pink transition-colors" />
+                    <span className="text-sm font-bold text-center leading-tight uppercase">Access Terminal / Login</span>
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}
