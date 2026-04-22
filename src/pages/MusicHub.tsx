@@ -145,32 +145,59 @@ function Equalizer({ active }: { active: boolean }) {
 }
 
 // ─── Direct Spotify API helper ────────────────────────────────────────────────
-// Calls Spotify's REST API directly from the browser — no server proxy needed.
+// Calls Spotify's REST API directly from the browser.
 // Spotify supports browser CORS for authenticated requests.
 async function spotifyAPI(endpoint: string, token: string) {
   const base = 'https://api.spotify.com/v1';
-  const r = await fetch(`${base}${endpoint}`, { headers: { Authorization: `Bearer ${token}` } });
+  const r = await fetch(`${base}${endpoint}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+  });
   if (!r.ok) {
-    const err = await r.json().catch(() => ({})) as any;
-    throw Object.assign(new Error(err?.error?.message || `Spotify error ${r.status}`), { status: r.status });
+    // Use .text() first so non-JSON 403/WAF pages don't throw
+    const text = await r.text().catch(() => '');
+    let errMsg = `Spotify error ${r.status}${text ? ': ' + text.substring(0, 120) : ''}`;
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed?.error?.message) errMsg = parsed.error.message;
+    } catch { /* non-JSON response */ }
+    console.error(`[Spotify ${r.status}] ${endpoint} →`, text.substring(0, 500));
+    throw Object.assign(new Error(errMsg), { status: r.status });
   }
   return r.json();
 }
 
+// ─── Token validation ────────────────────────────────────────────────────────
+// Spotify access tokens are 80-200+ chars. Reject stale "undefined"/"null"
+// strings left over from old session-based architecture.
+function isValidToken(t: string | null): t is string {
+  return typeof t === 'string' && t.length > 50 && t !== 'undefined' && t !== 'null';
+}
+
 // ─── Token hook ──────────────────────────────────────────────────────────────
 function useSpotifyToken() {
-  const [token, setToken] = useState<string | null>(() =>
-    typeof window !== 'undefined' ? sessionStorage.getItem('spotify_token') : null
-  );
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const stored = sessionStorage.getItem('spotify_token');
+    if (!isValidToken(stored)) {
+      // Auto-clear stale/invalid tokens so the user sees the login prompt
+      if (stored) {
+        console.warn('[MusicHub] Cleared stale token from previous session:', stored.substring(0, 30));
+        sessionStorage.removeItem('spotify_token');
+        sessionStorage.removeItem('spotify_token_expires');
+      }
+      return null;
+    }
+    return stored;
+  });
 
   useEffect(() => {
     function onReady(e: Event) {
       const t = (e as CustomEvent).detail || sessionStorage.getItem('spotify_token');
-      if (t) setToken(t);
+      if (isValidToken(t)) setToken(t);
     }
     function onFocus() {
       const t = sessionStorage.getItem('spotify_token');
-      if (t && t !== token) setToken(t);
+      if (isValidToken(t) && t !== token) setToken(t);
     }
     window.addEventListener('spotify-session-ready', onReady);
     window.addEventListener('focus', onFocus);
