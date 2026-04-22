@@ -11,6 +11,7 @@ const SPOTIFY_REDIRECT_URI  = process.env.SPOTIFY_REDIRECT_URI || 'http://localh
 const tokenStore = new Map<string, { access_token: string; expires_at: number }>();
 
 // ── Step 1: Redirect to Spotify login ─────────────────────────────────────
+export function setupSpotifyRoutes(app: any) {
 app.get('/auth/spotify/login', (_req: Request, res: Response) => {
   const scopes = [
     'user-read-private',
@@ -154,3 +155,4 @@ app.get('/api/spotify/top-tracks', async (req: Request, res: Response) => {
     uri: t.uri,
   })));
 });
+}

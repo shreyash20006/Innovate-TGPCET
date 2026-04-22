@@ -8,7 +8,7 @@
  * Vercel: Project Settings → Environment Variables → VITE_YOUTUBE_API_KEY
  */
 
-const YT_KEY  = import.meta.env.VITE_YOUTUBE_API_KEY ?? '';
+const YT_KEY  = (import.meta as any).env.VITE_YOUTUBE_API_KEY ?? '';
 const YT_BASE = 'https://www.googleapis.com/youtube/v3';
 
 // ─── Exported Track shape (compatible with MusicHub's Track interface) ─────────

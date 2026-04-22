@@ -4,16 +4,13 @@ import {
   User, Clock, Users, Copy, Check, Radio, X, ChevronUp, AlertTriangle,
   Youtube, TrendingUp,
 } from 'lucide-react';
-import NowPlayingScreen from './NowPlayingScreen';
+import NowPlaying from '../components/NowPlaying';
+import MusicLibrary, { Equalizer } from '../components/MusicLibrary';
 import { searchYouTubeVideos, getTrendingMusic, fmtViews, YouTubeAPIError, isApiKeyConfigured } from '../utils/youtubeApi';
+import { Track } from '../types/music';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SpotifyUser { id: string; display_name: string; email: string; images: { url: string }[]; product: string; }
-interface Track {
-  id: string; name: string; artists: string; album: string;
-  image: string; preview_url: string | null; duration_ms: number; external_url: string;
-  viewCount?: string; // YouTube view count
-}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const fmt = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`; };
@@ -60,6 +57,23 @@ const CSS_ANIMATIONS = `
   @keyframes mh-slidein { from { transform: translateY(100%); } to { transform: translateY(0); } }
   @keyframes mh-fadein  { from { opacity:0; } to { opacity:1; } }
   @keyframes mh-popin   { from { opacity:0; transform:scale(0.9) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+  .glass-panel {
+      background: rgba(26, 26, 26, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid transparent;
+      border-image: linear-gradient(to bottom right, rgba(255,255,255,0.1), rgba(255,255,255,0.02)) 1;
+  }
+  .rim-light {
+      box-shadow: inset 1px 1px 0px 0px rgba(255, 255, 255, 0.05);
+  }
+  .neon-glow {
+      box-shadow: 0 0 15px rgba(0, 255, 133, 0.3);
+  }
+  .nebula-bg {
+      background: radial-gradient(circle at 20% 30%, rgba(255, 0, 255, 0.05) 0%, transparent 40%),
+                  radial-gradient(circle at 80% 70%, rgba(0, 255, 133, 0.05) 0%, transparent 40%);
+  }
 `;
 
 // ─── 3D Animated Background (pure CSS, no framer-motion) ─────────────────────
@@ -130,25 +144,7 @@ function VinylRecord({ artwork, spinning }: { artwork: string; spinning: boolean
   );
 }
 
-// ─── Equalizer Bars (CSS animations, no random in render) ────────────────────
-const EQ_ANIMS = ['mh-eq1', 'mh-eq2', 'mh-eq3', 'mh-eq4', 'mh-eq5'];
-const EQ_DELAYS = ['0s', '0.1s', '0.2s', '0.15s', '0.05s'];
-function Equalizer({ active }: { active: boolean }) {
-  return (
-    <div className="flex items-end gap-[3px] h-5">
-      {EQ_ANIMS.map((anim, i) => (
-        <div key={i}
-          style={{
-            width: 3,
-            height: 4,
-            borderRadius: 2,
-            background: '#1DB954',
-            animation: active ? `${anim} 0.5s ease-in-out ${EQ_DELAYS[i]} infinite` : 'none',
-          }} />
-      ))}
-    </div>
-  );
-}
+// -- Equalizer imported from MusicLibrary
 
 // ─── Direct Spotify API helper ────────────────────────────────────────────────
 // Calls Spotify's REST API directly from the browser.
@@ -187,7 +183,7 @@ function useSpotifyToken() {
     if (!isValidToken(stored)) {
       // Auto-clear stale/invalid tokens so the user sees the login prompt
       if (stored) {
-        console.warn('[MusicHub] Cleared stale token from previous session:', stored.substring(0, 30));
+        console.warn('[MusicHub] Cleared stale token from previous session:', String(stored).substring(0, 30));
         sessionStorage.removeItem('spotify_token');
         sessionStorage.removeItem('spotify_token_expires');
       }
@@ -221,79 +217,7 @@ function useSpotifyToken() {
   return { token, logout };
 }
 
-// ─── YouTube-style Track Card ─────────────────────────────────────────────────
-function TrackCard({ track, playing, onPlay, onFavorite, isFav }: {
-  track: Track; playing: boolean; onPlay: () => void; onFavorite: () => void; isFav: boolean;
-}) {
-  const duration = track.duration_ms ? fmt(track.duration_ms) : '';
-  const views    = track.viewCount   ? fmtViews(track.viewCount) : '';
-
-  return (
-    <div
-      className="group flex items-center gap-3 p-2.5 rounded-2xl cursor-pointer transition-all duration-200"
-      style={{
-        background: playing ? 'rgba(29,185,84,0.08)' : 'transparent',
-        border: playing ? '1px solid rgba(29,185,84,0.25)' : '1px solid rgba(255,255,255,0.04)',
-        animation: 'mh-fadeup 0.3s ease-out both',
-      }}
-      onMouseEnter={e => { if (!playing) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
-      onMouseLeave={e => { if (!playing) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
-      onClick={onPlay}
-    >
-      {/* 16:9 thumbnail with duration overlay + hover play button */}
-      <div className="relative rounded-xl overflow-hidden shrink-0"
-        style={{ width: 88, height: 56 }}>
-        {track.image
-          ? <img src={track.image} alt={track.name} className="w-full h-full object-cover" />
-          : <div className="w-full h-full flex items-center justify-center text-2xl" style={{ background: '#1a1a2e' }}>🎵</div>}
-        {/* Duration badge */}
-        {duration && (
-          <span className="absolute bottom-1 right-1 text-[8px] font-bold px-1 py-0.5 rounded"
-            style={{ background: 'rgba(0,0,0,0.82)', color: '#fff' }}>{duration}</span>
-        )}
-        {/* Play overlay */}
-        <div className={`absolute inset-0 flex items-center justify-center transition-opacity
-          ${playing ? 'opacity-100 bg-black/40' : 'opacity-0 bg-black/50 group-hover:opacity-100'}`}>
-          {playing
-            ? <Equalizer active />
-            : <Play className="w-5 h-5 text-white" fill="currentColor" />}
-        </div>
-        {/* Playing indicator line */}
-        {playing && <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: '#1DB954' }} />}
-      </div>
-
-      {/* Track info */}
-      <div className="flex-1 min-w-0">
-        <div className={`text-sm font-semibold leading-tight line-clamp-2 mb-0.5 ${playing ? 'text-[#1DB954]' : 'text-white'}`}
-          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-          {track.name}
-        </div>
-        <div className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>{track.artists}</div>
-        {views && <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{views}</div>}
-      </div>
-
-      {/* Actions */}
-      <div className="flex flex-col items-center gap-1.5 shrink-0">
-        <button
-          onClick={e => { e.stopPropagation(); onFavorite(); }}
-          className="transition-all hover:scale-110 active:scale-90"
-          style={{ color: isFav ? '#ff2d78' : 'rgba(255,255,255,0.25)' }}
-          title={isFav ? 'Remove from favorites' : 'Add to favorites'}>
-          <Heart className="w-4 h-4" fill={isFav ? 'currentColor' : 'none'} />
-        </button>
-        {track.external_url && (
-          <a href={track.external_url} target="_blank" rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()}
-            className="transition-colors hover:text-[#1DB954]"
-            style={{ color: 'rgba(255,255,255,0.2)' }}
-            title="Open in YouTube">
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        )}
-      </div>
-    </div>
-  );
-}
+// -- TrackCard now in MusicLibrary
 
 // Piped API removed — YouTube video IDs now come directly from YouTube Data API v3 (track.id)
 
@@ -303,51 +227,52 @@ function MiniPlayerBar({ track, ytVideoId, ytLoading, roomCode, isHost, onClick 
   roomCode: string | null; isHost: boolean; onClick: () => void;
 }) {
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 cursor-pointer"
-      style={{
-        background: 'rgba(8,8,18,0.97)',
-        backdropFilter: 'blur(24px)',
-        borderTop: '1px solid rgba(29,185,84,0.25)',
-        boxShadow: '0 -20px 60px rgba(0,0,0,0.5)',
-        animation: 'mh-slidein 0.35s ease-out',
-      }}
+    <footer 
+      className="fixed bottom-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-8 bg-[#0a0a0a]/90 backdrop-blur-3xl h-20 md:h-24 border-t border-white/10 shadow-[0_-10px_40px_rgba(0,255,133,0.1)] cursor-pointer"
       onClick={onClick}
+      style={{ animation: 'mh-slidein 0.35s ease-out' }}
     >
-      {/* Progress shimmer */}
-      <div className="absolute top-0 left-0 h-0.5 rounded-full"
-        style={{ background: '#1DB954', width: ytVideoId ? '60%' : '0%', transition: 'width 0.5s ease', boxShadow: '0 0 8px rgba(29,185,84,0.8)' }} />
+      <div className="absolute top-0 left-0 h-0.5 rounded-full" style={{ background: '#00FF85', width: ytVideoId ? '100%' : '0%', transition: 'width 0.5s ease', boxShadow: '0 0 8px rgba(0,255,133,0.8)' }} />
 
-      <div className="flex items-center gap-3 px-4 py-3 max-w-5xl mx-auto">
+      <div className="flex items-center gap-3 w-1/3 min-w-[30%]">
         <VinylRecord artwork={track.image} spinning={!!ytVideoId && !ytLoading} />
-
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-white truncate">{track.name}</div>
-          <div className="text-xs text-gray-400 truncate">{track.artists}</div>
+        
+        <div className="hidden sm:block overflow-hidden min-w-0 pr-2">
+          <p className="text-white font-bold text-xs md:text-sm truncate">{track.name}</p>
+          <p className="text-zinc-500 text-[10px] md:text-xs truncate">{track.artists}</p>
           {roomCode && (
             <div className="flex items-center gap-1 mt-0.5">
-              <Radio className="w-3 h-3 text-[#1DB954]" />
-              <span className="text-[10px] text-[#1DB954] font-mono">{isHost ? 'HOSTING' : 'SYNCED'} · {roomCode}</span>
+              <Radio className="w-3 h-3 text-[#00FF85]" />
+              <span className="text-[9px] text-[#00FF85] font-mono">{isHost ? 'HOSTING' : 'SYNCED'} · {roomCode}</span>
             </div>
           )}
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {ytLoading && (
-            <div className="flex gap-1 items-center">
-              {[0,1,2].map(i => <span key={i} className="w-1 h-3 rounded-full bg-[#1DB954] animate-pulse" style={{ animationDelay: `${i*0.15}s` }} />)}
-            </div>
-          )}
-          {!ytLoading && ytVideoId && (
-            <span className="text-[9px] text-[#1DB954] font-bold px-2 py-0.5 rounded-full"
-              style={{ background: 'rgba(29,185,84,0.12)', border: '1px solid rgba(29,185,84,0.25)' }}>
-              ▶ Full Song
-            </span>
-          )}
-          <ChevronUp className="w-5 h-5 text-gray-500" />
         </div>
       </div>
-    </div>
+
+      <div className="flex flex-col items-center gap-2 w-1/3 flex-1">
+        <div className="flex items-center gap-4 md:gap-6">
+          <span className="material-symbols-outlined text-zinc-300 hover:scale-110 hover:text-[#00FF85] transition-all"><ChevronUp className="w-5 h-5 -rotate-90"/></span>
+          {ytLoading ? (
+             <div className="flex gap-1 items-center px-2">
+               {[0,1,2].map(i => <span key={i} className="w-1.5 h-4 rounded-full bg-[#00FF85] animate-pulse" style={{ animationDelay: `${i*0.15}s` }} />)}
+             </div>
+          ) : (
+            <button className="text-[#00FF85] drop-shadow-[0_0_8px_rgba(0,255,133,0.8)] hover:scale-110 transition-transform">
+              <Play className="w-8 h-8 md:w-12 md:h-12" fill="currentColor" />
+            </button>
+          )}
+          <span className="material-symbols-outlined text-zinc-300 hover:scale-110 hover:text-[#00FF85] transition-all"><ChevronUp className="w-5 h-5 rotate-90"/></span>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end gap-3 md:gap-6 w-1/3 min-w-[30%]">
+        {!ytLoading && ytVideoId && (
+          <span className="hidden sm:block text-[10px] font-bold px-3 py-1 rounded bg-[#00FF85]/10 text-[#00FF85] border border-[#00FF85]/30">
+            Expand Player ⇡
+          </span>
+        )}
+      </div>
+    </footer>
   );
 }
 
@@ -620,228 +545,40 @@ export default function MusicHub() {
       );
 
   return (
-    <div className="min-h-screen relative pb-28" style={{ background: 'var(--bg-primary, #0a0a14)' }}>
+    <div className="min-h-[calc(100vh-68px)] relative pb-28 flex bg-[#0a0a0a]">
+      <style>{CSS_ANIMATIONS}</style>
       <FloatingNotes />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 nebula-bg" />
 
-      {/* ── Header ── */}
-      <div className="sticky top-0 z-40" style={{ background: 'rgba(10,10,20,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(29,185,84,0.15)' }}>
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform hover:scale-110 hover:rotate-12"
-              style={{ background: '#1DB954', boxShadow: '0 0 20px rgba(29,185,84,0.4)' }}>
-              <Music2 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-white leading-none">Music Hub</h1>
-              <p className="text-[10px] text-gray-500 mt-0.5">Powered by YouTube · Connect Spotify for rooms</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {token && (
-              <button onClick={() => setShowRoomModal(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
-                style={{ background: activeRoom ? 'rgba(29,185,84,0.2)' : 'rgba(255,255,255,0.06)', color: activeRoom ? '#1DB954' : '#aaa', border: `1px solid ${activeRoom ? 'rgba(29,185,84,0.4)' : 'rgba(255,255,255,0.1)'}` }}>
-                <Radio className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{activeRoom ? `Room · ${activeRoom}` : 'Sync Room'}</span>
-              </button>
-            )}
-
-            {token ? (
-              <div className="flex items-center gap-2">
-                {loadingUser && (
-                  <div className="flex gap-1 items-center px-3 py-2">
-                    {[0, 1, 2].map(i => (
-                      <span key={i} className="w-1.5 h-1.5 rounded-full bg-[#1DB954] animate-pulse"
-                        style={{ animationDelay: `${i * 0.2}s` }} />
-                    ))}
-                  </div>
-                )}
-                {!loadingUser && user && (
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    {user.images?.[0]?.url
-                      ? <img src={user.images[0].url} className="w-6 h-6 rounded-full" alt="" />
-                      : <User className="w-4 h-4 text-gray-400" />}
-                    <span className="text-xs text-white font-medium">{user.display_name}</span>
-                    {user.product === 'premium' && <span className="text-[9px] text-[#1DB954] font-bold">PRO</span>}
-                  </div>
-                )}
-                {!loadingUser && !user && (
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <User className="w-4 h-4 text-[#1DB954]" />
-                    <span className="text-xs text-[#1DB954] font-medium">Connected ✓</span>
-                  </div>
-                )}
-                <button onClick={logout} className="p-2 rounded-lg text-gray-500 hover:text-white transition-colors" title="Disconnect">
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <a href="/auth/spotify/login"
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 active:scale-95"
-                style={{ background: '#1DB954', boxShadow: '0 0 20px rgba(29,185,84,0.4)' }}>
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.856zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.97-.519.781.781 0 01.52-.971c3.632-1.102 8.147-.568 11.23 1.328a.78.78 0 01.257 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.935.935 0 01-.954 1.608z"/>
-                </svg>
-                Connect Spotify
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-6">
-
-        {/* ── YouTube API key warning ── */}
-        {!isApiKeyConfigured() && (
-          <div className="flex items-start gap-3 p-4 rounded-2xl mb-5"
-            style={{ background: 'rgba(255,160,0,0.08)', border: '1px solid rgba(255,160,0,0.3)' }}>
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#FFA000' }} />
-            <div>
-              <p className="text-sm font-semibold" style={{ color: '#FFA000' }}>YouTube API Key Missing</p>
-              <p className="text-xs mt-1" style={{ color: 'rgba(255,160,0,0.8)' }}>
-                Add <code className="bg-black/30 px-1 rounded">VITE_YOUTUBE_API_KEY</code> to your <code className="bg-black/30 px-1 rounded">.env</code> file or Vercel env vars.
-                Get a free key at <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="underline">console.cloud.google.com</a>
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* ── Quota / search error ── */}
-        {ytError && (
-          <div className="flex items-start gap-3 p-4 rounded-2xl mb-5"
-            style={{ background: 'rgba(255,45,120,0.07)', border: '1px solid rgba(255,45,120,0.25)' }}>
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#ff2d78' }} />
-            <div className="flex-1">
-              <p className="text-sm" style={{ color: '#ff2d78' }}>{ytError}</p>
-            </div>
-            <button onClick={() => setYtError('')} className="text-gray-500 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
-          </div>
-        )}
-
-        {/* ── Not logged in: show search + login CTA ── */}
-        {!token && (
-          <div style={{ animation: 'mh-fadeup 0.5s ease-out' }}>
-            {/* Search works without login */}
-            <div className="flex gap-3 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
-                  placeholder="Search any song or artist…"
-                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl text-sm text-white outline-none placeholder-gray-600"
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }} />
-              </div>
-              <button onClick={search} disabled={searching || !query.trim()}
-                className="px-5 py-3 rounded-2xl font-bold text-sm text-white disabled:opacity-40 transition-all hover:scale-105 active:scale-95"
-                style={{ background: '#1DB954', boxShadow: '0 0 20px rgba(29,185,84,0.3)' }}>
-                {searching ? '…' : 'Search'}
-              </button>
-            </div>
-
-            {/* Track results even without login */}
-            {results.length > 0 && (
-              <div className="space-y-2 mb-8" style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
-                {results.map(t => (
-                  <TrackCard key={t.id} track={t} playing={nowPlaying?.id === t.id} isFav={favorites.includes(t.id)}
-                    onPlay={() => { setNowPlaying(t); setShowNowPlaying(true); }}
-                    onFavorite={() => setFavorites(f => f.includes(t.id) ? f.filter(x => x !== t.id) : [...f, t.id])} />
-                ))}
-              </div>
-            )}
-
-            {results.length === 0 && (
-              <div className="text-center py-12">
-                <div
-                  className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center"
-                  style={{ background: '#1DB954', boxShadow: '0 0 60px rgba(29,185,84,0.4)' }}>
-                  <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.856zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.97-.519.781.781 0 01.52-.971c3.632-1.102 8.147-.568 11.23 1.328a.78.78 0 01.257 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.935.935 0 01-.954 1.608z"/>
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-black mb-2 text-white">Music Hub</h2>
-                <p className="text-gray-400 mb-1 max-w-md mx-auto">Search any song above · <span className="text-[#1DB954] font-semibold">listen together</span> with your partner</p>
-                <p className="text-gray-600 text-sm mb-6">🌍 Long-distance · ❤️ Favorites · 🎵 30s previews</p>
-                <a href="/auth/spotify/login"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm transition-all hover:scale-105 active:scale-95"
-                  style={{ background: 'rgba(29,185,84,0.15)', border: '1px solid rgba(29,185,84,0.3)', color: '#1DB954' }}>
-                  <LogIn className="w-4 h-4" /> Connect Spotify for Sync Rooms
-                </a>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Dashboard (logged in) ── */}
-        {token && (
-          <>
-            {/* Search */}
-            <div className="flex gap-3 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
-                  placeholder="Search any song on YouTube…"
-                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl text-sm text-white outline-none placeholder-gray-600"
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }} />
-              </div>
-              <button onClick={search} disabled={searching || !query.trim()}
-                className="px-5 py-3 rounded-2xl font-bold text-sm text-white disabled:opacity-40 transition-all hover:scale-105 active:scale-95"
-                style={{ background: '#FF0000', boxShadow: '0 0 20px rgba(255,0,0,0.3)' }}>
-                {searching ? '…' : <Youtube className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-1 mb-5 p-1 rounded-2xl w-fit" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              {([
-                { id: 'search',    label: 'Search',    icon: Search },
-                { id: 'top',       label: 'Trending',  icon: TrendingUp },
-                { id: 'favorites', label: `❤️ ${favorites.length}`, icon: Heart },
-              ] as const).map(tab => (
-                <button key={tab.id}
-                  onClick={() => { setActiveTab(tab.id); if (tab.id === 'top') loadTrending(); }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all"
-                  style={activeTab === tab.id ? { background: '#1DB954', color: 'white', boxShadow: '0 0 15px rgba(29,185,84,0.3)' } : { color: '#666' }}>
-                  <tab.icon className="w-3.5 h-3.5" />{tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Track list */}
-            {searching && displayTracks.length === 0 && (
-              <div className="flex flex-col items-center py-16">
-                <div className="flex gap-2 mb-4">
-                  {[0,1,2,3].map(i => (
-                    <div key={i} className="w-1.5 h-8 rounded-full animate-pulse" style={{ background: '#1DB954', animationDelay: `${i*0.15}s`, animationDuration: '0.8s' }} />
-                  ))}
-                </div>
-                <p className="text-gray-600 text-sm">Searching YouTube…</p>
-              </div>
-            )}
-            {!searching && displayTracks.length === 0 && (
-              <div className="text-center py-16" style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
-                <div className="text-5xl mb-4">{activeTab === 'favorites' ? '💔' : activeTab === 'top' ? '📈' : '🎬'}</div>
-                <p className="text-gray-600 text-sm">
-                  {activeTab === 'favorites' ? 'Heart a track to save it here.'
-                   : activeTab === 'top' ? 'Click Trending to load top YouTube music.'
-                   : 'Search any song, artist, or album above.'}
-                </p>
-              </div>
-            )}
-            {displayTracks.length > 0 && (
-              <div className="space-y-1.5">
-                {displayTracks.map(t => (
-                  <TrackCard key={t.id} track={t} playing={nowPlaying?.id === t.id}
-                    onPlay={() => { setNowPlaying(t); setShowNowPlaying(true); }}
-                    onFavorite={() => setFavorites(f => f.includes(t.id) ? f.filter(x => x !== t.id) : [...f, t.id])}
-                    isFav={favorites.includes(t.id)} />
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      <MusicLibrary 
+        state={{
+          token,
+          user,
+          query,
+          searching,
+          displayTracks,
+          results,
+          activeTab,
+          loadingUser,
+          ytError,
+          activeRoom,
+          nowPlaying,
+          favorites,
+          isApiKeyConfigured: isApiKeyConfigured()
+        }}
+        actions={{
+          setQuery,
+          search,
+          setActiveTab,
+          loadTrending,
+          setYtError,
+          setShowRoomModal,
+          logout,
+          setNowPlaying,
+          setShowNowPlaying,
+          setFavorites
+        }}
+      />
 
       {/* ── Mini player bar (click to open full-screen) ── */}
       {nowPlaying && !showNowPlaying && (
@@ -857,7 +594,7 @@ export default function MusicHub() {
 
       {/* ── Full-screen Now Playing screen ── */}
       {nowPlaying && showNowPlaying && (
-        <NowPlayingScreen
+        <NowPlaying
           track={nowPlaying}
           queue={[...results, ...topTracks].filter((t, i, a) => a.findIndex(x => x.id === t.id) === i)}
           ytVideoId={ytVideoId}
