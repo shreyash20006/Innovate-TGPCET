@@ -28,6 +28,35 @@ function mapTrack(t: any): Track {
   };
 }
 
+/**
+ * Search via Apple iTunes API — FREE, no auth, browser CORS-friendly.
+ * Returns 30-second preview URLs just like Spotify preview_url.
+ * Used as primary search because Spotify requires Premium for the app owner.
+ */
+async function itunesSearch(query: string): Promise<Track[]> {
+  const params = new URLSearchParams({
+    term: query,
+    media: 'music',
+    entity: 'song',
+    limit: '25',
+    country: 'in',
+  });
+  const r = await fetch(`https://itunes.apple.com/search?${params}`);
+  if (!r.ok) throw new Error(`iTunes error ${r.status}`);
+  const data = await r.json();
+  return (data.results || []).map((t: any): Track => ({
+    id: String(t.trackId || t.collectionId || Math.random()),
+    name: t.trackName || t.collectionName || '',
+    artists: t.artistName || '',
+    album: t.collectionName || '',
+    // Upgrade artwork from 100px → 400px for nicer covers
+    image: (t.artworkUrl100 || '').replace('100x100bb', '400x400bb'),
+    preview_url: t.previewUrl || null,
+    duration_ms: t.trackTimeMillis || 0,
+    external_url: t.trackViewUrl || '',
+  }));
+}
+
 // ─── CSS Keyframes (injected once) ───────────────────────────────────────────
 const CSS_ANIMATIONS = `
   @keyframes mh-float {
@@ -529,33 +558,36 @@ export default function MusicHub() {
     }
   }, []);
 
-  // Load user profile + top tracks directly from Spotify (browser → spotify.com)
+  // Load user profile + top tracks from Spotify (best-effort: fails gracefully if app owner lacks Premium)
   useEffect(() => {
     if (!token) { setUser(null); return; }
     setLoadingUser(true);
     setTokenError(false);
     spotifyAPI('/me', token)
       .then(d => setUser(d))
-      .catch(e => { console.warn('Profile load failed:', e.message); if (e.status === 401) { logout(); setTokenError(true); } })
+      .catch(e => {
+        // 403 = Spotify Premium required for app owner (known restriction, not an error)
+        if (e.status === 401) { logout(); setTokenError(true); }
+        // else silently ignore; user can still search via iTunes
+      })
       .finally(() => setLoadingUser(false));
+    // Top tracks require Premium scope — skip silently if denied
     spotifyAPI('/me/top/tracks?limit=10&time_range=short_term', token)
       .then(d => setTopTracks((d.items || []).map(mapTrack)))
-      .catch(e => console.warn('Top tracks failed:', e.message));
+      .catch(() => { /* expected 403 on non-premium dev accounts */ });
   }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { localStorage.setItem('spotify_favs', JSON.stringify(favorites)); }, [favorites]);
 
   async function search() {
-    if (!query.trim() || !token) return;
+    if (!query.trim()) return; // No Spotify auth required — iTunes is free
     setSearching(true); setActiveTab('search');
     try {
-      const params = new URLSearchParams({ q: query.trim(), type: 'track', limit: '20', market: 'IN' });
-      const d = await spotifyAPI(`/search?${params}`, token);
-      setResults((d.tracks?.items || []).map(mapTrack));
+      const tracks = await itunesSearch(query.trim());
+      setResults(tracks);
     } catch (e: any) {
-      console.error('Search failed:', e.message);
+      console.error('iTunes search failed:', e.message);
       setResults([]);
-      if (e.status === 401) { logout(); setTokenError(true); }
     } finally { setSearching(false); }
   }
 
@@ -585,7 +617,7 @@ export default function MusicHub() {
             </div>
             <div>
               <h1 className="text-base font-bold text-white leading-none">Music Hub</h1>
-              <p className="text-[10px] text-gray-500 mt-0.5">Powered by Spotify</p>
+              <p className="text-[10px] text-gray-500 mt-0.5">Search via iTunes · Connect Spotify</p>
             </div>
           </div>
 
@@ -646,28 +678,59 @@ export default function MusicHub() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-6">
 
-        {/* ── Not logged in ── */}
+        {/* ── Not logged in: show search + login CTA ── */}
         {!token && (
-          <div className="text-center py-20" style={{ animation: 'mh-fadeup 0.5s ease-out' }}>
-            <div
-              className="w-24 h-24 rounded-3xl mx-auto mb-8 flex items-center justify-center transition-transform hover:scale-110"
-              style={{ background: '#1DB954', boxShadow: '0 0 60px rgba(29,185,84,0.4)' }}>
-              <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.856zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.97-.519.781.781 0 01.52-.971c3.632-1.102 8.147-.568 11.23 1.328a.78.78 0 01.257 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.935.935 0 01-.954 1.608z"/>
-              </svg>
+          <div style={{ animation: 'mh-fadeup 0.5s ease-out' }}>
+            {/* Search works without login */}
+            <div className="flex gap-3 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && search()}
+                  placeholder="Search any song or artist…"
+                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl text-sm text-white outline-none placeholder-gray-600"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }} />
+              </div>
+              <button onClick={search} disabled={searching || !query.trim()}
+                className="px-5 py-3 rounded-2xl font-bold text-sm text-white disabled:opacity-40 transition-all hover:scale-105 active:scale-95"
+                style={{ background: '#1DB954', boxShadow: '0 0 20px rgba(29,185,84,0.3)' }}>
+                {searching ? '…' : 'Search'}
+              </button>
             </div>
-            <h2 className="text-3xl font-black mb-3 text-white">Music Hub</h2>
-            <p className="text-gray-400 mb-2 max-w-md mx-auto">Search songs, listen to previews, and <span className="text-[#1DB954] font-semibold">listen together</span> with your partner — no matter how far apart.</p>
-            <p className="text-gray-600 text-sm mb-8">🌍 Long-distance listening · ❤️ Favorites · 🎵 30s previews</p>
-            <a href="/auth/spotify/login"
-              className="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-white font-black text-lg transition-all hover:scale-105 active:scale-95"
-              style={{ background: '#1DB954', boxShadow: '0 0 50px rgba(29,185,84,0.5)' }}>
-              <LogIn className="w-5 h-5" /> Login with Spotify
-            </a>
+
+            {/* Track results even without login */}
+            {results.length > 0 && (
+              <div className="space-y-2 mb-8" style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
+                {results.map(t => (
+                  <TrackCard key={t.id} track={t} playing={nowPlaying?.id === t.id} isFav={favorites.includes(t.id)}
+                    onPlay={() => setNowPlaying(nowPlaying?.id === t.id ? null : t)}
+                    onFavorite={() => setFavorites(f => f.includes(t.id) ? f.filter(x => x !== t.id) : [...f, t.id])} />
+                ))}
+              </div>
+            )}
+
+            {results.length === 0 && (
+              <div className="text-center py-12">
+                <div
+                  className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center"
+                  style={{ background: '#1DB954', boxShadow: '0 0 60px rgba(29,185,84,0.4)' }}>
+                  <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424a.622.622 0 01-.857.207c-2.348-1.435-5.304-1.76-8.785-.964a.622.622 0 11-.277-1.214c3.809-.87 7.076-.496 9.712 1.115a.623.623 0 01.207.856zm1.223-2.722a.78.78 0 01-1.072.257c-2.687-1.652-6.785-2.131-9.965-1.166a.78.78 0 01-.97-.519.781.781 0 01.52-.971c3.632-1.102 8.147-.568 11.23 1.328a.78.78 0 01.257 1.071zm.105-2.835c-3.223-1.914-8.54-2.09-11.618-1.156a.935.935 0 11-.543-1.79c3.532-1.072 9.404-.865 13.115 1.338a.935.935 0 01-.954 1.608z"/>
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-black mb-2 text-white">Music Hub</h2>
+                <p className="text-gray-400 mb-1 max-w-md mx-auto">Search any song above · <span className="text-[#1DB954] font-semibold">listen together</span> with your partner</p>
+                <p className="text-gray-600 text-sm mb-6">🌍 Long-distance · ❤️ Favorites · 🎵 30s previews</p>
+                <a href="/auth/spotify/login"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm transition-all hover:scale-105 active:scale-95"
+                  style={{ background: 'rgba(29,185,84,0.15)', border: '1px solid rgba(29,185,84,0.3)', color: '#1DB954' }}>
+                  <LogIn className="w-4 h-4" /> Connect Spotify for Sync Rooms
+                </a>
+              </div>
+            )}
           </div>
         )}
 
-        {/* ── Dashboard ── */}
+        {/* ── Dashboard (logged in) ── */}
         {token && (
           <>
             {/* Search */}
