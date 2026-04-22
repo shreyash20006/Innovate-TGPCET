@@ -14,6 +14,20 @@ interface Track {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const fmt = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`; };
 
+/** Normalize a raw Spotify track object → our Track interface */
+function mapTrack(t: any): Track {
+  return {
+    id: t.id,
+    name: t.name,
+    artists: (t.artists || []).map((a: any) => a.name).join(', '),
+    album: t.album?.name || '',
+    image: t.album?.images?.[0]?.url || '',
+    preview_url: t.preview_url ?? null,
+    duration_ms: t.duration_ms || 0,
+    external_url: t.external_urls?.spotify || '',
+  };
+}
+
 // ─── CSS Keyframes (injected once) ───────────────────────────────────────────
 const CSS_ANIMATIONS = `
   @keyframes mh-float {
@@ -128,6 +142,19 @@ function Equalizer({ active }: { active: boolean }) {
       ))}
     </div>
   );
+}
+
+// ─── Direct Spotify API helper ────────────────────────────────────────────────
+// Calls Spotify's REST API directly from the browser — no server proxy needed.
+// Spotify supports browser CORS for authenticated requests.
+async function spotifyAPI(endpoint: string, token: string) {
+  const base = 'https://api.spotify.com/v1';
+  const r = await fetch(`${base}${endpoint}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({})) as any;
+    throw Object.assign(new Error(err?.error?.message || `Spotify error ${r.status}`), { status: r.status });
+  }
+  return r.json();
 }
 
 // ─── Token hook ──────────────────────────────────────────────────────────────
@@ -450,10 +477,6 @@ function SyncRoomModal({ token, nowPlaying, onClose, onGuestSync }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function MusicHub() {
   const { token, logout } = useSpotifyToken();
-  const spotifyFetch = useCallback((url: string, opts: RequestInit = {}) =>
-    fetch(url, { ...opts, headers: { ...(opts.headers as Record<string,string> || {}), Authorization: `Bearer ${token}` } }),
-  [token]);
-
   const [user, setUser] = useState<SpotifyUser | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Track[]>([]);
@@ -461,6 +484,7 @@ export default function MusicHub() {
   const [searching, setSearching] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
   const [nowPlaying, setNowPlaying] = useState<Track | null>(null);
+  const [tokenError, setTokenError] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('spotify_favs') || '[]'); } catch { return []; } });
   const [activeTab, setActiveTab] = useState<'search' | 'top' | 'favorites'>('search');
   const [showRoomModal, setShowRoomModal] = useState(false);
@@ -478,17 +502,19 @@ export default function MusicHub() {
     }
   }, []);
 
+  // Load user profile + top tracks directly from Spotify (browser → spotify.com)
   useEffect(() => {
     if (!token) { setUser(null); return; }
     setLoadingUser(true);
-    spotifyFetch('/api/spotify/me')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d && !d.error) setUser(d); })
+    setTokenError(false);
+    spotifyAPI('/me', token)
+      .then(d => setUser(d))
+      .catch(e => { console.warn('Profile load failed:', e.message); if (e.status === 401) { logout(); setTokenError(true); } })
       .finally(() => setLoadingUser(false));
-    spotifyFetch('/api/spotify/top-tracks')
-      .then(r => r.ok ? r.json() : [])
-      .then(d => setTopTracks(Array.isArray(d) ? d : []));
-  }, [token, spotifyFetch]);
+    spotifyAPI('/me/top/tracks?limit=10&time_range=short_term', token)
+      .then(d => setTopTracks((d.items || []).map(mapTrack)))
+      .catch(e => console.warn('Top tracks failed:', e.message));
+  }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { localStorage.setItem('spotify_favs', JSON.stringify(favorites)); }, [favorites]);
 
@@ -496,11 +522,14 @@ export default function MusicHub() {
     if (!query.trim() || !token) return;
     setSearching(true); setActiveTab('search');
     try {
-      const r = await spotifyFetch(`/api/spotify/search?q=${encodeURIComponent(query.trim())}`);
-      const d = await r.json();
-      setResults(Array.isArray(d) ? d : []);
-    } catch { setResults([]); }
-    finally { setSearching(false); }
+      const params = new URLSearchParams({ q: query.trim(), type: 'track', limit: '20', market: 'IN' });
+      const d = await spotifyAPI(`/search?${params}`, token);
+      setResults((d.tracks?.items || []).map(mapTrack));
+    } catch (e: any) {
+      console.error('Search failed:', e.message);
+      setResults([]);
+      if (e.status === 401) { logout(); setTokenError(true); }
+    } finally { setSearching(false); }
   }
 
   const syncToRoom = useCallback(async (t: Track, isPlaying: boolean, currentTime: number) => {
