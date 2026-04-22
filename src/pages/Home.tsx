@@ -3,6 +3,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import HeroCanvas from '../components/HeroCanvas';
 import { OPPORTUNITIES } from './Opportunities';
+import { sendToWebhook } from '../utils/webhookService';
+
 
 const Counter = ({ target, suffix }: { target: number, suffix: string }) => {
   const [count, setCount] = useState(0);
@@ -77,14 +79,35 @@ export default function Home() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   
-  const handleSubscribe = (e: React.FormEvent) => {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [regData, setRegData] = useState({ name: '', email: '', phone: '', message: '' });
+
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if(name && email) {
-      alert(`Subscribed ${name} with ${email}`);
-      setName('');
-      setEmail('');
+      try {
+        await sendToWebhook('NEWSLETTER', { name, email });
+        alert(`Successfully subscribed ${name}! Check your inbox for a welcome gift.`);
+        setName('');
+        setEmail('');
+      } catch (err) {
+        alert('Failed to subscribe. Please try again later.');
+      }
     }
   };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await sendToWebhook('REGISTRATION', regData);
+      alert('Registration successful! We will contact you soon.');
+      setIsRegistering(false);
+      setRegData({ name: '', email: '', phone: '', message: '' });
+    } catch (err) {
+      alert('Registration failed. Please try again.');
+    }
+  };
+
 
     const { scrollY } = useScroll();
   const yParallax = useTransform(scrollY, [0, 500], [0, 150]);
@@ -118,9 +141,14 @@ export default function Home() {
           </p>
 
           <div className="flex gap-[16px] mt-[40px] flex-wrap justify-center md:justify-start">
-            <a href="#opportunities" className="relative overflow-hidden px-[36px] py-[14px] bg-cyber-pink text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border-none cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:bg-cyber-lime hover:text-black hover:-translate-x-[2px] hover:-translate-y-[2px]" style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)', boxShadow: '0 0 30px rgba(255,0,102,0.5), 4px 4px 0 rgba(170,255,0,0.4)' }}>
-              Explore Now ↗
-            </a>
+            <button 
+              onClick={() => setIsRegistering(true)}
+              className="relative overflow-hidden px-[36px] py-[14px] bg-cyber-pink text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border-none cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:bg-cyber-lime hover:text-black hover:-translate-x-[2px] hover:-translate-y-[2px]" 
+              style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)', boxShadow: '0 0 30px rgba(255,0,102,0.5), 4px 4px 0 rgba(170,255,0,0.4)' }}
+            >
+              Register Now ↗
+            </button>
+
             <a href="#ai" className="px-[32px] py-[13px] bg-transparent text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border border-white/20 cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:border-cyber-blue hover:text-cyber-blue hover:shadow-[0_0_25px_rgba(0,207,255,0.3)]" style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)' }}>
               AI Updates ✦
             </a>
@@ -405,6 +433,75 @@ export default function Home() {
         </div>
       </motion.section>
 
+      {/* REGISTRATION MODAL */}
+      {isRegistering && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-[500px] bg-cyber-bg border border-cyber-pink p-8 relative"
+            style={{ clipPath: 'polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px))' }}
+          >
+            <button 
+              onClick={() => setIsRegistering(false)}
+              className="absolute top-4 right-4 text-cyber-pink hover:text-white font-mono"
+            >
+              [X]
+            </button>
+            <h3 className="font-display text-[24px] font-black text-cyber-white mb-6 uppercase tracking-wider">
+              <span className="text-cyber-pink">Join</span> the Community
+            </h3>
+            <form onSubmit={handleRegister} className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <label className="font-mono text-[10px] text-cyber-muted uppercase">Full Name</label>
+                <input 
+                  value={regData.name}
+                  onChange={e => setRegData({...regData, name: e.target.value})}
+                  required
+                  className="bg-transparent border-b border-cyber-border p-2 text-cyber-white outline-none focus:border-cyber-pink"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-mono text-[10px] text-cyber-muted uppercase">College Email</label>
+                <input 
+                  type="email"
+                  value={regData.email}
+                  onChange={e => setRegData({...regData, email: e.target.value})}
+                  required
+                  className="bg-transparent border-b border-cyber-border p-2 text-cyber-white outline-none focus:border-cyber-pink"
+                  placeholder="john@tgpcet.com"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-mono text-[10px] text-cyber-muted uppercase">Phone Number</label>
+                <input 
+                  value={regData.phone}
+                  onChange={e => setRegData({...regData, phone: e.target.value})}
+                  required
+                  className="bg-transparent border-b border-cyber-border p-2 text-cyber-white outline-none focus:border-cyber-pink"
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-mono text-[10px] text-cyber-muted uppercase">Message (Optional)</label>
+                <textarea 
+                  value={regData.message}
+                  onChange={e => setRegData({...regData, message: e.target.value})}
+                  className="bg-transparent border border-cyber-border p-2 text-cyber-white outline-none focus:border-cyber-pink h-24 resize-none"
+                  placeholder="Tell us about your interests..."
+                />
+              </div>
+              <button 
+                type="submit"
+                className="mt-4 bg-cyber-pink text-white font-mono py-3 font-bold uppercase tracking-widest hover:bg-cyber-lime hover:text-black transition-all"
+              >
+                Submit Application
+              </button>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

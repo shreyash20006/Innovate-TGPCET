@@ -11,6 +11,8 @@ import About from './pages/About';
 import CgpaCalculator from './pages/CgpaCalculator';
 import MusicHub from './pages/MusicHub';
 import SpotifyCallback from './pages/SpotifyCallback';
+import AdminDashboard from './pages/AdminDashboard';
+
 
 
 
@@ -27,7 +29,9 @@ export default function App() {
           <Route path="cgpa-calculator" element={<CgpaCalculator />} />
           <Route path="about" element={<About />} />
           <Route path="music-hub" element={<MusicHub />} />
+          <Route path="admin" element={<AdminDashboard />} />
         </Route>
+
         {/* Spotify OAuth callback — outside Layout so there's no nav chrome */}
         <Route path="/callback" element={<SpotifyCallback />} />
       </Routes>
