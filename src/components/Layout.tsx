@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
-import { Menu, X, Home, Briefcase, BookOpen, Cpu, FolderOpen, Calculator, Compass, Info, Moon, Sun, Youtube, Video } from 'lucide-react';
+import { Menu, X, Home, Briefcase, BookOpen, Cpu, FolderOpen, Calculator, Compass, Info, Moon, Sun, Youtube, Video, Music2 } from 'lucide-react';
 import AIChatbot from './AIChatbot';
 import Background3D from './Background3D';
 import CustomCursor from './CustomCursor';
@@ -59,6 +59,7 @@ export default function Layout() {
     { name: 'CGPA Calc', path: '/cgpa-calculator', icon: Calculator },
     { name: 'Career Guide', path: '/career-guide.html', external: true, icon: Compass },
     { name: 'YouTube', path: 'https://www.youtube.com/channel/UCklqMwCH9yn4KngY6SXyeAQ', external: true, icon: Youtube },
+    { name: 'Music Hub', path: '/music-hub', icon: Music2 },
     { name: 'About', path: '/about', icon: Info },
   ];
 

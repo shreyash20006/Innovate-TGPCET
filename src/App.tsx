@@ -9,6 +9,8 @@ import AiUpdates from './pages/AiUpdates';
 import Resources from './pages/Resources';
 import About from './pages/About';
 import CgpaCalculator from './pages/CgpaCalculator';
+import MusicHub from './pages/MusicHub';
+
 
 export default function App() {
   return (
@@ -22,7 +24,9 @@ export default function App() {
           <Route path="resources" element={<Resources />} />
           <Route path="cgpa-calculator" element={<CgpaCalculator />} />
           <Route path="about" element={<About />} />
+          <Route path="music-hub" element={<MusicHub />} />
         </Route>
+
       </Routes>
       <Analytics />
     </BrowserRouter>

@@ -443,7 +443,118 @@ app.get("/api/health", (req, res) => {
     }
   });
 
+
+// ─── Spotify OAuth + Search ──────────────────────────────────────────────────
+
+const SPOTIFY_CLIENT_ID     = process.env.SPOTIFY_CLIENT_ID || '';
+const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || '';
+const SPOTIFY_REDIRECT_URI  = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/auth/spotify/callback';
+
+// In-memory token store (replace with DB/session in production)
+const spotifyTokenStore = new Map<string, { access_token: string; expires_at: number }>();
+
+function getSpotifyToken(sessionId: string): string | null {
+  const entry = spotifyTokenStore.get(sessionId);
+  if (!entry) return null;
+  if (Date.now() > entry.expires_at) { spotifyTokenStore.delete(sessionId); return null; }
+  return entry.access_token;
+}
+
+app.get('/auth/spotify/login', (_req: any, res: any) => {
+  const scopes = [
+    'user-read-private', 'user-read-email',
+    'user-top-read', 'streaming', 'user-modify-playback-state',
+  ].join(' ');
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: SPOTIFY_CLIENT_ID,
+    scope: scopes,
+    redirect_uri: SPOTIFY_REDIRECT_URI,
+    state: Math.random().toString(36).substring(2),
+  });
+  res.redirect(`https://accounts.spotify.com/authorize?${params}`);
+});
+
+app.get('/auth/spotify/callback', async (req: any, res: any) => {
+  const { code, error } = req.query as Record<string, string>;
+  if (error || !code) return res.redirect('/#/music-hub?error=access_denied');
+  try {
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: SPOTIFY_REDIRECT_URI,
+    });
+    const tokenRes = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`,
+      },
+      body: body.toString(),
+    });
+    const tokens = await tokenRes.json() as any;
+    if (!tokens.access_token) throw new Error('No access token');
+    const sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    spotifyTokenStore.set(sessionId, {
+      access_token: tokens.access_token,
+      expires_at: Date.now() + tokens.expires_in * 1000,
+    });
+    res.redirect(`/#/music-hub?session=${sessionId}`);
+  } catch (err) {
+    console.error('Spotify callback error:', err);
+    res.redirect('/#/music-hub?error=token_exchange_failed');
+  }
+});
+
+app.get('/api/spotify/me', async (req: any, res: any) => {
+  const token = getSpotifyToken(req.query.session as string);
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  const r = await fetch('https://api.spotify.com/v1/me', { headers: { Authorization: `Bearer ${token}` } });
+  if (!r.ok) return res.status(r.status).json({ error: 'Spotify error' });
+  res.json(await r.json());
+});
+
+app.get('/api/spotify/search', async (req: any, res: any) => {
+  const { q, session } = req.query as Record<string, string>;
+  if (!q?.trim()) return res.status(400).json({ error: 'q required' });
+  const token = getSpotifyToken(session);
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  const params = new URLSearchParams({ q: q.trim(), type: 'track', limit: '20', market: 'IN' });
+  const r = await fetch(`https://api.spotify.com/v1/search?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!r.ok) return res.status(r.status).json({ error: 'Search failed' });
+  const data = await r.json() as any;
+  res.json((data.tracks?.items || []).map((t: any) => ({
+    id: t.id, name: t.name,
+    artists: t.artists.map((a: any) => a.name).join(', '),
+    album: t.album.name,
+    image: t.album.images?.[0]?.url || '',
+    preview_url: t.preview_url,
+    duration_ms: t.duration_ms,
+    external_url: t.external_urls?.spotify,
+  })));
+});
+
+app.get('/api/spotify/top-tracks', async (req: any, res: any) => {
+  const token = getSpotifyToken(req.query.session as string);
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  const r = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=short_term', { headers: { Authorization: `Bearer ${token}` } });
+  if (!r.ok) return res.status(r.status).json({ error: 'Failed' });
+  const data = await r.json() as any;
+  res.json((data.items || []).map((t: any) => ({
+    id: t.id, name: t.name,
+    artists: t.artists.map((a: any) => a.name).join(', '),
+    album: t.album.name,
+    image: t.album.images?.[0]?.url || '',
+    preview_url: t.preview_url,
+    duration_ms: t.duration_ms,
+    external_url: t.external_urls?.spotify,
+  })));
+});
+
+// ─── End Spotify ──────────────────────────────────────────────────────────────
+
 // Vite middleware for development
+
 if (process.env.NODE_ENV !== "production") {
   import("vite").then(async (vite) => {
     const viteServer = await vite.createServer({
