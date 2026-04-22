@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring as useMS } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Music2, Search, Play, Pause, ExternalLink, Heart, LogIn, LogOut,
-  User, Clock, Users, Copy, Check, Link2, Radio, X, Volume2, ChevronRight
+  User, Clock, Users, Copy, Check, Radio, X,
 } from 'lucide-react';
+
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SpotifyUser { id: string; display_name: string; email: string; images: { url: string }[]; product: string; }
@@ -16,29 +17,34 @@ interface Track {
 const fmt = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`; };
 
 // ─── 3D Animated Background ──────────────────────────────────────────────────
-const NOTE_COUNT = 18;
+// Pre-compute random values ONCE as module-level constants.
+// NEVER use Math.random() inside render/animate props — causes infinite loops.
+const NOTE_SYMBOLS = ['\u266A', '\u266b', '\u266c', '\u2669', '\uD83C\uDFB5', '\uD83C\uDFB6'];
+const NOTE_DATA = Array.from({ length: 18 }, (_, i) => ({
+  left:     Math.round(Math.random() * 100),
+  top:      Math.round(Math.random() * 100),
+  opacity:  +(0.06 + Math.random() * 0.08).toFixed(2),
+  color:    i % 3 === 0 ? '#1DB954' : i % 3 === 1 ? '#ff2d78' : '#a855f7',
+  symbol:   NOTE_SYMBOLS[Math.floor(Math.random() * NOTE_SYMBOLS.length)],
+  yRange:   Math.round(40 + Math.random() * 60),
+  xRange:   Math.round((Math.random() - 0.5) * 30),
+  rot:      Math.round((Math.random() - 0.5) * 40),
+  scale:    +(1.2 + Math.random() * 0.3).toFixed(2),
+  duration: +(4 + Math.random() * 6).toFixed(1),
+  delay:    +(Math.random() * 6).toFixed(1),
+}));
+
 function FloatingNotes() {
-  const notes = ['♪', '♫', '♬', '♩', '🎵', '🎶'];
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {Array.from({ length: NOTE_COUNT }).map((_, i) => (
+      {NOTE_DATA.map((n, i) => (
         <motion.div key={i}
           className="absolute text-2xl select-none"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            opacity: 0.06 + Math.random() * 0.08,
-            color: i % 3 === 0 ? '#1DB954' : i % 3 === 1 ? '#ff2d78' : '#a855f7',
-          }}
-          animate={{
-            y: [0, -40 - Math.random() * 60, 0],
-            x: [0, (Math.random() - 0.5) * 30, 0],
-            rotate: [0, (Math.random() - 0.5) * 40, 0],
-            scale: [1, 1.2 + Math.random() * 0.3, 1],
-          }}
-          transition={{ duration: 4 + Math.random() * 6, repeat: Infinity, delay: Math.random() * 6, ease: 'easeInOut' }}
+          style={{ left: `${n.left}%`, top: `${n.top}%`, opacity: n.opacity, color: n.color }}
+          animate={{ y: [0, -n.yRange, 0], x: [0, n.xRange, 0], rotate: [0, n.rot, 0], scale: [1, n.scale, 1] }}
+          transition={{ duration: n.duration, repeat: Infinity, delay: n.delay, ease: 'easeInOut' }}
         >
-          {notes[Math.floor(Math.random() * notes.length)]}
+          {n.symbol}
         </motion.div>
       ))}
       {/* Pulsing gradient orbs */}
@@ -57,6 +63,7 @@ function FloatingNotes() {
     </div>
   );
 }
+
 
 // ─── Vinyl Record ─────────────────────────────────────────────────────────────
 function VinylRecord({ artwork, spinning }: { artwork: string; spinning: boolean }) {
