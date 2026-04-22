@@ -493,17 +493,36 @@ export default function MusicHub() {
               </motion.button>
             )}
 
-            {session && user ? (
+            {/* Auth button: key on session so it remounts when session changes */}
+            {session ? (
               <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  {user.images?.[0]?.url
-                    ? <img src={user.images[0].url} className="w-6 h-6 rounded-full" alt="" />
-                    : <User className="w-4 h-4 text-gray-400" />}
-                  <span className="text-xs text-white font-medium">{user.display_name}</span>
-                  {user.product === 'premium' && <span className="text-[9px] text-[#1DB954] font-bold">PRO</span>}
-                </div>
-                <button onClick={logout} className="p-2 rounded-lg text-gray-500 hover:text-white transition-colors">
+                {loadingUser && (
+                  <div className="flex gap-1 items-center px-3 py-2">
+                    {[0,1,2].map(i => (
+                      <motion.div key={i} className="w-1.5 h-1.5 rounded-full bg-[#1DB954]"
+                        animate={{ opacity: [0.3,1,0.3] }}
+                        transition={{ duration: 0.8, repeat: Infinity, delay: i*0.2 }} />
+                    ))}
+                  </div>
+                )}
+                {!loadingUser && user && (
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    {user.images?.[0]?.url
+                      ? <img src={user.images[0].url} className="w-6 h-6 rounded-full" alt="" />
+                      : <User className="w-4 h-4 text-gray-400" />}
+                    <span className="text-xs text-white font-medium">{user.display_name}</span>
+                    {user.product === 'premium' && <span className="text-[9px] text-[#1DB954] font-bold">PRO</span>}
+                  </div>
+                )}
+                {!loadingUser && !user && (
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <User className="w-4 h-4 text-[#1DB954]" />
+                    <span className="text-xs text-[#1DB954] font-medium">Connected ✓</span>
+                  </div>
+                )}
+                <button onClick={logout} className="p-2 rounded-lg text-gray-500 hover:text-white transition-colors" title="Disconnect">
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
@@ -517,6 +536,7 @@ export default function MusicHub() {
                 Connect Spotify
               </motion.a>
             )}
+
           </div>
         </div>
       </div>
