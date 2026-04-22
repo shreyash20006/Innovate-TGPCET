@@ -13,15 +13,16 @@ const YT_BASE = 'https://www.googleapis.com/youtube/v3';
 
 // ─── Exported Track shape (compatible with MusicHub's Track interface) ─────────
 export interface YTTrack {
-  id: string;          // YouTube Video ID (also serves as ytVideoId)
+  id: string;          // YouTube Video ID
   name: string;        // Decoded video title
   artists: string;     // Channel title
-  album: string;       // '' (not applicable)
-  image: string;       // Medium thumbnail (320×180)
-  preview_url: null;   // Always null — full song via YouTube IFrame
-  duration_ms: number; // Duration in milliseconds
-  external_url: string;// https://www.youtube.com/watch?v=...
-  viewCount: string;   // Raw view count string (use fmtViews() to format)
+  album: string;       // ''
+  image: string;       // Medium thumbnail
+  preview_url: null;
+  duration_ms: number; // Duration in ms
+  external_url: string;
+  viewCount: string;   // Raw view count
+  channelId?: string;  // For verification / artist profile
 }
 
 // ─── Custom error class ────────────────────────────────────────────────────────
@@ -185,4 +186,20 @@ export async function getTrendingMusic(): Promise<YTTrack[]> {
   return searchYouTubeVideos('top music hits 2024 bollywood hindi', 15)
     .catch(() => searchYouTubeVideos('top hits 2024 songs', 15))
     .catch(() => []);
+}
+
+// ─── Search Suggestions ──────────────────────────────────────────────────────
+/** Fetches real-time search suggestions from YouTube's suggest API */
+export async function getSearchSuggestions(query: string): Promise<string[]> {
+  if (!query.trim()) return [];
+  try {
+    // Unofficial suggest API used by many open source players
+    const res = await fetch(`https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=${encodeURIComponent(query)}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data[1] || []; // Format for client=firefox is [query, [suggestions...]]
+  } catch (e) {
+    console.error('[Suggest API]', e);
+    return [];
+  }
 }

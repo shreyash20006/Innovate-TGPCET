@@ -105,16 +105,19 @@ export interface MusicLibraryProps {
     setShowNowPlaying: (s: boolean) => void;
     setFavorites: (favs: string[]) => void;
   };
+  /** When true, the internal sidebar is hidden (MusicHub renders its own unified sidebar) */
+  hideInternalSidebar?: boolean;
 }
 
-export default function MusicLibrary({ state, actions }: MusicLibraryProps) {
+export default function MusicLibrary({ state, actions, hideInternalSidebar }: MusicLibraryProps) {
   const toggleFavorite = (track: Track) => {
     actions.setFavorites(state.favorites.includes(track.id) ? state.favorites.filter(id => id !== track.id) : [...state.favorites, track.id]);
   };
 
   return (
     <>
-      {/* Sidebar for Desktop */}
+      {/* Sidebar for Desktop — hidden when parent provides its own */}
+      {!hideInternalSidebar && (
       <aside className="hidden md:flex flex-col w-64 border-r border-white/5 pt-6 pb-24 z-30 min-h-full shrink-0 relative bg-[#0a0a0a]/90 backdrop-blur-2xl shadow-2xl overflow-y-auto">
         <div className="px-6 mb-8 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(0,255,133,0.3)]" style={{ background: '#00FF85' }}>
@@ -141,6 +144,7 @@ export default function MusicLibrary({ state, actions }: MusicLibraryProps) {
           </div>
         </div>
       </aside>
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 min-w-0 relative z-10 flex flex-col pt-4 md:pt-8 pb-32">
