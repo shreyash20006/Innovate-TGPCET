@@ -99,7 +99,7 @@ export default function Layout() {
         <div className="max-w-[1400px] mx-auto px-4 sm:px-[60px] h-full flex items-center justify-between">
           <AppLogo />
           
-          <div className="hidden md:flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wider font-body">
+          <div className="hidden md:flex items-center gap-1 text-[12px] font-semibold uppercase tracking-wider font-body">
             {navLinks.map((link) => (
               link.external ? (
                 <a
@@ -107,7 +107,7 @@ export default function Layout() {
                   href={link.path}
                   target={link.path.startsWith('http') ? '_blank' : undefined}
                   rel={link.path.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="px-[13px] py-[8px] rounded-md text-cyber-muted hover:text-cyber-white transition-colors"
+                  className="px-[10px] py-[6px] rounded-md text-cyber-muted hover:text-cyber-white transition-colors"
                 >
                   {link.name}
                 </a>
@@ -115,7 +115,7 @@ export default function Layout() {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`px-[13px] py-[8px] rounded-md transition-colors ${
+                  className={`px-[10px] py-[6px] rounded-md transition-colors ${
                     location.pathname === link.path ? 'text-cyber-pink bg-cyber-border/30 border border-cyber-border' : 'text-cyber-muted hover:text-cyber-white'
                   }`}
                 >
@@ -154,7 +154,7 @@ export default function Layout() {
               </AnimatePresence>
             </button>
 
-            <button className="ml-4 px-[22px] py-[9px] bg-cyber-pink text-cyber-white font-display text-[13px] font-bold uppercase tracking-wide rounded-lg cursor-none hover:bg-cyber-white hover:text-cyber-pink transition-all duration-200 shadow-[0_0_20px_rgba(255,0,102,0.4)] hover:shadow-[0_0_30px_rgba(255,0,102,0.5)] hover:-translate-y-[1px]">
+            <button className="ml-2 px-[14px] py-[6px] bg-cyber-pink text-cyber-white font-display text-[11px] font-bold uppercase tracking-wide rounded-lg cursor-none hover:bg-cyber-white hover:text-cyber-pink transition-all duration-200 shadow-[0_0_20px_rgba(255,0,102,0.4)] hover:shadow-[0_0_30px_rgba(255,0,102,0.5)] hover:-translate-y-[1px] whitespace-nowrap">
               Get Opportunities →
             </button>
           </div>
