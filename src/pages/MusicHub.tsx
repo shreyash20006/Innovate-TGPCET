@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Music2, Search, Play, Pause, ExternalLink, Heart, LogIn, LogOut,
-  User, Clock, Users, Copy, Check, Radio, X,
+  User, Clock, Users, Copy, Check, Radio, X, ChevronUp,
 } from 'lucide-react';
+import NowPlayingScreen from './NowPlayingScreen';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface SpotifyUser { id: string; display_name: string; email: string; images: { url: string }[]; product: string; }
@@ -305,51 +306,30 @@ async function searchYouTube(track: Track): Promise<string | null> {
   return null;
 }
 
-// ─── Now Playing Bar ──────────────────────────────────────────────────────────
-function NowPlayingBar({ track, roomCode, isHost, onSyncToRoom }: {
-  track: Track | null; roomCode: string | null; isHost: boolean;
-  onSyncToRoom: (t: Track, playing: boolean, time: number) => void;
+// ─── Mini Now Playing Bar (tappable → opens full-screen player) ────────────────
+function MiniPlayerBar({ track, ytVideoId, ytLoading, roomCode, isHost, onClick }: {
+  track: Track; ytVideoId: string | null; ytLoading: boolean;
+  roomCode: string | null; isHost: boolean; onClick: () => void;
 }) {
-  const [ytVideoId, setYtVideoId] = useState<string | null>(null);
-  const [ytLoading, setYtLoading] = useState(false);
-  const [expanded, setExpanded] = useState(true);
-  const [visible, setVisible] = useState(false);
-
-  // Find YouTube video when track changes
-  useEffect(() => {
-    if (!track) return;
-    setYtVideoId(null);
-    setYtLoading(true);
-    setVisible(true);
-    setExpanded(true);
-    searchYouTube(track).then(vid => {
-      setYtVideoId(vid);
-      setYtLoading(false);
-    });
-  }, [track]);
-
-  // Host syncs to room
-  useEffect(() => {
-    if (!isHost || !roomCode || !track) return;
-    const id = setInterval(() => { onSyncToRoom(track, !!ytVideoId, 0); }, 5000);
-    return () => clearInterval(id);
-  }, [isHost, roomCode, track, ytVideoId, onSyncToRoom]);
-
-  if (!track) return null;
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50"
+      className="fixed bottom-0 left-0 right-0 z-50 cursor-pointer"
       style={{
         background: 'rgba(8,8,18,0.97)',
         backdropFilter: 'blur(24px)',
         borderTop: '1px solid rgba(29,185,84,0.25)',
         boxShadow: '0 -20px 60px rgba(0,0,0,0.5)',
-        animation: visible ? 'mh-slidein 0.35s ease-out' : 'none',
-      }}>
+        animation: 'mh-slidein 0.35s ease-out',
+      }}
+      onClick={onClick}
+    >
+      {/* Progress shimmer */}
+      <div className="absolute top-0 left-0 h-0.5 rounded-full"
+        style={{ background: '#1DB954', width: ytVideoId ? '60%' : '0%', transition: 'width 0.5s ease', boxShadow: '0 0 8px rgba(29,185,84,0.8)' }} />
 
-      {/* Mini bar — always visible */}
-      <div className="flex items-center gap-3 px-4 py-2.5 max-w-5xl mx-auto">
+      <div className="flex items-center gap-3 px-4 py-3 max-w-5xl mx-auto">
         <VinylRecord artwork={track.image} spinning={!!ytVideoId && !ytLoading} />
+
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold text-white truncate">{track.name}</div>
           <div className="text-xs text-gray-400 truncate">{track.artists}</div>
@@ -360,6 +340,7 @@ function NowPlayingBar({ track, roomCode, isHost, onSyncToRoom }: {
             </div>
           )}
         </div>
+
         <div className="flex items-center gap-2 shrink-0">
           {ytLoading && (
             <div className="flex gap-1 items-center">
@@ -367,48 +348,14 @@ function NowPlayingBar({ track, roomCode, isHost, onSyncToRoom }: {
             </div>
           )}
           {!ytLoading && ytVideoId && (
-            <span className="text-[10px] text-[#1DB954] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(29,185,84,0.12)', border: '1px solid rgba(29,185,84,0.25)' }}>
-              Full Song ▶
+            <span className="text-[9px] text-[#1DB954] font-bold px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(29,185,84,0.12)', border: '1px solid rgba(29,185,84,0.25)' }}>
+              ▶ Full Song
             </span>
           )}
-          {!ytLoading && !ytVideoId && (
-            <span className="text-[10px] text-gray-600">Not found</span>
-          )}
-          <button
-            onClick={() => setExpanded(e => !e)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white transition-all hover:bg-white/10"
-            title={expanded ? 'Collapse player' : 'Expand player'}>
-            <span style={{ fontSize: 10 }}>{expanded ? '▼' : '▲'}</span>
-          </button>
+          <ChevronUp className="w-5 h-5 text-gray-500" />
         </div>
       </div>
-
-      {/* YouTube Player — expandable */}
-      {expanded && ytVideoId && (
-        <div className="px-4 pb-4 max-w-5xl mx-auto" style={{ animation: 'mh-fadeup 0.3s ease-out' }}>
-          <div className="relative rounded-2xl overflow-hidden" style={{ paddingBottom: '56.25%', background: '#000' }}>
-            <iframe
-              key={ytVideoId}
-              src={`https://www.youtube-nocookie.com/embed/${ytVideoId}?autoplay=1&rel=0&modestbranding=1&color=white`}
-              className="absolute inset-0 w-full h-full"
-              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-              allowFullScreen
-              title={`${track.name} — ${track.artists}`}
-            />
-          </div>
-          <p className="text-[10px] text-gray-600 mt-1.5 text-center">Full song via YouTube · <a href={`https://www.youtube.com/watch?v=${ytVideoId}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#1DB954] transition-colors">Open in YouTube</a></p>
-        </div>
-      )}
-
-      {/* iTunes preview fallback when YouTube not found */}
-      {expanded && !ytLoading && !ytVideoId && track.preview_url && (
-        <div className="px-4 pb-4 max-w-5xl mx-auto">
-          <div className="rounded-2xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <p className="text-xs text-gray-500 mb-2">Full song unavailable — playing 30s preview</p>
-            <audio controls src={track.preview_url} autoPlay className="w-full" style={{ height: 36 }} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -594,12 +541,26 @@ export default function MusicHub() {
   const [searching, setSearching] = useState(false);
   const [loadingUser, setLoadingUser] = useState(false);
   const [nowPlaying, setNowPlaying] = useState<Track | null>(null);
+  const [showNowPlaying, setShowNowPlaying] = useState(false);
+  const [ytVideoId, setYtVideoId] = useState<string | null>(null);
+  const [ytLoading, setYtLoading] = useState(false);
   const [tokenError, setTokenError] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem('spotify_favs') || '[]'); } catch { return []; } });
   const [activeTab, setActiveTab] = useState<'search' | 'top' | 'favorites'>('search');
   const [showRoomModal, setShowRoomModal] = useState(false);
   const [activeRoom, setActiveRoom] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
+
+  // YouTube search runs at MusicHub level so mini-bar + full-screen share state
+  useEffect(() => {
+    if (!nowPlaying) return;
+    setYtVideoId(null);
+    setYtLoading(true);
+    searchYouTube(nowPlaying).then(vid => {
+      setYtVideoId(vid);
+      setYtLoading(false);
+    });
+  }, [nowPlaying]);
 
   // Inject CSS animations once
   useEffect(() => {
@@ -756,7 +717,7 @@ export default function MusicHub() {
               <div className="space-y-2 mb-8" style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
                 {results.map(t => (
                   <TrackCard key={t.id} track={t} playing={nowPlaying?.id === t.id} isFav={favorites.includes(t.id)}
-                    onPlay={() => setNowPlaying(nowPlaying?.id === t.id ? null : t)}
+                    onPlay={() => { setNowPlaying(t); setShowNowPlaying(true); }}
                     onFavorite={() => setFavorites(f => f.includes(t.id) ? f.filter(x => x !== t.id) : [...f, t.id])} />
                 ))}
               </div>
@@ -832,7 +793,7 @@ export default function MusicHub() {
               <div className="space-y-1">
                 {displayTracks.map(t => (
                   <TrackCard key={t.id} track={t} playing={nowPlaying?.id === t.id}
-                    onPlay={() => setNowPlaying(t)}
+                    onPlay={() => { setNowPlaying(t); setShowNowPlaying(true); }}
                     onFavorite={() => setFavorites(f => f.includes(t.id) ? f.filter(x => x !== t.id) : [...f, t.id])}
                     isFav={favorites.includes(t.id)} />
                 ))}
@@ -842,8 +803,41 @@ export default function MusicHub() {
         )}
       </div>
 
-      {/* ── Now Playing ── */}
-      <NowPlayingBar track={nowPlaying} roomCode={activeRoom} isHost={isHost} onSyncToRoom={syncToRoom} />
+      {/* ── Mini player bar (click to open full-screen) ── */}
+      {nowPlaying && !showNowPlaying && (
+        <MiniPlayerBar
+          track={nowPlaying}
+          ytVideoId={ytVideoId}
+          ytLoading={ytLoading}
+          roomCode={activeRoom}
+          isHost={isHost}
+          onClick={() => setShowNowPlaying(true)}
+        />
+      )}
+
+      {/* ── Full-screen Now Playing screen ── */}
+      {nowPlaying && showNowPlaying && (
+        <NowPlayingScreen
+          track={nowPlaying}
+          queue={[...results, ...topTracks].filter((t, i, a) => a.findIndex(x => x.id === t.id) === i)}
+          ytVideoId={ytVideoId}
+          ytLoading={ytLoading}
+          isHost={isHost}
+          roomCode={activeRoom}
+          onClose={() => setShowNowPlaying(false)}
+          onNext={() => {
+            const list = results.length ? results : topTracks;
+            const idx = list.findIndex(t => t.id === nowPlaying.id);
+            if (idx >= 0 && idx + 1 < list.length) setNowPlaying(list[idx + 1]);
+          }}
+          onPrev={() => {
+            const list = results.length ? results : topTracks;
+            const idx = list.findIndex(t => t.id === nowPlaying.id);
+            if (idx > 0) setNowPlaying(list[idx - 1]);
+          }}
+          onTrackSelect={t => setNowPlaying(t)}
+        />
+      )}
 
       {/* ── Sync Room Modal ── */}
       {showRoomModal && token && (
