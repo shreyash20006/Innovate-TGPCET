@@ -90,14 +90,16 @@ function VinylRecord({ artwork, spinning }: { artwork: string; spinning: boolean
 }
 
 // ─── Equalizer Bars ───────────────────────────────────────────────────────────
+// Heights are pre-computed per bar so Math.random() never runs during render
+const EQ_HEIGHTS = [14, 20, 12, 18, 10].map(h => `${h}px`);
 function Equalizer({ active }: { active: boolean }) {
   return (
     <div className="flex items-end gap-[3px] h-5">
-      {[0, 1, 2, 3, 4].map(i => (
+      {EQ_HEIGHTS.map((h, i) => (
         <motion.div key={i}
           className="w-[3px] rounded-full"
           style={{ background: '#1DB954' }}
-          animate={active ? { height: ['4px', `${8 + Math.random() * 12}px`, '4px'] } : { height: '4px' }}
+          animate={active ? { height: ['4px', h, '4px'] } : { height: '4px' }}
           transition={{ duration: 0.4 + i * 0.1, repeat: active ? Infinity : 0, ease: 'easeInOut', delay: i * 0.08 }}
         />
       ))}
