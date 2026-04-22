@@ -142,13 +142,13 @@ export default function Home() {
           </p>
 
           <div className="flex gap-[16px] mt-[40px] flex-wrap justify-center md:justify-start">
-            <button 
-              onClick={() => setIsRegistering(true)}
+            <Link 
+              to="/register"
               className="relative overflow-hidden px-[36px] py-[14px] bg-cyber-pink text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border-none cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:bg-cyber-lime hover:text-black hover:-translate-x-[2px] hover:-translate-y-[2px]" 
               style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)', boxShadow: '0 0 30px rgba(255,0,102,0.5), 4px 4px 0 rgba(170,255,0,0.4)' }}
             >
               Register Now ↗
-            </button>
+            </Link>
 
             <Link 
               to="/login" 

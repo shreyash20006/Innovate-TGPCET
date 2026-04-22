@@ -1,12 +1,4 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/react';
-import Layout from './components/Layout';
-import Home from './pages/Home';
-import Opportunities from './pages/Opportunities';
-import Courses from './pages/Courses';
-import AiUpdates from './pages/AiUpdates';
-import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import Layout from './components/Layout';
@@ -21,6 +13,7 @@ import MusicHub from './pages/MusicHub';
 import SpotifyCallback from './pages/SpotifyCallback';
 import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuth = localStorage.getItem('admin_auth') === 'true';
@@ -51,6 +44,7 @@ export default function App() {
             </ProtectedRoute>
           } />
           <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
         </Route>
 
         {/* Spotify OAuth callback — outside Layout so there's no nav chrome */}
