@@ -69,7 +69,7 @@ const TrackCard: React.FC<{
       <div className="flex items-center gap-4 md:gap-8 shrink-0 pl-2">
         {views && <span className="text-zinc-500 text-sm hidden md:block">{views}</span>}
         <span className="text-zinc-500 text-sm w-10 text-right">{duration}</span>
-        <button onClick={e => { e.stopPropagation(); onFavorite(); }} className="transition-all hover:scale-110 active:scale-90 p-1" style={{ color: isFav ? '#00FF85' : 'rgba(255,255,255,0.25)' }} title={isFav ? 'Remove from favorites' : 'Add to favorites'}>
+        <button onClick={e => { e.stopPropagation(); onFavorite(); }} className="transition-all hover:scale-110 active:scale-90 p-1" style={{ color: isFav ? '#ff2d78' : 'rgba(255,255,255,0.25)' }} title={isFav ? 'Remove from favorites' : 'Add to favorites'}>
           <Heart className="w-5 h-5" fill={isFav ? 'currentColor' : 'none'} />
         </button>
       </div>

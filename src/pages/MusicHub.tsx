@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Music2, Search, Play, Pause, ExternalLink, Heart, LogIn, LogOut,
   User, Clock, Users, Copy, Check, Radio, X, ChevronUp, AlertTriangle,
-  Youtube, TrendingUp, Compass,
+  Youtube, TrendingUp, Compass, SkipBack, SkipForward, ListMusic,
 } from 'lucide-react';
 import NowPlaying from '../components/NowPlaying';
 import MusicLibrary, { Equalizer } from '../components/MusicLibrary';
@@ -256,8 +256,8 @@ function MiniPlayerBar({ track, ytVideoId, ytLoading, roomCode, isHost, onClick,
       {/* Controls */}
       <div className="flex flex-col items-center gap-2 w-1/3 flex-1">
         <div className="flex items-center gap-4 md:gap-8">
-          <button onClick={onPrev} className="text-zinc-400 hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-2xl">skip_previous</span>
+          <button onClick={onPrev} className="text-zinc-400 hover:text-white transition-colors p-2" title="Previous">
+            <SkipBack className="w-5 h-5 md:w-6 h-6" />
           </button>
           
           {ytLoading ? (
@@ -265,23 +265,23 @@ function MiniPlayerBar({ track, ytVideoId, ytLoading, roomCode, isHost, onClick,
                {[0,1,2].map(i => <span key={i} className="w-1.5 h-6 rounded-full bg-[#00FF85] animate-pulse" style={{ animationDelay: `${i*0.15}s` }} />)}
              </div>
           ) : (
-            <button onClick={onPlayPause} className="w-10 h-10 md:w-14 h-14 rounded-full bg-white flex items-center justify-center text-black hover:scale-105 active:scale-95 transition-all shadow-xl">
+            <button onClick={onPlayPause} className="w-10 h-10 md:w-14 h-14 rounded-full bg-white flex items-center justify-center text-black hover:scale-105 active:scale-95 transition-all shadow-xl" title={isPlaying ? 'Pause' : 'Play'}>
               {isPlaying ? <Pause className="w-5 h-5 md:w-7 h-7" fill="currentColor" /> : <Play className="w-5 h-5 md:w-7 h-7 ml-1" fill="currentColor" />}
             </button>
           )}
 
-          <button onClick={onNext} className="text-zinc-400 hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-2xl">skip_next</span>
+          <button onClick={onNext} className="text-zinc-400 hover:text-white transition-colors p-2" title="Next">
+            <SkipForward className="w-5 h-5 md:w-6 h-6" />
           </button>
         </div>
       </div>
 
       {/* Extras */}
       <div className="flex items-center justify-end gap-3 md:gap-6 w-1/3 min-w-[30%]">
-        <button className="text-zinc-400 hover:text-white transition-colors">
-          <span className="material-symbols-outlined text-2xl">playlist_play</span>
+        <button className="text-zinc-400 hover:text-white transition-colors p-2" title="Queue">
+          <ListMusic className="w-5 h-5" />
         </button>
-        <button onClick={onClick} className="text-zinc-400 hover:text-white transition-colors rotate-180">
+        <button onClick={onClick} className="text-zinc-400 hover:text-white transition-colors p-2 rotate-180" title="Expand player">
           <ChevronUp className="w-5 h-5" />
         </button>
       </div>
@@ -801,7 +801,7 @@ export default function MusicHub() {
         <MiniPlayerBar
           track={nowPlaying}
           ytVideoId={ytVideoId}
-          ytLoading={false}
+          ytLoading={searching}
           roomCode={activeRoom}
           isHost={isHost}
           isPlaying={isPlaying}
@@ -831,7 +831,7 @@ export default function MusicHub() {
           track={nowPlaying}
           queue={[...results, ...topTracks].filter((t, i, a) => a.findIndex(x => x.id === t.id) === i)}
           ytVideoId={ytVideoId}
-          ytLoading={false}
+          ytLoading={searching}
           isHost={isHost}
           roomCode={activeRoom}
           onClose={() => setShowNowPlaying(false)}
