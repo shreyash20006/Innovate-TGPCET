@@ -61,12 +61,12 @@ const TiltCard = ({ children, className }: { children: React.ReactNode, classNam
     <div 
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`cat-tile flex-shrink-0 w-[280px] h-[320px] bg-cyber-bg/70 border border-cyber-border flex flex-col justify-end p-[32px_28px] relative overflow-hidden cursor-none transition-shadow duration-300 ${className}`}
+      className={`cat-tile flex-shrink-0 w-[280px] h-[320px] bg-cyber-bg/70 border border-cyber-border flex flex-col justify-end p-[32px_28px] relative overflow-hidden transition-all duration-300 mobile-touch-scale ${className}`}
       style={{ 
         clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))', 
         transformStyle: 'preserve-3d', 
         willChange: 'transform',
-        transform,
+        transform: window.innerWidth < 768 ? 'none' : transform,
         boxShadow 
       }}
     >
@@ -144,7 +144,7 @@ export default function Home() {
           <div className="flex gap-[16px] mt-[40px] flex-wrap justify-center md:justify-start">
             <Link 
               to="/register"
-              className="relative overflow-hidden px-[36px] py-[14px] bg-cyber-pink text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border-none cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:bg-cyber-lime hover:text-black hover:-translate-x-[2px] hover:-translate-y-[2px]" 
+              className="relative overflow-hidden px-[36px] py-[14px] bg-cyber-pink text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:bg-cyber-lime hover:text-black hover:-translate-x-[2px] hover:-translate-y-[2px] mobile-touch-scale" 
               style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)', boxShadow: '0 0 30px rgba(255,0,102,0.5), 4px 4px 0 rgba(170,255,0,0.4)' }}
             >
               Register Now ↗
@@ -152,7 +152,7 @@ export default function Home() {
 
             <Link 
               to="/login" 
-              className="px-[32px] py-[13px] bg-transparent text-cyber-muted font-display text-[14px] font-[700] tracking-[0.1em] uppercase border border-cyber-border cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:border-cyber-pink hover:text-cyber-pink hover:shadow-[0_0_25px_rgba(255,0,102,0.2)]" 
+              className="px-[32px] py-[13px] bg-transparent text-cyber-muted font-display text-[14px] font-[700] tracking-[0.1em] uppercase border border-cyber-border no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:border-cyber-pink hover:text-cyber-pink hover:shadow-[0_0_25px_rgba(255,0,102,0.2)] mobile-touch-scale" 
               style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)' }}
             >
               Admin Login <Lock className="w-4 h-4" />
@@ -275,7 +275,7 @@ export default function Home() {
             </div>
             
             <div className="mt-[40px] relative z-10">
-              <Link to="/opportunities" className="relative overflow-hidden px-[36px] py-[14px] bg-cyber-pink text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border-none cursor-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:bg-cyber-lime hover:text-black hover:-translate-x-[2px] hover:-translate-y-[2px]" style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)', boxShadow: '0 0 30px rgba(255,0,102,0.5), 4px 4px 0 rgba(170,255,0,0.4)' }}>
+              <Link to="/opportunities" className="relative overflow-hidden px-[36px] py-[14px] bg-cyber-pink text-cyber-white font-display text-[14px] font-[700] tracking-[0.1em] uppercase border-none no-underline inline-flex items-center gap-[10px] transition-all duration-300 hover:bg-cyber-lime hover:text-black hover:-translate-x-[2px] hover:-translate-y-[2px] mobile-touch-scale" style={{ clipPath: 'polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%)', boxShadow: '0 0 30px rgba(255,0,102,0.5), 4px 4px 0 rgba(170,255,0,0.4)' }}>
                 Learn More ↗
               </Link>
             </div>
@@ -329,7 +329,7 @@ export default function Home() {
                 <div className="text-[13px] text-cyber-muted leading-[1.6] flex-1 line-clamp-3">
                   {item.description}
                 </div>
-                <Link to="/opportunities" className="p-[11px_0] bg-transparent border border-cyber-border text-cyber-pink font-display text-[12px] font-[700] tracking-[0.15em] uppercase cursor-none text-center transition-all duration-250 hover:bg-cyber-pink hover:text-black hover:border-cyber-pink mt-4">
+                <Link to="/opportunities" className="p-[11px_0] bg-transparent border border-cyber-border text-cyber-pink font-display text-[12px] font-[700] tracking-[0.15em] uppercase text-center transition-all duration-250 hover:bg-cyber-pink hover:text-black hover:border-cyber-pink mt-4 mobile-touch-scale">
                   View Details →
                 </Link>
               </div>
@@ -369,13 +369,13 @@ export default function Home() {
           <form onSubmit={handleSubscribe} className="flex flex-col gap-[16px]">
             <div className="flex flex-col gap-[6px]">
               <label className="font-mono text-[10px] text-[#aaff0080] tracking-[0.2em] uppercase">$ name</label>
-              <input value={name} onChange={e => setName(e.target.value)} required className="bg-transparent border-none border-b border-[#aaff004d] text-cyber-lime font-mono text-[14px] p-[10px_0] outline-none transition-colors duration-200 focus:border-cyber-lime cursor-none placeholder:text-[#aaff0033]" type="text" placeholder="your_name" />
+              <input value={name} onChange={e => setName(e.target.value)} required className="bg-transparent border-none border-b border-[#aaff004d] text-cyber-lime font-mono text-[14px] p-[10px_0] outline-none transition-colors duration-200 focus:border-cyber-lime placeholder:text-[#aaff0033]" type="text" placeholder="your_name" />
             </div>
             <div className="flex flex-col gap-[6px]">
               <label className="font-mono text-[10px] text-[#aaff0080] tracking-[0.2em] uppercase">$ email</label>
-              <input value={email} onChange={e => setEmail(e.target.value)} required className="bg-transparent border-none border-b border-[#aaff004d] text-cyber-lime font-mono text-[14px] p-[10px_0] outline-none transition-colors duration-200 focus:border-cyber-lime cursor-none placeholder:text-[#aaff0033]" type="email" placeholder="college@email.com" />
+              <input value={email} onChange={e => setEmail(e.target.value)} required className="bg-transparent border-none border-b border-[#aaff004d] text-cyber-lime font-mono text-[14px] p-[10px_0] outline-none transition-colors duration-200 focus:border-cyber-lime placeholder:text-[#aaff0033]" type="email" placeholder="college@email.com" />
             </div>
-            <button type="submit" className="mt-[10px] p-[14px_0] bg-cyber-lime text-black font-mono text-[13px] font-[700] tracking-[0.2em] uppercase border-none cursor-none transition-all duration-250 hover:bg-transparent hover:text-cyber-lime border hover:border-cyber-lime">
+            <button type="submit" className="mt-[10px] p-[14px_0] bg-cyber-lime text-black font-mono text-[13px] font-[700] tracking-[0.2em] uppercase border-none transition-all duration-250 hover:bg-transparent hover:text-cyber-lime border hover:border-cyber-lime mobile-touch-scale">
               ./subscribe →
             </button>
           </form>
@@ -402,7 +402,7 @@ export default function Home() {
             <div className="text-[13px] text-cyber-muted leading-[1.7] flex-1 mt-2">The new model demonstrates significant improvements in logical reasoning, coding, and mathematics compared to its predecessors. Benchmarks show 40% better performance on complex multi-step problems.</div>
             <div className="flex justify-between items-center mt-[8px]">
               <span className="font-mono text-[10px] text-cyber-muted tracking-[0.1em]">Apr 18, 2026</span>
-              <a href="#" className="font-mono text-[10px] text-cyber-pink no-underline tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-60 cursor-none">Read More →</a>
+              <a href="#" className="font-mono text-[10px] text-cyber-pink no-underline tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-60 mobile-touch-scale">Read More →</a>
             </div>
           </div>
           
@@ -412,7 +412,7 @@ export default function Home() {
             <div className="text-[13px] text-cyber-muted leading-[1.7] flex-1 mt-2">Best AI/ML internships available for undergrads this summer season.</div>
             <div className="flex justify-between items-center mt-[8px]">
               <span className="font-mono text-[10px] text-cyber-muted tracking-[0.1em]">Apr 16, 2026</span>
-              <a href="#" className="font-mono text-[10px] text-cyber-pink no-underline tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-60 cursor-none">Read More →</a>
+              <a href="#" className="font-mono text-[10px] text-cyber-pink no-underline tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-60 mobile-touch-scale">Read More →</a>
             </div>
           </div>
           
@@ -422,7 +422,7 @@ export default function Home() {
             <div className="text-[13px] text-cyber-muted leading-[1.7] flex-1 mt-2">AlphaFold 3 can predict the structure and interactions of all life's molecules with unprecedented accuracy.</div>
             <div className="flex justify-between items-center mt-[8px]">
               <span className="font-mono text-[10px] text-cyber-muted tracking-[0.1em]">Apr 17, 2026</span>
-              <a href="#" className="font-mono text-[10px] text-cyber-pink no-underline tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-60 cursor-none">Read More →</a>
+              <a href="#" className="font-mono text-[10px] text-cyber-pink no-underline tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-60 mobile-touch-scale">Read More →</a>
             </div>
           </div>
           
@@ -432,7 +432,7 @@ export default function Home() {
             <div className="text-[13px] text-cyber-muted leading-[1.7] flex-1 mt-2">New version supports up to 4K resolution and 2-minute clips.</div>
             <div className="flex justify-between items-center mt-[8px]">
               <span className="font-mono text-[10px] text-cyber-muted tracking-[0.1em]">Apr 14, 2026</span>
-              <a href="#" className="font-mono text-[10px] text-cyber-pink no-underline tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-60 cursor-none">Read More →</a>
+              <a href="#" className="font-mono text-[10px] text-cyber-pink no-underline tracking-[0.15em] uppercase transition-opacity duration-200 hover:opacity-60 mobile-touch-scale">Read More →</a>
             </div>
           </div>
         </div>

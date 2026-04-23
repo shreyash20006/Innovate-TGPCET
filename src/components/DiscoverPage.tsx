@@ -72,12 +72,13 @@ interface TrackCardProps {
 function TrackCard({ track, active, onPlay }: TrackCardProps) {
   return (
     <div
-      className="discover-track-card flex-none w-44 group cursor-pointer"
+      className="discover-track-card flex-none w-44 group cursor-pointer mobile-touch-scale"
       onClick={onPlay}
       style={{ animation: 'mh-fadeup 0.3s ease-out both' }}
     >
       <div className="relative aspect-square rounded-2xl overflow-hidden mb-3 shadow-xl"
            style={{ border: active ? '2px solid #00ff85' : '1px solid rgba(255,255,255,0.06)' }}>
+
         {track.image
           ? <img src={track.image} alt={track.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
           : <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-4xl">🎵</div>
@@ -107,7 +108,8 @@ interface ArtistChipProps {
 }
 function ArtistChip({ artist, onView }: ArtistChipProps) {
   return (
-    <div className="flex-none w-36 flex flex-col items-center gap-2 group cursor-pointer" onClick={onView}>
+    <div className="flex-none w-36 flex flex-col items-center gap-2 group cursor-pointer mobile-touch-scale" onClick={onView}>
+
       <div className="relative w-24 h-24">
         <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
              style={{ background: 'rgba(0,255,133,0.15)', filter: 'blur(10px)' }} />
@@ -146,18 +148,19 @@ export default function DiscoverPage({ topTracks, nowPlaying, onPlayTrack, onVie
           <p className="text-sm md:text-base text-zinc-400 mb-6 max-w-lg">{FEATURED.desc}</p>
           <div className="flex items-center gap-3">
             <button
-              className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all hover:scale-105 active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all hover:scale-105 active:scale-95 mobile-touch-scale"
               style={{ background: '#00ff85', color: '#0a0a0a', boxShadow: '0 0 20px rgba(0,255,133,0.4)' }}
             >
               <Play size={16} fill="black" color="black" />LISTEN NOW
             </button>
             <button
-              className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm border transition-all hover:bg-white/5"
+              className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm border transition-all hover:bg-white/5 mobile-touch-scale"
               style={{ borderColor: 'rgba(255,255,255,0.2)', color: '#fff' }}
             >
               ADD TO LIBRARY
             </button>
           </div>
+
         </div>
       </section>
 
@@ -171,13 +174,14 @@ export default function DiscoverPage({ topTracks, nowPlaying, onPlayTrack, onVie
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
             {MOODS.map(m => (
               <button key={m.label}
-                className="flex flex-col items-center gap-2 p-3 rounded-2xl transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                className="flex flex-col items-center gap-2 p-3 rounded-2xl transition-all hover:scale-105 active:scale-95 cursor-pointer mobile-touch-scale"
                 style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${m.color}22` }}
               >
                 <span className="text-2xl">{m.emoji}</span>
                 <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: m.color }}>{m.label}</span>
               </button>
             ))}
+
           </div>
         </section>
 
@@ -191,11 +195,12 @@ export default function DiscoverPage({ topTracks, nowPlaying, onPlayTrack, onVie
             <button
               onClick={onLoadTrending}
               disabled={searching}
-              className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest transition-colors hover:text-white"
+              className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest transition-colors hover:text-white mobile-touch-scale"
               style={{ color: '#00ff85' }}
             >
               {searching ? 'Loading…' : <><Zap size={12} /> Refresh</>}
             </button>
+
           </div>
           {topTracks.length > 0 ? (
             <HScrollRow>
@@ -230,8 +235,9 @@ export default function DiscoverPage({ topTracks, nowPlaying, onPlayTrack, onVie
         <section>
           <h2 className="text-xl font-black text-white tracking-tight mb-4">New Systems</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="md:col-span-2 relative h-52 rounded-2xl overflow-hidden group cursor-pointer"
+            <div className="md:col-span-2 relative h-52 rounded-2xl overflow-hidden group cursor-pointer mobile-touch-scale"
                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+
               <img
                 src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80"
                 alt="Quantum Pulse"
@@ -243,8 +249,9 @@ export default function DiscoverPage({ topTracks, nowPlaying, onPlayTrack, onVie
                 <p className="text-sm text-zinc-400">The definitive electronic experience.</p>
               </div>
             </div>
-            <div className="relative h-52 rounded-2xl overflow-hidden group cursor-pointer"
+            <div className="relative h-52 rounded-2xl overflow-hidden group cursor-pointer mobile-touch-scale"
                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+
               <img
                 src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80"
                 alt="Studio Sessions"
@@ -279,13 +286,14 @@ export default function DiscoverPage({ topTracks, nowPlaying, onPlayTrack, onVie
           <div className="flex flex-wrap gap-2">
             {GENRES.map(g => (
               <button key={g}
-                className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all hover:scale-105 hover:text-[#00ff85]"
+                className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all hover:scale-105 hover:text-[#00ff85] mobile-touch-scale"
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)' }}
               >
                 {g}
               </button>
             ))}
           </div>
+
         </section>
 
       </div>

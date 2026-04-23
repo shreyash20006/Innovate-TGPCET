@@ -30,7 +30,7 @@ export default function AIChatbot() {
     <>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 sm:bottom-[30px] sm:right-[30px] z-[999] w-[48px] h-[48px] sm:w-[58px] sm:h-[58px] flex items-center justify-center border-none cursor-none bg-gradient-to-br from-[#ff0066] to-[#880033] shadow-[0_0_30px_rgba(255,0,102,0.6)] animate-pulse hover:scale-110 transition-transform"
+        className="fixed bottom-4 right-4 sm:bottom-[30px] sm:right-[30px] z-[999] w-[48px] h-[48px] sm:w-[58px] sm:h-[58px] flex items-center justify-center border-none bg-gradient-to-br from-[#ff0066] to-[#880033] shadow-[0_0_30px_rgba(255,0,102,0.6)] animate-pulse hover:scale-110 transition-transform mobile-touch-scale"
         style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
       >
         <Bot className="w-6 h-6 text-cyber-white" />
@@ -52,7 +52,7 @@ export default function AIChatbot() {
                 <Bot className="w-5 h-5 text-cyber-pink" />
                 <span className="font-mono text-cyber-white text-[14px] uppercase tracking-widest font-bold">Nexus AI</span>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-cyber-muted hover:text-cyber-pink transition-colors cursor-none p-1">
+              <button onClick={() => setIsOpen(false)} className="text-cyber-muted hover:text-cyber-pink transition-colors p-1 mobile-touch-scale">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -85,12 +85,12 @@ export default function AIChatbot() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="INPUT COMMAND..."
-                className="flex-1 w-full bg-transparent border border-cyber-border text-cyber-white px-3 py-2 font-mono text-[12px] focus:outline-none focus:border-cyber-pink placeholder:text-cyber-muted cursor-none transition-colors"
+                className="flex-1 w-full bg-transparent border border-cyber-border text-cyber-white px-3 py-2 font-mono text-[12px] focus:outline-none focus:border-cyber-pink placeholder:text-cyber-muted transition-colors"
                 style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)' }}
               />
               <button 
                 type="submit"
-                className="bg-cyber-pink text-black px-4 flex items-center justify-center hover:bg-cyber-white transition-colors cursor-none"
+                className="bg-cyber-pink text-black px-4 flex items-center justify-center hover:bg-cyber-white transition-colors mobile-touch-scale"
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
                 <Send className="w-4 h-4" />
@@ -99,6 +99,7 @@ export default function AIChatbot() {
           </motion.div>
         )}
       </AnimatePresence>
+
     </>
   );
 }

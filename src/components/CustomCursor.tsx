@@ -3,8 +3,17 @@ import React, { useEffect, useState } from 'react';
 export default function CustomCursor() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [ringPos, setRingPos] = useState({ x: 0, y: 0 });
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
+    // Check for touch device
+    const checkTouch = () => {
+      setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    };
+    checkTouch();
+
+    if (isTouch) return;
+
     let rx = 0;
     let ry = 0;
     let dx = 0;
@@ -31,7 +40,9 @@ export default function CustomCursor() {
       document.removeEventListener('mousemove', onMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isTouch]);
+
+  if (isTouch) return null;
 
   return (
     <>

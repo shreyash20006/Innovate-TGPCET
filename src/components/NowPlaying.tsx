@@ -135,7 +135,7 @@ export default function NowPlaying({
 
       {/* Top bar */}
       <header className="np-topbar">
-        <button onClick={onClose} className="np-close-btn" aria-label="Close">
+        <button onClick={onClose} className="np-close-btn mobile-touch-scale" aria-label="Close">
           <ChevronDown size={26} />
         </button>
         <div className="np-topbar-title">
@@ -190,14 +190,14 @@ export default function NowPlaying({
           {/* Secondary controls row */}
           <div className="np-secondary-controls">
             <button
-              className={`np-icon-btn${liked ? ' np-icon-btn-pink' : ''}`}
+              className={`np-icon-btn mobile-touch-scale${liked ? ' np-icon-btn-pink' : ''}`}
               onClick={() => setLiked(!liked)}
               title={liked ? 'Unlike' : 'Like'}
             >
               <Heart size={18} fill={liked ? 'currentColor' : 'none'} />
             </button>
             <button
-              className={`np-icon-btn${shuffle ? ' np-icon-btn-green' : ''}`}
+              className={`np-icon-btn mobile-touch-scale${shuffle ? ' np-icon-btn-green' : ''}`}
               onClick={() => setShuffle(!shuffle)}
               title="Shuffle"
             >
@@ -205,7 +205,7 @@ export default function NowPlaying({
             </button>
             <div className="np-repeat-wrap">
               <button
-                className={`np-icon-btn${repeat !== 'none' ? ' np-icon-btn-green' : ''}`}
+                className={`np-icon-btn mobile-touch-scale${repeat !== 'none' ? ' np-icon-btn-green' : ''}`}
                 onClick={() => setRepeat(r => r === 'none' ? 'all' : r === 'all' ? 'one' : 'none')}
                 title="Repeat"
               >
@@ -245,24 +245,24 @@ export default function NowPlaying({
 
           {/* Primary playback controls */}
           <div className="np-primary-controls">
-            <button className="np-ctrl-btn" onClick={onPrev} title="Previous">
+            <button className="np-ctrl-btn mobile-touch-scale" onClick={onPrev} title="Previous">
               <SkipBack size={28} fill="currentColor" />
             </button>
-            <button className="np-play-btn" onClick={togglePlay} title={playing ? 'Pause' : 'Play'}>
+            <button className="np-play-btn mobile-touch-scale" onClick={togglePlay} title={playing ? 'Pause' : 'Play'}>
               <div className="np-play-glow" />
               {playing
                 ? <Pause size={32} fill="currentColor" className="relative z-10" />
                 : <Play  size={32} fill="currentColor" className="relative z-10" style={{ paddingLeft: 3 }} />
               }
             </button>
-            <button className="np-ctrl-btn" onClick={onNext} title="Next">
+            <button className="np-ctrl-btn mobile-touch-scale" onClick={onNext} title="Next">
               <SkipForward size={28} fill="currentColor" />
             </button>
           </div>
 
           {/* Volume */}
           <div className="np-volume-row">
-            <button className="np-icon-btn" onClick={toggleMute}>
+            <button className="np-icon-btn mobile-touch-scale" onClick={toggleMute}>
               {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
             <input
@@ -271,7 +271,7 @@ export default function NowPlaying({
               className="np-volume-slider"
               style={{ background: `linear-gradient(to right, #00ff85 ${muted ? 0 : volume}%, #2a2a2a ${muted ? 0 : volume}%)` }}
             />
-            <button className="np-icon-btn" onClick={onClose} title="Close player">
+            <button className="np-icon-btn mobile-touch-scale" onClick={onClose} title="Close player">
               <ListMusic size={16} />
             </button>
           </div>
@@ -294,7 +294,7 @@ export default function NowPlaying({
                 <div
                   key={t.id}
                   onClick={() => onTrackSelect(t)}
-                  className={`np-queue-item${isActive ? ' np-queue-item-active' : ''}`}
+                  className={`np-queue-item mobile-touch-scale${isActive ? ' np-queue-item-active' : ''}`}
                 >
                   <div className="np-queue-thumb-wrap">
                     <img

@@ -385,7 +385,7 @@ export default function Opportunities() {
                 placeholder="Search opportunities..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-3 sm:py-2.5 border-none border-b border-cyber-border leading-5 bg-transparent text-cyber-lime placeholder:text-[#aaff004d] focus:outline-none focus:border-cyber-lime transition-all font-mono text-[13px] sm:text-[14px] cursor-none"
+                className="block w-full pl-10 pr-3 py-3 sm:py-2.5 border-none border-b border-cyber-border leading-5 bg-transparent text-cyber-lime placeholder:text-[#aaff004d] focus:outline-none focus:border-cyber-lime transition-all font-mono text-[13px] sm:text-[14px]"
               />
             </div>
 
@@ -394,7 +394,7 @@ export default function Opportunities() {
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`px-4 py-2 text-[12px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors border cursor-none ${
+                  className={`px-4 py-2 text-[12px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors border mobile-touch-scale ${
                     activeFilter === filter
                       ? 'bg-cyber-pink/20 text-cyber-pink border-cyber-pink'
                       : 'bg-transparent text-cyber-muted border-cyber-border hover:border-cyber-blue hover:text-cyber-blue'
@@ -422,7 +422,7 @@ export default function Opportunities() {
                         prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
                       );
                     }}
-                    className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider transition-colors border cursor-none ${
+                    className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider transition-colors border mobile-touch-scale ${
                       activeTags.includes(tag)
                         ? 'bg-cyber-lime/20 border-cyber-lime text-cyber-lime'
                         : 'bg-transparent border-cyber-border text-cyber-muted hover:border-cyber-pink hover:text-cyber-pink'
@@ -592,7 +592,7 @@ const OpportunityCard: React.FC<{ opportunity: Opportunity; index: number, onApp
       
       <button 
         onClick={onApply}
-        className="w-full bg-transparent border border-cyber-border text-cyber-pink font-display text-[13px] font-[700] tracking-[0.15em] uppercase hover:bg-cyber-pink hover:border-cyber-pink hover:text-black py-3 transition-colors flex items-center justify-center gap-2 mt-auto cursor-none"
+        className="w-full bg-transparent border border-cyber-border text-cyber-pink font-display text-[13px] font-[700] tracking-[0.15em] uppercase hover:bg-cyber-pink hover:border-cyber-pink hover:text-black py-3 transition-colors flex items-center justify-center gap-2 mt-auto mobile-touch-scale"
       >
         {opportunity.buttonText || 'Apply Now'} <ExternalLink className="w-4 h-4" />
       </button>

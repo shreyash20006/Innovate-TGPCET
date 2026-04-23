@@ -172,7 +172,7 @@ export default function RegisterPage() {
               <button 
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 bg-cyber-pink text-white font-display font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-cyber-lime hover:text-black transition-all group"
+                className="w-full py-4 bg-cyber-pink text-white font-display font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-cyber-lime hover:text-black transition-all group mobile-touch-scale"
               >
                 {isSubmitting ? 'Transmitting...' : (
                   <>
@@ -180,6 +180,7 @@ export default function RegisterPage() {
                   </>
                 )}
               </button>
+
             </form>
           </div>
         </motion.div>

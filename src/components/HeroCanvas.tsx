@@ -7,11 +7,12 @@ export default function HeroCanvas() {
   useEffect(() => {
     if (!mountRef.current) return;
 
-    const width = 480;
-    const height = 480;
+    const isMobile = window.innerWidth < 768;
+    const width = isMobile ? 300 : 480;
+    const height = isMobile ? 300 : 480;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 1.5));
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
 
@@ -20,7 +21,7 @@ export default function HeroCanvas() {
     camera.position.z = 5;
 
     // Main wireframe icosahedron
-    const ico = new THREE.IcosahedronGeometry(1.8, 1);
+    const ico = new THREE.IcosahedronGeometry(1.8, isMobile ? 0 : 1);
     const wireframe = new THREE.WireframeGeometry(ico);
     const lineMat = new THREE.LineBasicMaterial({ color: 0xff0066, transparent: true, opacity: 0.7 });
     const line = new THREE.LineSegments(wireframe, lineMat);
@@ -35,13 +36,13 @@ export default function HeroCanvas() {
 
     // Outer ring
     const ringMat = new THREE.MeshBasicMaterial({ color: 0x00cfff, transparent: true, opacity: 0.5 });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.03, 8, 80), ringMat);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.03, 8, isMobile ? 40 : 80), ringMat);
     ring.rotation.x = 0.4;
     scene.add(ring);
 
     // Outer ring 2
     const ring2 = new THREE.Mesh(
-      new THREE.TorusGeometry(3.1, 0.02, 8, 80),
+      new THREE.TorusGeometry(3.1, 0.02, 8, isMobile ? 30 : 80),
       new THREE.MeshBasicMaterial({ color: 0xaaff00, transparent: true, opacity: 0.3 })
     );
     ring2.rotation.x = 1.0;
@@ -49,7 +50,7 @@ export default function HeroCanvas() {
     scene.add(ring2);
 
     // Particles
-    const N2 = 80;
+    const N2 = isMobile ? 30 : 80;
     const pp = new Float32Array(N2 * 3);
     for (let i = 0; i < N2; i++) {
       const theta = Math.random() * Math.PI * 2;
@@ -111,6 +112,7 @@ export default function HeroCanvas() {
       scene.clear();
       renderer.dispose();
     };
+
   }, []);
 
   return <div ref={mountRef} className="w-[300px] h-[300px] md:w-[480px] md:h-[480px] block" />;

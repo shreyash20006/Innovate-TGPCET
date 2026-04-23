@@ -92,9 +92,12 @@ const NOTE_DATA = Array.from({ length: 18 }, (_, i) => ({
 }));
 
 function FloatingNotes() {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const data = isMobile ? NOTE_DATA.slice(0, 8) : NOTE_DATA;
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {NOTE_DATA.map((n, i) => (
+      {data.map((n, i) => (
         <span key={i}
           style={{
             position: 'absolute',
@@ -102,7 +105,7 @@ function FloatingNotes() {
             top: `${n.top}%`,
             opacity: n.opacity,
             color: n.color,
-            fontSize: '1.5rem',
+            fontSize: isMobile ? '1.2rem' : '1.5rem',
             userSelect: 'none',
             animation: `mh-float ${n.duration}s ease-in-out ${n.delay}s infinite`,
           }}>
@@ -114,9 +117,9 @@ function FloatingNotes() {
           style={{
             position: 'absolute',
             borderRadius: '50%',
-            filter: 'blur(80px)',
-            width: 300 + i * 100,
-            height: 300 + i * 100,
+            filter: isMobile ? 'blur(40px)' : 'blur(80px)',
+            width: (isMobile ? 150 : 300) + i * (isMobile ? 50 : 100),
+            height: (isMobile ? 150 : 300) + i * (isMobile ? 50 : 100),
             left: `${20 + i * 30}%`,
             top: `${10 + i * 25}%`,
             background: i === 0 ? 'rgba(29,185,84,0.05)' : i === 1 ? 'rgba(255,45,120,0.04)' : 'rgba(168,85,247,0.04)',
@@ -126,6 +129,7 @@ function FloatingNotes() {
     </div>
   );
 }
+
 
 // ─── Vinyl Record ─────────────────────────────────────────────────────────────
 function VinylRecord({ artwork, spinning }: { artwork: string; spinning: boolean }) {
@@ -256,7 +260,7 @@ function MiniPlayerBar({ track, ytVideoId, ytLoading, roomCode, isHost, onClick,
       {/* Controls */}
       <div className="flex flex-col items-center gap-2 w-1/3 flex-1">
         <div className="flex items-center gap-4 md:gap-8">
-          <button onClick={onPrev} className="text-zinc-400 hover:text-white transition-colors p-2" title="Previous">
+          <button onClick={onPrev} className="text-zinc-400 hover:text-white transition-colors p-2 mobile-touch-scale" title="Previous">
             <SkipBack className="w-5 h-5 md:w-6 h-6" />
           </button>
           
@@ -265,12 +269,12 @@ function MiniPlayerBar({ track, ytVideoId, ytLoading, roomCode, isHost, onClick,
                {[0,1,2].map(i => <span key={i} className="w-1.5 h-6 rounded-full bg-[#00FF85] animate-pulse" style={{ animationDelay: `${i*0.15}s` }} />)}
              </div>
           ) : (
-            <button onClick={onPlayPause} className="w-10 h-10 md:w-14 h-14 rounded-full bg-white flex items-center justify-center text-black hover:scale-105 active:scale-95 transition-all shadow-xl" title={isPlaying ? 'Pause' : 'Play'}>
+            <button onClick={onPlayPause} className="w-10 h-10 md:w-14 h-14 rounded-full bg-white flex items-center justify-center text-black hover:scale-105 active:scale-95 transition-all shadow-xl mobile-touch-scale" title={isPlaying ? 'Pause' : 'Play'}>
               {isPlaying ? <Pause className="w-5 h-5 md:w-7 h-7" fill="currentColor" /> : <Play className="w-5 h-5 md:w-7 h-7 ml-1" fill="currentColor" />}
             </button>
           )}
 
-          <button onClick={onNext} className="text-zinc-400 hover:text-white transition-colors p-2" title="Next">
+          <button onClick={onNext} className="text-zinc-400 hover:text-white transition-colors p-2 mobile-touch-scale" title="Next">
             <SkipForward className="w-5 h-5 md:w-6 h-6" />
           </button>
         </div>
@@ -278,13 +282,14 @@ function MiniPlayerBar({ track, ytVideoId, ytLoading, roomCode, isHost, onClick,
 
       {/* Extras */}
       <div className="flex items-center justify-end gap-3 md:gap-6 w-1/3 min-w-[30%]">
-        <button className="text-zinc-400 hover:text-white transition-colors p-2" title="Queue">
+        <button className="text-zinc-400 hover:text-white transition-colors p-2 mobile-touch-scale" title="Queue">
           <ListMusic className="w-5 h-5" />
         </button>
-        <button onClick={onClick} className="text-zinc-400 hover:text-white transition-colors p-2 rotate-180" title="Expand player">
+        <button onClick={onClick} className="text-zinc-400 hover:text-white transition-colors p-2 rotate-180 mobile-touch-scale" title="Expand player">
           <ChevronUp className="w-5 h-5" />
         </button>
       </div>
+
     </footer>
   );
 }
@@ -576,6 +581,34 @@ export default function MusicHub() {
       <FloatingNotes />
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 nebula-bg" />
 
+      {/* ── Mobile Bottom Nav ── */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/80 backdrop-blur-xl border-t border-white/5 py-2 px-4 flex items-center justify-around z-50 md:hidden">
+        <button 
+          onClick={() => setActiveView('discover')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all mobile-touch-scale ${activeView === 'discover' ? 'text-[#00FF85]' : 'text-zinc-500'}`}
+        >
+          <Compass className="w-5 h-5" />
+          <span className="text-[9px] font-bold uppercase tracking-widest">Discover</span>
+        </button>
+        <button 
+          onClick={() => setActiveView('library')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all mobile-touch-scale ${activeView === 'library' ? 'text-[#00FF85]' : 'text-zinc-500'}`}
+        >
+          <Library className="w-5 h-5" />
+          <span className="text-[9px] font-bold uppercase tracking-widest">Library</span>
+        </button>
+        <button 
+          onClick={() => {
+            setActiveView('library');
+            setActiveTab('favorites');
+          }}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all mobile-touch-scale ${activeView === 'library' && activeTab === 'favorites' ? 'text-[#00FF85]' : 'text-zinc-500'}`}
+        >
+          <Heart className="w-5 h-5" />
+          <span className="text-[9px] font-bold uppercase tracking-widest">Liked</span>
+        </button>
+      </nav>
+
       {/* ── Unified Sidebar (always visible on desktop) ── */}
       <aside className="hidden md:flex flex-col w-64 border-r border-white/5 pt-6 pb-24 z-30 min-h-full shrink-0 bg-[#0a0a0a]/90 backdrop-blur-2xl shadow-2xl overflow-y-auto">
         <div className="px-6 mb-8 flex items-center gap-3">
@@ -592,30 +625,31 @@ export default function MusicHub() {
           <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4 px-2">Navigation</p>
           <div className="space-y-1">
             <button onClick={goDiscover}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all mobile-touch-scale ${
                 activeView === 'discover' ? 'bg-[#00FF85]/10 text-[#00FF85] shadow-[0_0_15px_rgba(0,255,133,0.1)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}>
               <Compass className="w-5 h-5" /> <span className="font-semibold text-sm">Discover</span>
             </button>
             <button onClick={() => goLibrary()}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all mobile-touch-scale ${
                 activeView === 'library' ? 'bg-[#00FF85]/10 text-[#00FF85] shadow-[0_0_15px_rgba(0,255,133,0.1)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}>
               <Search className="w-5 h-5" /> <span className="font-semibold text-sm">Search</span>
             </button>
             <button onClick={() => { goLibrary(); setActiveTab('top'); loadTrending(); }}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all mobile-touch-scale ${
                 activeView === 'library' && activeTab === 'top' ? 'bg-[#00FF85]/10 text-[#00FF85] shadow-[0_0_15px_rgba(0,255,133,0.1)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}>
               <TrendingUp className="w-5 h-5" /> <span className="font-semibold text-sm">Explore</span>
             </button>
             <button onClick={() => { goLibrary(); setActiveTab('favorites'); }}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all ${
+              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all mobile-touch-scale ${
                 activeView === 'library' && activeTab === 'favorites' ? 'bg-[#00FF85]/10 text-[#00FF85] shadow-[0_0_15px_rgba(0,255,133,0.1)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}>
               <Heart className="w-5 h-5" /> <span className="font-semibold text-sm">Liked Songs</span>
             </button>
           </div>
+
         </div>
 
         {activeView === 'artist' && selectedArtist && (
@@ -634,8 +668,13 @@ export default function MusicHub() {
 
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden" style={{ minHeight: 'calc(100vh - 68px)' }}>
         
-        {/* ── Top Search Header ── */}
-        <header className="sticky top-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-2xl px-6 py-4 flex items-center justify-between gap-6 border-b border-white/5">
+        {/* ── Top Header ── */}
+        <header className="sticky top-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-3xl px-4 md:px-8 py-4 flex items-center justify-between gap-4 md:gap-6 border-b border-white/5">
+          <div className="flex items-center gap-3 md:hidden">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#00FF85] shadow-[0_0_15px_rgba(0,255,133,0.3)]">
+              <Music2 className="w-4 h-4 text-zinc-950" />
+            </div>
+          </div>
           <div className="flex-1">
             <GlobalSearch 
               query={query} 
@@ -647,16 +686,17 @@ export default function MusicHub() {
               }} 
             />
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+             <button onClick={() => setShowRoomModal(true)} className="p-2.5 rounded-full bg-[#00ff85]/10 text-[#00ff85] border border-[#00ff85]/20 hover:bg-[#00ff85]/20 transition-all mobile-touch-scale relative">
+               <Users className="w-5 h-5" />
+               {activeRoom && <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#00FF85] rounded-full border-2 border-[#0a0a0a] animate-pulse" />}
+             </button>
              {token && user && (
-               <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-                 <img src={user.images?.[0]?.url || 'https://via.placeholder.com/32'} alt="" className="w-6 h-6 rounded-full" />
-                 <span className="text-xs font-bold text-white">{user.display_name}</span>
+               <div className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-white/5 rounded-full border border-white/10">
+                 <img src={user.images?.[0]?.url || 'https://via.placeholder.com/32'} alt="" className="w-6 h-6 rounded-full border border-[#00FF85]/30" />
+                 <span className="text-[10px] font-black text-white uppercase tracking-tighter">{user.display_name}</span>
                </div>
              )}
-             <button onClick={() => setShowRoomModal(true)} className="p-2.5 rounded-full bg-[#00ff85]/10 text-[#00ff85] border border-[#00ff85]/20 hover:bg-[#00ff85]/20 transition-all">
-               <Users className="w-5 h-5" />
-             </button>
           </div>
         </header>
 
@@ -664,132 +704,102 @@ export default function MusicHub() {
 
         {/* Discover View */}
         {activeView === 'discover' && (
-          <DiscoverPage
-            topTracks={topTracks}
-            nowPlaying={nowPlaying}
-            onPlayTrack={t => { setNowPlaying(t); setShowNowPlaying(true); }}
-            onViewArtist={openArtist}
-            onLoadTrending={loadTrending}
-            searching={searching}
-          />
+          <div style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
+            <DiscoverPage
+              topTracks={topTracks}
+              nowPlaying={nowPlaying}
+              onPlayTrack={t => { setNowPlaying(t); setShowNowPlaying(true); }}
+              onViewArtist={openArtist}
+              onLoadTrending={loadTrending}
+              searching={searching}
+            />
+          </div>
         )}
 
-        {/* Library / Search View */}
+        {/* Library View */}
         {activeView === 'library' && (
-          <MusicLibrary
-            state={{
-              token,
-              user,
-              query,
-              searching,
-              displayTracks,
-              results,
-              activeTab,
-              loadingUser,
-              ytError,
-              activeRoom,
-              nowPlaying,
-              favorites,
-              isApiKeyConfigured: isApiKeyConfigured()
-            }}
-            actions={{
-              setQuery,
-              search,
-              setActiveTab,
-              loadTrending,
-              setYtError,
-              setShowRoomModal,
-              logout,
-              setNowPlaying: (t) => { setNowPlaying(t); },
-              setShowNowPlaying,
-              setFavorites
-            }}
-            hideInternalSidebar
-          />
+          <div style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
+            <MusicLibrary
+              state={{
+                token,
+                user,
+                query,
+                searching,
+                displayTracks,
+                results,
+                activeTab,
+                loadingUser,
+                ytError,
+                activeRoom,
+                nowPlaying,
+                favorites,
+                isApiKeyConfigured: isApiKeyConfigured()
+              }}
+              actions={{
+                setQuery,
+                search,
+                setActiveTab,
+                loadTrending,
+                setYtError,
+                setShowRoomModal,
+                logout,
+                setNowPlaying: (t) => { setNowPlaying(t); },
+                setShowNowPlaying,
+                setFavorites
+              }}
+              hideInternalSidebar
+              hideInternalHeader
+            />
+          </div>
         )}
 
         {/* Artist Profile View */}
         {activeView === 'artist' && selectedArtist && (
-          <ArtistProfile
-            artist={selectedArtist}
-            nowPlaying={nowPlaying}
-            onPlayTrack={t => { setNowPlaying(t); setShowNowPlaying(true); }}
-            onViewArtist={openArtist}
-            onBack={() => setActiveView('discover')}
-          />
+          <div style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
+            <ArtistProfile
+              artist={selectedArtist}
+              nowPlaying={nowPlaying}
+              onPlayTrack={t => { setNowPlaying(t); setShowNowPlaying(true); }}
+              onViewArtist={openArtist}
+              onBack={() => setActiveView('discover')}
+            />
+          </div>
         )}
 
         {/* Global Search Results View */}
         {activeView === 'search' && (
-          <div className="p-6 md:p-10 space-y-8 animate-fadein">
-            <div>
-              <h2 className="text-3xl font-black text-white mb-2">Search Results</h2>
-              <p className="text-zinc-500 text-sm">Top results for "{query}"</p>
-            </div>
-            
-            {ytError && (
-              <div className="p-8 rounded-2xl bg-red-500/5 border border-red-500/20 text-center">
-                <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <p className="text-red-400 font-medium">{ytError}</p>
-              </div>
-            )}
-
-            {!searching && results.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {results.map((t) => {
-                  const isVerified = t.artists.toLowerCase().includes('vevo') || 
-                                    t.artists.toLowerCase().includes('official') ||
-                                    t.artists.toLowerCase().includes('topic');
-                  return (
-                    <div key={t.id} 
-                      onClick={() => { setNowPlaying(t); setIsPlaying(true); }}
-                      className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 transition-all group cursor-pointer"
-                    >
-                      <div className="relative w-16 h-16 shrink-0 rounded-lg overflow-hidden shadow-lg">
-                        <img src={t.image} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Play className="w-6 h-6 text-white fill-current" />
-                        </div>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="text-white font-bold text-sm truncate">{t.name}</h4>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <p className="text-zinc-400 text-[10px] uppercase tracking-wider truncate font-medium">{t.artists}</p>
-                          {isVerified && (
-                             <div className="w-3.5 h-3.5 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white shadow-lg">
-                               <Check className="w-2 h-2" strokeWidth={4} />
-                             </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] text-zinc-500 font-mono italic">{fmt(t.duration_ms)}</span>
-                          <div className="w-1 h-1 rounded-full bg-zinc-700" />
-                          <span className="text-[10px] text-zinc-500 uppercase tracking-widest">{fmtViews(t.viewCount || '0')}</span>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFavorites(prev => prev.includes(t.id) ? prev.filter(x => x !== t.id) : [...prev, t.id]);
-                        }}
-                        className="p-2 rounded-full hover:bg-white/10 text-zinc-500 hover:text-[#ff2d78] transition-colors"
-                      >
-                        <Heart className={`w-4 h-4 ${favorites.includes(t.id) ? 'fill-[#ff2d78] text-[#ff2d78]' : ''}`} />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {searching && (
-              <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <div className="flex gap-2">
-                   {[0,1,2].map(i => <div key={i} className="w-3 h-3 rounded-full bg-[#00ff85] animate-bounce" style={{ animationDelay: `${i*0.15}s` }} />)}
-                </div>
-                <p className="text-zinc-500 font-medium">Hunting down the best beats...</p>
-              </div>
-            )}
+          <div style={{ animation: 'mh-fadeup 0.4s ease-out' }}>
+            <MusicLibrary
+              state={{
+                token,
+                user,
+                query,
+                searching,
+                displayTracks,
+                results,
+                activeTab: 'search',
+                loadingUser,
+                ytError,
+                activeRoom,
+                nowPlaying,
+                favorites,
+                isApiKeyConfigured: isApiKeyConfigured()
+              }}
+              actions={{
+                setQuery,
+                search,
+                setActiveTab,
+                loadTrending,
+                setYtError,
+                setShowRoomModal,
+                logout,
+                setNowPlaying: (t) => { setNowPlaying(t); },
+                setShowNowPlaying,
+                setFavorites
+              }}
+              hideInternalSidebar
+              hideInternalHeader
+            />
           </div>
         )}
 

@@ -9,6 +9,7 @@ export default function DNASnakeFooter() {
   useEffect(() => {
     if (!mountRef.current) return;
 
+    const isMobile = window.innerWidth < 768;
     // --- Scene Setup ---
     const width = mountRef.current.clientWidth;
     const height = mountRef.current.clientHeight;
@@ -17,9 +18,9 @@ export default function DNASnakeFooter() {
     const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
     camera.position.z = 22;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !isMobile, powerPreference: "high-performance" });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 2));
     renderer.setClearColor(0x000000, 0); // Transparent
     mountRef.current.appendChild(renderer.domElement);
 
@@ -30,10 +31,10 @@ export default function DNASnakeFooter() {
     scene.add(dnaGroup);
 
     // --- DNA Math & Config ---
-    const TEXT_HALF_W = 13.5;
-    const WRAP_R = 2.5;
-    const TURNS = 7;
-    const SAMPLES = 340;
+    const TEXT_HALF_W = isMobile ? 10 : 13.5;
+    const WRAP_R = isMobile ? 2 : 2.5;
+    const TURNS = isMobile ? 5 : 7;
+    const SAMPLES = isMobile ? 120 : 340;
 
     const colorA = 0xFF2D55; // Hot Pink
     const colorB = 0x00FFFF; // Cyan
@@ -63,23 +64,25 @@ export default function DNASnakeFooter() {
       const coreMesh = new THREE.Mesh(coreGeom, coreMat);
       dnaGroup.add(coreMesh);
 
-      // Glow shell
-      const glowGeom = new THREE.TubeGeometry(curve, SAMPLES, 0.11, 8, false);
-      const glowMat = new THREE.MeshBasicMaterial({ 
-        color: hexColor, 
-        transparent: true, 
-        opacity: 0.07,
-        blending: THREE.AdditiveBlending 
-      });
-      const glowMesh = new THREE.Mesh(glowGeom, glowMat);
-      dnaGroup.add(glowMesh);
+      // Glow shell (Skip on mobile)
+      if (!isMobile) {
+        const glowGeom = new THREE.TubeGeometry(curve, SAMPLES, 0.11, 8, false);
+        const glowMat = new THREE.MeshBasicMaterial({ 
+          color: hexColor, 
+          transparent: true, 
+          opacity: 0.07,
+          blending: THREE.AdditiveBlending 
+        });
+        const glowMesh = new THREE.Mesh(glowGeom, glowMat);
+        dnaGroup.add(glowMesh);
+      }
     };
 
     addStrand(0, colorA);
     addStrand(Math.PI, colorB);
 
     // --- Rungs ---
-    const numRungs = TURNS * 9;
+    const numRungs = isMobile ? TURNS * 5 : TURNS * 9;
     const rungGeom = new THREE.CylinderGeometry(0.022, 0.022, 1, 8);
     // Rotate cylinder so it points along Y, we will align it later
     rungGeom.rotateX(Math.PI / 2);
@@ -120,17 +123,21 @@ export default function DNASnakeFooter() {
         const nA = new THREE.Mesh(nodeGeom, nodeMatA);
         nA.position.copy(ptA);
         dnaGroup.add(nA);
-        const ngA = new THREE.Mesh(nodeGlowGeom, nodeGlowMatA);
-        ngA.position.copy(ptA);
-        dnaGroup.add(ngA);
+        if (!isMobile) {
+          const ngA = new THREE.Mesh(nodeGlowGeom, nodeGlowMatA);
+          ngA.position.copy(ptA);
+          dnaGroup.add(ngA);
+        }
 
         // Nodes B
         const nB = new THREE.Mesh(nodeGeom, nodeMatB);
         nB.position.copy(ptB);
         dnaGroup.add(nB);
-        const ngB = new THREE.Mesh(nodeGlowGeom, nodeGlowMatB);
-        ngB.position.copy(ptB);
-        dnaGroup.add(ngB);
+        if (!isMobile) {
+          const ngB = new THREE.Mesh(nodeGlowGeom, nodeGlowMatB);
+          ngB.position.copy(ptB);
+          dnaGroup.add(ngB);
+        }
     }
 
     // --- Scan Ring ---
@@ -146,7 +153,7 @@ export default function DNASnakeFooter() {
     dnaGroup.add(scanRing);
 
     // --- Particles ---
-    const numParticles = 120;
+    const numParticles = isMobile ? 40 : 120;
     const partGeom = new THREE.BufferGeometry();
     const partPos = new Float32Array(numParticles * 3);
     const partColors = new Float32Array(numParticles * 3);
@@ -171,7 +178,7 @@ export default function DNASnakeFooter() {
     partGeom.setAttribute('color', new THREE.BufferAttribute(partColors, 3));
 
     const partMat = new THREE.PointsMaterial({
-      size: 0.09,
+      size: isMobile ? 0.15 : 0.09,
       vertexColors: true,
       transparent: true,
       opacity: 0.6,
@@ -182,9 +189,10 @@ export default function DNASnakeFooter() {
 
     // --- Animation Loop ---
     const clock = new THREE.Clock();
+    let animationId: number;
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationId = requestAnimationFrame(animate);
       const time = clock.getElapsedTime();
 
       dnaGroup.rotation.x = time * 0.22;
@@ -214,6 +222,7 @@ export default function DNASnakeFooter() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationId);
       if (mountRef.current && renderer.domElement.parentNode === mountRef.current) {
         mountRef.current.removeChild(renderer.domElement);
       }
@@ -223,9 +232,8 @@ export default function DNASnakeFooter() {
   }, []);
 
   return (
-    <footer className="relative w-full overflow-hidden mt-20 print:hidden" style={{ minHeight: '600px' }}>
+    <footer className="relative w-full overflow-hidden mt-10 md:mt-20 print:hidden" style={{ minHeight: window.innerWidth < 768 ? '450px' : '600px' }}>
       {/* --- LAYER 0-3: BACKGROUND --- */}
-      {/* Base Gradient */}
       <div 
         className="absolute inset-0 z-0" 
         style={{ background: 'linear-gradient(180deg, #0a0208, #050108, #020508)' }} 
@@ -263,7 +271,7 @@ export default function DNASnakeFooter() {
       />
 
       {/* --- LAYER 5: FOREGROUND TEXT & CONTENT --- */}
-      <div className="relative z-5 w-full h-full min-h-[600px] flex flex-col items-center justify-center pt-24 pb-16 px-6">
+      <div className="relative z-5 w-full h-full min-h-[450px] md:min-h-[600px] flex flex-col items-center justify-center pt-16 md:pt-24 pb-12 md:pb-16 px-6">
         
         {/* Main Logo Text wrapped by DNA */}
         <div className="flex-grow flex items-center justify-center text-center">
@@ -271,14 +279,13 @@ export default function DNASnakeFooter() {
             className="whitespace-nowrap font-[900] pointer-events-none"
             style={{
               fontFamily: '"Space Mono", monospace',
-              fontSize: 'clamp(42px, 9.5vw, 115px)',
+              fontSize: 'clamp(32px, 8vw, 115px)',
               letterSpacing: '-0.05em',
               color: 'transparent',
-              WebkitTextStroke: '1.8px rgba(255,45,85,0.75)',
+              WebkitTextStroke: '1.2px rgba(255,45,85,0.75)',
               filter: `
                 drop-shadow(0 0 8px rgba(255,45,85,0.8))
                 drop-shadow(0 0 24px rgba(255,45,85,0.5))
-                drop-shadow(0 0 48px rgba(255,45,85,0.3))
               `,
             }}
           >
@@ -287,7 +294,7 @@ export default function DNASnakeFooter() {
         </div>
 
         {/* Footer Bottom Content */}
-        <div className="w-full max-w-[1200px] mt-auto mt-24">
+        <div className="w-full max-w-[1200px] mt-12 md:mt-24">
           <div 
             className="w-full h-[1px] mb-8"
             style={{ background: 'linear-gradient(90deg, transparent, rgba(255,45,85,0.5), rgba(0,255,255,0.5), transparent)' }}
@@ -295,15 +302,15 @@ export default function DNASnakeFooter() {
           
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             
-            <div className="flex flex-col sm:flex-row gap-6 items-center">
+            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 items-center">
               <a 
                 href="https://www.youtube.com/channel/UCklqMwCH9yn4KngY6SXyeAQ" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="group flex items-center gap-2 text-[#888888] hover:text-[#FF2D55] transition-colors"
               >
-                <Youtube size={20} className="group-hover:scale-110 transition-transform" />
-                <span className="font-mono text-[11px] uppercase tracking-widest font-bold">Subscribe to our channel</span>
+                <Youtube size={18} className="group-hover:scale-110 transition-transform" />
+                <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-widest font-bold">Subscribe</span>
               </a>
               <a 
                 href="https://youtu.be/TAXVZTU2BZg" 
@@ -311,21 +318,19 @@ export default function DNASnakeFooter() {
                 rel="noopener noreferrer" 
                 className="group flex items-center gap-2 text-[#888888] hover:text-[#FF2D55] transition-colors"
               >
-                <Video size={20} className="group-hover:scale-110 transition-transform" />
-                <span className="font-mono text-[11px] uppercase tracking-widest font-bold">Watch latest video</span>
+                <Video size={18} className="group-hover:scale-110 transition-transform" />
+                <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-widest font-bold">Latest Video</span>
               </a>
             </div>
 
             <div className="text-center md:text-right">
-              <div className="font-mono text-[12px] text-[#888888] tracking-widest mb-1.5">
-                © 2026 <span style={{ color: '#FF2D55' }}>innovate.tgpcet</span> — All rights reserved
+              <div className="font-mono text-[11px] md:text-[12px] text-[#888888] tracking-widest mb-1.5">
+                © 2026 <span style={{ color: '#FF2D55' }}>innovate.tgpcet</span>
               </div>
               <div 
-                className="font-mono text-[10px] uppercase font-bold tracking-widest text-white mx-auto md:ml-auto md:mr-0 max-w-[400px]"
-                style={{ opacity: 0.2 }}
+                className="font-mono text-[9px] uppercase font-bold tracking-widest text-white/20 mx-auto md:ml-auto md:mr-0 max-w-[300px] md:max-w-[400px]"
               >
-                Unofficial hub created by students, for students.
-                Not affiliated with any corporate entity. Resources for informational purposes only.
+                Unofficial hub created by students. Not affiliated with any corporate entity.
               </div>
             </div>
 

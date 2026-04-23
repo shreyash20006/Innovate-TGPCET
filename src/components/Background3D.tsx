@@ -7,11 +7,12 @@ export default function Background3D() {
   useEffect(() => {
     if (!mountRef.current) return;
 
+    const isMobile = window.innerWidth < 768;
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 1.5));
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
 
@@ -20,7 +21,7 @@ export default function Background3D() {
     camera.position.z = 90;
 
     // Grid plane
-    const gridHelper = new THREE.GridHelper(400, 40, 0xff0066, 0xff0066);
+    const gridHelper = new THREE.GridHelper(400, isMobile ? 20 : 40, 0xff0066, 0xff0066);
     if ((gridHelper.material as THREE.Material)) {
       (gridHelper.material as THREE.Material).opacity = 0.06;
       (gridHelper.material as THREE.Material).transparent = true;
@@ -30,7 +31,7 @@ export default function Background3D() {
     scene.add(gridHelper);
 
     // Particles
-    const N = 320;
+    const N = isMobile ? 80 : 320;
     const pos = new Float32Array(N * 3);
     const col = new Float32Array(N * 3);
     const vel: number[] = [];
@@ -50,17 +51,18 @@ export default function Background3D() {
     const pGeo = new THREE.BufferGeometry();
     pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     pGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    const pMat = new THREE.PointsMaterial({ size: 1.4, vertexColors: true, transparent: true, opacity: 0.7, sizeAttenuation: true });
+    const pMat = new THREE.PointsMaterial({ size: isMobile ? 1.8 : 1.4, vertexColors: true, transparent: true, opacity: 0.7, sizeAttenuation: true });
     scene.add(new THREE.Points(pGeo, pMat));
 
-    // Lines
+    // Lines (Disable on mobile for significant boost)
     const LDIST = 26;
     const lGeo = new THREE.BufferGeometry();
     const lMat = new THREE.LineBasicMaterial({ color: 0xff0066, transparent: true, opacity: 0.09 });
     const lines = new THREE.LineSegments(lGeo, lMat);
-    scene.add(lines);
+    if (!isMobile) scene.add(lines);
 
     function updateLines() {
+      if (isMobile) return;
       const lp = [];
       for (let i = 0; i < N; i++) {
         for (let j = i + 1; j < N; j++) {
@@ -75,9 +77,10 @@ export default function Background3D() {
       lGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(lp), 3));
     }
 
-    // Torus rings
+    // Torus rings (Fewer on mobile)
     const ringMeshes: any[] = [];
-    [14, 22, 32].forEach((r, i) => {
+    const ringRadii = isMobile ? [18, 30] : [14, 22, 32];
+    ringRadii.forEach((r, i) => {
       const g = new THREE.TorusGeometry(r, 0.07, 8, 72);
       const m = new THREE.MeshBasicMaterial({ color: i === 0 ? 0xff0066 : i === 1 ? 0x00cfff : 0xaaff00, transparent: true, opacity: 0.05 + i * 0.02 });
       const mesh = new THREE.Mesh(g, m);
@@ -93,7 +96,7 @@ export default function Background3D() {
       mx = (e.clientX / window.innerWidth - .5) * 2;
       my = (e.clientY / window.innerHeight - .5) * 2;
     };
-    document.addEventListener('mousemove', onMouseMove);
+    if (!isMobile) document.addEventListener('mousemove', onMouseMove);
 
     let animationId: number;
 
@@ -107,7 +110,7 @@ export default function Background3D() {
         if (Math.abs(pos[i * 3 + 2]) > 60) vel[i * 3 + 2] *= -1;
       }
       pGeo.attributes.position.needsUpdate = true;
-      if (frame % 4 === 0) updateLines();
+      if (!isMobile && frame % 4 === 0) updateLines();
       
       ringMeshes.forEach(obj => {
         if (obj.userData.rx) {
@@ -117,8 +120,14 @@ export default function Background3D() {
       });
 
       gridHelper.rotation.z += 0.0005;
-      camera.position.x += (mx * 10 - camera.position.x) * 0.015;
-      camera.position.y += (-my * 6 - camera.position.y) * 0.015;
+      if (!isMobile) {
+        camera.position.x += (mx * 10 - camera.position.x) * 0.015;
+        camera.position.y += (-my * 6 - camera.position.y) * 0.015;
+      } else {
+        // Subtle auto-float for mobile
+        camera.position.x = Math.sin(frame * 0.005) * 5;
+        camera.position.y = Math.cos(frame * 0.005) * 3;
+      }
       camera.lookAt(scene.position);
       renderer.render(scene, camera);
     };

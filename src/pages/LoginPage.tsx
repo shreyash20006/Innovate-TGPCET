@@ -91,7 +91,7 @@ export default function LoginPage() {
             <button 
               type="submit"
               disabled={isLoading}
-              className="mt-4 relative group overflow-hidden"
+              className="mt-4 relative group overflow-hidden mobile-touch-scale"
             >
               <div className="absolute inset-0 bg-cyber-pink translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300"></div>
               <div className="relative border border-cyber-pink p-4 flex items-center justify-center gap-3 bg-transparent text-cyber-pink group-hover:text-cyber-white font-display font-bold uppercase tracking-[0.2em] transition-colors duration-300">
@@ -104,6 +104,7 @@ export default function LoginPage() {
                 )}
               </div>
             </button>
+
           </form>
 
           <div className="mt-8 pt-8 border-t border-cyber-border/50 text-center">

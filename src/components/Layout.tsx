@@ -126,27 +126,27 @@ export default function Layout() {
             
             <button 
               onClick={toggleTheme}
-              className="ml-2 p-2 text-cyber-muted hover:text-cyber-pink transition-colors cursor-none overflow-hidden"
+              className="ml-2 p-2 text-cyber-muted hover:text-cyber-pink transition-all duration-300 active:scale-90 overflow-hidden"
               title="Toggle Theme"
             >
               <AnimatePresence mode="wait">
                 {isLightMode ? (
                   <motion.div
                     key="sun"
-                    initial={{ y: 20, opacity: 0, rotate: 90 }}
-                    animate={{ y: 0, opacity: 1, rotate: 360 }}
-                    exit={{ y: -20, opacity: 0, rotate: -90 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ y: 10, opacity: 0, rotate: 90 }}
+                    animate={{ y: 0, opacity: 1, rotate: 0 }}
+                    exit={{ y: -10, opacity: 0, rotate: -90 }}
+                    transition={{ duration: 0.2 }}
                   >
                     <Sun className="w-5 h-5" />
                   </motion.div>
                 ) : (
                   <motion.div
                     key="moon"
-                    initial={{ y: 20, opacity: 0, rotate: -90 }}
-                    animate={{ y: 0, opacity: 1, rotate: 360 }}
-                    exit={{ y: -20, opacity: 0, rotate: 90 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ y: 10, opacity: 0, rotate: -90 }}
+                    animate={{ y: 0, opacity: 1, rotate: 0 }}
+                    exit={{ y: -10, opacity: 0, rotate: 90 }}
+                    transition={{ duration: 0.2 }}
                   >
                     <Moon className="w-5 h-5" />
                   </motion.div>
@@ -243,18 +243,18 @@ export default function Layout() {
                     </>
                   );
 
-                  const className = `flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 group ${
+                  const className = `flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 group mobile-touch-scale ${
                     isActive 
                       ? 'bg-cyber-border border-cyber-border text-cyber-pink shadow-[0_0_15px_rgba(255,0,102,0.1)]' 
-                      : 'bg-cyber-bg border-cyber-border/30 text-cyber-muted hover:bg-cyber-bg2 hover:border-cyber-border hover:text-cyber-white'
+                      : 'bg-cyber-bg border-cyber-border/30 text-cyber-muted active:bg-cyber-bg2 active:border-cyber-border active:text-cyber-white'
                   }`;
 
                   return link.external ? (
-                    <a key={link.name} href={link.path} target={link.path.startsWith('http') ? '_blank' : undefined} rel={link.path.startsWith('http') ? 'noopener noreferrer' : undefined} className={className}>
+                    <a key={link.name} href={link.path} target={link.path.startsWith('http') ? '_blank' : undefined} rel={link.path.startsWith('http') ? 'noopener noreferrer' : undefined} className={className} onClick={() => setIsMobileMenuOpen(false)}>
                       {content}
                     </a>
                   ) : (
-                    <Link key={link.name} to={link.path} className={className}>
+                    <Link key={link.name} to={link.path} className={className} onClick={() => setIsMobileMenuOpen(false)}>
                       {content}
                     </Link>
                   );
